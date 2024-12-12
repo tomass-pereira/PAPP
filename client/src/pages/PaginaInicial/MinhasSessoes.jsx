@@ -12,7 +12,7 @@ export default function MinhasSessoes() {
      <div className="flex-grow">
        <h1 className="m-7 font-semibold text-2xl">Veja aqui as suas sessões!</h1>
 
-      <Calendario />
+    
      </div>
       </div>
 

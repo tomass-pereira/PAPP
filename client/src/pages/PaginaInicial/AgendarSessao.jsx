@@ -1,5 +1,7 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
+import Section from "../../components/Section";
+
 import SideBar from "../../components/SideBar";
 import Calendario from "../../components/calendar";
 
@@ -17,6 +19,7 @@ export default function AgendarSessao() {
           
            <div className="mt-3">
            <Calendario />
+         
            </div>
           
         </div>
