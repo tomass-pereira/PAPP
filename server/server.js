@@ -1,5 +1,6 @@
 const express = require('express');
 const connectDB = require('./db');
+const utente = require('./models/utente');
 
 const app = express();
 
@@ -11,15 +12,20 @@ app.get('/api/test', (req, res) => {
   res.send('Test route');
  
 });
-app.get('/fisioterapeuta', async (req, res) => {
+app.post('/utente', async (req, res) => {
+  const {nome, email, password} = req.body;
   try {
-    const fisioterapeuta = await fisioterapeuta.find();
-    res.status(200).json(fisioterapeuta);
-  } catch (err) {
+    // Criar um novo documento na coleção 'utentes'
+    const novoUtente = new utente({ nome, email,password });
+    await novoUtente.save();
 
-    res.send(err);
+    res.status(201).json({ mensagem: 'Utente criado com sucesso', utente: novoUtente });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ mensagem: 'Erro ao criar o utente', erro });
   }
 });
+
 
 
 
