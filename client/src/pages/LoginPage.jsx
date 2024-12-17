@@ -41,9 +41,12 @@ function LoginPage() {
             </div>
 
             <div className="forgot-password text-right mb-8">
-              <a href="#" className="text-indigo-600 text-sm">
-                Esqueceu-se da palavra-passe?
-              </a>
+              <Link
+                to="/RecuperarPasse"
+                className="text-[#4f4fb9] hover:text-[#3e3e9e] text-sm"
+              >
+                Esqueceu a password?
+              </Link>
             </div>
 
             <Buttons

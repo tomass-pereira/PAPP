@@ -6,6 +6,22 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  daisyui: {
+    themes: [
+      {
+        mytheme: {
+          "primary": "#4F4FB9",  
+          "secondary": "#F0F0F0", 
+          "accent": "#FFCC00",    
+          "neutral": "#FFFFFF",   
+          "base-100": "#FFFFFF",  
+        },
+      },
+    ],
+  },
+  plugins: [
+    require('daisyui'),
+  ],
+  
 }
 

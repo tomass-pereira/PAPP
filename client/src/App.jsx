@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter, useLocation } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginPage from './pages/LoginPage.jsx';
 import CreateAccount from './pages/CreateAccount.jsx';
-
+import RecuperarPasse from './pages/PaginaInicial/RecuperarPasse.jsx';
 import First from './pages/First';
 import MinhasSessoes from './pages/PaginaInicial/MinhasSessoes.jsx';
 import Inicio from './pages/PaginaInicial/Inicio.jsx';
@@ -62,6 +62,14 @@ const AnimatedRoutes = () => {
           element={
             <AnimatedPage>
               <First />
+            </AnimatedPage>
+          } 
+        />
+        <Route 
+          path="/RecuperarPasse" 
+          element={
+            <AnimatedPage>
+              <RecuperarPasse />
             </AnimatedPage>
           } 
         />
