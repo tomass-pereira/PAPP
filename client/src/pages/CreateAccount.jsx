@@ -1,6 +1,6 @@
 import { useState } from "react";
 import NavBar from "../components/NavBar.jsx";
-import Section from "../components/section.jsx";
+import Section from "../components/Section.jsx";
 import Inputs from "../components/Inputs.jsx";
 import RadioButton from "../components/RadioButton.jsx";
 import { p } from "framer-motion/client";

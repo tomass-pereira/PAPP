@@ -12,6 +12,9 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^1.0.6",
+    "@schedule-x/events-service": "^2.11.0",
+    "@schedule-x/react": "^2.11.0",
+    "@schedule-x/theme-default": "^2.11.0",
     "axios": "^1.7.8",
     "daisyui": "^4.12.22",
     "date-fns": "^4.1.0",

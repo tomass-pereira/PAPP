@@ -1,12 +1,12 @@
 import React from "react";
-import NavBar from "../../components/NavBar";
+import NavBar2 from "../../components/NavBar2";
 import SideBar from "../../components/SideBar";
 
 
 export default function Inicio() {
   return (
     <>
-      <NavBar />
+      <NavBar2 />
 
       <div className="flex" >
       <SideBar/>
