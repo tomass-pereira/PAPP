@@ -13,11 +13,11 @@ export default function Calendar() {
             {
                 id: 1,
                 title: 'Event 1',
-                start: new Date(2023, 5, 1), // O mês em JavaScript é zero-based, 5 é junhopooo
-                end: new Date(2023, 5, 3)
+                start: new Date(2025, 1, 22), // O mês em JavaScript é zero-based, 5 é junho
+                end: new Date(2026, 5, 3)
             }
         ],
-        selectedDate: '2023-06-01'
+        selectedDate: '2025-06-22'
     });
     
 
