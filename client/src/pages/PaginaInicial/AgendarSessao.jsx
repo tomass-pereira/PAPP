@@ -1,6 +1,5 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
-import Section from "../../components/Section";
 import SideBar from "../../components/SideBar";
 import Calendar from "../../components/Calendar2";
 
