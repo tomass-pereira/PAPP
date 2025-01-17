@@ -10,6 +10,7 @@ import MinhasSessoes from './pages/PaginaInicial/MinhasSessoes.jsx';
 import Inicio from './pages/PaginaInicial/Inicio.jsx';
 import Exercicios from './pages/PaginaInicial/Exercicios.jsx';
 import AgendarSessao from './pages/PaginaInicial/AgendarSessao.jsx';
+import ErrorPage from './pages/Error.jsx';
 
 
 
@@ -118,6 +119,15 @@ const AnimatedRoutes = () => {
           element={
             <AnimatedPage>
               <LoginPage />
+            </AnimatedPage>
+          } 
+        />
+         
+         <Route 
+          path="*" 
+          element={
+            <AnimatedPage>
+              <ErrorPage />
             </AnimatedPage>
           } 
         />

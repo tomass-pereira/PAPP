@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+                              import { Link, useLocation } from "react-router-dom";
 
 
 function NavBar() {
@@ -27,20 +27,20 @@ function NavBar() {
             <a
               href="#about"
               className="text-gray-800 text-base hover:text-[#4F4FB9]"
-            >
-              Sobre
+              >
+              Serviços
             </a>
             <a
               href="#services"
               className="text-gray-800 text-base hover:text-[#4F4FB9]"
-            >
-              Serviços
+              >
+            Contactos
             </a>
             <a
               href="#contact"
               className="text-gray-800 text-base hover:text-[#4F4FB9]"
-            >
-              Contato
+              >
+              Sobre
             </a>
           </div>
           
@@ -88,12 +88,12 @@ function NavBar() {
            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
            <li>
                <a className="justify-between">
-                   Profile
+                   Perfil
                    <span className="badge">New</span>
                </a>
            </li>
-           <li><a>Settings</a></li>
-           <li><a>Logout</a></li>
+           <li><a>Definições</a></li>
+           <li><a>Terminar sessão</a></li>
        </ul>
    </div>
       ):null}
