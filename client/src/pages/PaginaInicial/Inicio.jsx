@@ -6,10 +6,9 @@ import SideBar from "../../components/SideBar";
 export default function Inicio() {
   return (
     <>
-      <NavBar />
 
+      <NavBar />
       <div className="flex" >
-      <SideBar/>
     
       </div>
 

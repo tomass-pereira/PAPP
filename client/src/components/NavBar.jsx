@@ -11,7 +11,7 @@ function NavBar() {
 
 
   return (
-    <nav className="flex items-center justify-between bg-white py-4 px-8 shadow-md">
+    <nav className="flex items-center justify-between bg-white py-4 px-8 border-b ">
       <div className="flex items-center">
       <img src="../imgs/logo-minii.png" alt="Logo" className="w-14 h-14 "/>       
        <Link to="/" className="text-blue-500 text-2xl font-bold no-underline">
@@ -78,9 +78,9 @@ function NavBar() {
        <div className="dropdown dropdown-end">
        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
            <div className="w-10 rounded-full">
-               <img
-                   alt="Tailwind CSS Navbar component"
-                   src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                <img
+                    alt="Tailwind CSS Navbar component"
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
            </div>
        </div>
        <ul

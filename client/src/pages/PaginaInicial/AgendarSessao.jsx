@@ -1,7 +1,6 @@
 import React from "react";
 import NavBar from "../../components/NavBar";
 import SideBar from "../../components/SideBar";
-import Calendar from "../../components/Calendar2";
 
 export default function AgendarSessao() {
   return (
@@ -16,7 +15,6 @@ export default function AgendarSessao() {
             </h1>
 
             <div className="mt-3">
-                  <Calendar />
 
 
 
