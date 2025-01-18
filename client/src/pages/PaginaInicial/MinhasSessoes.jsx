@@ -1,20 +1,16 @@
 import React from "react";
-import NavBar from "../../components/NavBar";
 import SideBar from "../../components/SideBar";
-import Calendario from "../../components/calendar";
+import CalendarApp from "../../components/CalendarX";
 
 export default function MinhasSessoes() {
   return (
     <>
-      <NavBar />
-      <div className="flex" >
-      <SideBar/>
-     <div className="flex-grow">
-       <h1 className="m-7 font-semibold text-2xl">Veja aqui as suas sessões!</h1>
-
-    
-     </div>
-      </div>
+     <div className="flex min-h-screen bg-gray-50">
+      <SideBar />
+      <main className="flex-1 overflow-auto">
+        <CalendarApp/>
+      </main>
+    </div>
 
     </>
   );
