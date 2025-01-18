@@ -12,9 +12,6 @@ import Exercicios from './pages/PaginaInicial/Exercicios.jsx';
 import AgendarSessao from './pages/PaginaInicial/AgendarSessao.jsx';
 import ErrorPage from './pages/Error.jsx';
 
-
-
-
 const AnimatedPage = ({ children }) => {
   const pageVariants = {
     initial: {
@@ -58,7 +55,7 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-      <Route 
+        <Route 
           path="/" 
           element={
             <AnimatedPage>
@@ -74,38 +71,24 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           } 
         />
+       
         <Route 
           path="/AgendarSessao" 
-          element={
-            <AnimatedPage>
-              <AgendarSessao />
-            </AnimatedPage>
-          } 
+          element={<AgendarSessao />} 
         />
-         <Route 
+        <Route 
           path="/exercicios" 
-          element={
-            <AnimatedPage>
-             <Exercicios />
-            </AnimatedPage>
-          } 
+          element={<Exercicios />} 
         />
         <Route 
           path="/Inicio" 
-          element={
-            <AnimatedPage>
-              <Inicio />
-            </AnimatedPage>
-          } 
+          element={<Inicio />} 
         />
-         <Route 
+        <Route 
           path="/MinhasSessoes" 
-          element={
-            <AnimatedPage>
-              <MinhasSessoes />
-            </AnimatedPage>
-          } 
+          element={<MinhasSessoes />} 
         />
+       
         <Route 
           path="/Registar" 
           element={
@@ -122,8 +105,7 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           } 
         />
-         
-         <Route 
+        <Route 
           path="*" 
           element={
             <AnimatedPage>
@@ -131,7 +113,6 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           } 
         />
-        
       </Routes>
     </AnimatePresence>
   );

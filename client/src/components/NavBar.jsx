@@ -1,84 +1,83 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import SmoothScroll from "../components/SmoothScroll.jsx";
+import SmoothScroll from "./SmoothScroll";
 
-function NavBar(props) {
+function NavBar() {
   const location = useLocation();
-  const [activeTarget, setActiveTarget] = useState('');
+
   const isLoginPage = location.pathname === "/LoginPage";
   const isCreatePage = location.pathname === "/Registar";
   const isInicioPage = location.pathname === "/Inicio";
   const isFirstPage = location.pathname === "/";
- 
 
   return (
-    <nav className="flex items-center justify-between bg-white py-4 px-8 border-b ">
+    <nav className="flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" >
       <div className="flex items-center">
-        <img src="../imgs/logo-minii.png" alt="Logo" className="w-14 h-14 " />
-        <Link to="/" className="text-blue-500 text-2xl font-bold no-underline">
+        <img src="../imgs/logo-minii.png" alt="Logo" className="w-14 h-14" />
+        <Link to="/" className="text-indigo-600 text-2xl font-bold no-underline">
           FisioHome
         </Link>
       </div>
-      {isFirstPage ? (
+
+      {isFirstPage && (
         <>
           <div className="flex gap-8">
-            <Link
-              to="/"
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4"
+            <SmoothScroll
+              targetId="inicio"
+              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
+              onClick={() => setActiveTarget('inicio')}
             >
               Inicio
-            </Link>
+            </SmoothScroll>
+
             <SmoothScroll
               targetId="servicos"
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4"
+              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
               onClick={() => setActiveTarget('servicos')}
             >
               Serviços
-              
             </SmoothScroll>
+
             <SmoothScroll
-              targetId={props.target}
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4"
+              targetId="contactos"
+              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
               onClick={() => setActiveTarget('contactos')}
             >
               Contactos
-              
             </SmoothScroll>
-            <a
-              href="#contact"
-              className="text-gray-800 text-base hover:text-[#4F4FB9]"
-            >
-              Sobre
-            </a>
+
+          
           </div>
 
           <div>
-            <Link className=" text-gray-800 no-underline mr-5" to="Registar">
+            <Link className="text-gray-800 no-underline mr-5" to="Registar">
               Registar
             </Link>
             <Link
-              className=" py-2 px-6 bg-[#0d6efd] text-white rounded-md text-base hover:bg-[#2f538a]"
+              className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
               to="LoginPage"
             >
               Iniciar sessão
             </Link>
           </div>
         </>
-      ) : null}
-      {isLoginPage ? (
+      )}
+
+      {isLoginPage && (
         <Link className="text-gray-800 no-underline mr-5" to="/Registar">
           Registar
         </Link>
-      ) : null}
-      {isCreatePage ? (
+      )}
+
+      {isCreatePage && (
         <Link
-          className=" py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e] "
+          className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
           to="/LoginPage"
         >
           Iniciar sessão
         </Link>
-      ) : null}
-      {isInicioPage ? (
+      )}
+
+      {isInicioPage && (
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
@@ -110,7 +109,7 @@ function NavBar(props) {
             </li>
           </ul>
         </div>
-      ) : null}
+      )}
     </nav>
   );
 }

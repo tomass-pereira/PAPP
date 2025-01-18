@@ -1,27 +1,41 @@
+// SmoothScroll.jsx
 import React from 'react';
 
-const SmoothScrollLink = ({ targetId, children, className, Onclick }) => {
+const SmoothScroll = ({ targetId, children, className, onClick }) => {
   const scrollToElement = (e) => {
     e.preventDefault();
     const element = document.getElementById(targetId);
     
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+    
+      const navbarHeight = 76; 
+      
+      
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+      // Fazer o scroll
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
       });
+      
+     
+      if (onClick) {
+        onClick(targetId);
+      }
     }
   };
-  if(Onclick){
-    onclick(targetId);
-  }
 
   return (
-    <a href={`#${targetId}`} onClick={scrollToElement} className={className}>
+    <a 
+      href={`#${targetId}`} 
+      onClick={scrollToElement} 
+      className={className}
+    >
       {children}
     </a>
   );
 };
 
-
-export default SmoothScrollLink;
+export default SmoothScroll;

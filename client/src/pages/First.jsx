@@ -1,14 +1,16 @@
+// First.jsx
 import React from "react";
 import NavBar from "../components/NavBar.jsx";
 import Card from "../components/Card.jsx";
 import Footer from "../components/Footer.jsx";
 
 function First() {
-
   return (
     <>
-      <NavBar />
-      <div id="inicio" className="flex">
+      <NavBar 
+      style="fixed flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" 
+      />
+      <div id="inicio" className="flex pt-0">
         <section className="overflow-hidden bg-gray-50 sm:grid sm:grid-cols-2">
           <div className="p-8 md:p-12 lg:px-16 lg:py-24">
             <div className="mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right">
@@ -26,7 +28,7 @@ function First() {
               <div className="mt-4 md:mt-8">
                 <a
                   href="#"
-                  className="inline-block rounded bg-emerald-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-emerald-700 focus:outline-none focus:ring focus:ring-yellow-400"
+                  className="inline-block rounded bg-[#4f4fb9] px-12 py-3 text-sm font-medium text-white transition hover:bg-[#3e3e9e]"
                 >
                   Get Started Today
                 </a>
@@ -41,9 +43,10 @@ function First() {
           />
         </section>
       </div>
+      
       <div
         id="servicos"
-        className="grid grid-cols-3 gap-7 max-w-7xl mx-auto px-4 py-8"
+        className="grid grid-cols-3 gap-7 max-w-7xl mx-auto px-4 py-16 scroll-mt-20"
       >
         <Card />
         <Card />
@@ -52,10 +55,12 @@ function First() {
         <Card />
         <Card />
       </div>
-      <div className="block">
+      
+      <div id="contactos" className="block scroll-mt-20">
         <Footer />
       </div>
     </>
   );
 }
+
 export default First;
