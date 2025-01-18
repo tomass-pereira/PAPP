@@ -1,32 +1,31 @@
+require('dotenv').config();
 const express = require('express');
-const connectDB = require('./db');
-const utente = require('./models/utente');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const routes = require('./routes');
 
 const app = express();
-
-
+console.log('Variáveis de ambiente:', {
+  mongodb: process.env.MONGODB_URI,
+  node_env: process.env.NODE_ENV
+});
+// Conectar ao banco de dados
 connectDB();
 
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.get('/api/test', (req, res) => {
-  res.send('Test route');
- 
-});
-app.post('/utente', async (req, res) => {
-  const {nome, email, password} = req.body;
-  try {
-    // Criar um novo documento na coleção 'utentes'
-    const novoUtente = new utente({ nome, email,password });
-    await novoUtente.save();
 
-    res.status(201).json({ mensagem: 'Utente criado com sucesso', utente: novoUtente });
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ mensagem: 'Erro ao criar o utente', erro });
-  }
+// Rotas
+app.use('/api', routes);
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Algo deu errado!');
 });
 
-
-
-
-app.listen(5000, () => console.log('Server running on port 5000'));
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
