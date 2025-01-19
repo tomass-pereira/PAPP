@@ -4,5 +4,5 @@ const utentesRoutes = require('./utentes.routes');
 const moradaRoutes = require('./morada.routes');
 
 router.use('/utentes', utentesRoutes);
-router.use('/api/morada', moradaRoutes); // Adicione o /api aqui
+router.use('/api/morada', moradaRoutes); 
 module.exports = router;

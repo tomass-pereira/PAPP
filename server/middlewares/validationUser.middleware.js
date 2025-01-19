@@ -13,7 +13,7 @@ const validateUserData = (req, res, next) => {
       return res.status(400).json({ message: 'Telefone deve ter 9 dígitos' });
     }
   
-    if (!senha || senha.length < 6) {
+    if ( senha.length < 6) {
       return res.status(400).json({ message: 'Senha deve ter pelo menos 6 caracteres' });
     }
   

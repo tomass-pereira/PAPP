@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const routes = require('./routes');
-const { errorMiddleware } = require('./middlewares');
+
 const cors = require('cors');
 
 const app = express();
@@ -16,7 +16,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/', routes);  
-app.use(errorMiddleware);
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
