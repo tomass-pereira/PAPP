@@ -19,13 +19,13 @@ export default function Footer() {
           <span className="text-xs uppercase tracking-wide text-gray-500"> Call us </span>
 
           <a href="#" className="block text-2xl font-medium text-gray-900 hover:opacity-75 sm:text-3xl">
-            0123456789
+            939817277
           </a>
         </p>
 
         <ul className="mt-8 space-y-1 text-sm text-gray-700">
-          <li>Monday to Friday: 10am - 5pm</li>
-          <li>Weekend: 10am - 3pm</li>
+          <li>Monday to Friday: 13:00 - 20:00</li>
+          <li>Weekend: 09:00 - 14:00</li>
         </ul>
 
         <ul className="mt-8 flex gap-6">

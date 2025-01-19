@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const userRoutes = require('./user.routes');
+const utentesRoutes = require('./utentes.routes');
+const moradaRoutes = require('./morada.routes');
 
-router.use('/users', userRoutes);
-
+router.use('/utentes', utentesRoutes);
+router.use('/api/morada', moradaRoutes); // Adicione o /api aqui
 module.exports = router;

@@ -27,6 +27,7 @@ function LoginPage() {
              id='email'
              label='Email'
              type='email'
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"  
                         
              />
             </div>
@@ -36,6 +37,7 @@ function LoginPage() {
              id='password'
              label='Password'
              type='password'
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
                         
              />
             </div>

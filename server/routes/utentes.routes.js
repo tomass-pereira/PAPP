@@ -1,9 +1,10 @@
-// src/routes/user.routes.js
+// src/routes/utentes.routes.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/utente');
+const Utente = require('../models/utente');
+const { validateUserData } = require('../middlewares');
 
-router.post('/register', async (req, res) => {
+router.post('/register',validateUserData, async (req, res,next) => {
   try {
     const {
       profileImage,
@@ -21,14 +22,18 @@ router.post('/register', async (req, res) => {
       morada
     } = req.body;
 
-    // Verifica se o email já existe
-    const userExists = await User.findOne({ email: email.toLowerCase() });
-    if (userExists) {
+    const utenteExists = await Promise.all([
+      Utente.findOne({ email: email.toLowerCase() }),
+      Utente.findOne({ telefone: telefone })
+    ]);
+    if (utenteExists[0]) {
       return res.status(400).json({ message: 'Email já cadastrado' });
     }
+    if (utenteExists[1]) {
+      return res.status(400).json({ message: 'Telefone já cadastrado' });
+    }
 
-    // Cria o novo usuário
-    const user = await User.create({
+    const novoUtente = await Utente.create({
       profileImage,
       nome,
       telefone,
@@ -46,18 +51,12 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       message: 'Usuário criado com sucesso',
-      user
+      utente: novoUtente
     });
 
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        message: 'Erro de validação', 
-        errors: Object.values(error.errors).map(err => err.message)
-      });
-    }
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao criar usuário', error: error.message });
+    next(error);
+   
   }
 });
 

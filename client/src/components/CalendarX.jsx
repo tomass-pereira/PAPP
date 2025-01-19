@@ -26,8 +26,8 @@ function CalendarApp() {
     locale: 'pt-BR',
     defaultView: 'week', 
     dayBoundaries: {
-      start: '06:00',
-      end: '18:00',
+      start: '13:00',
+      end: '20:00',
     },
     minDate: '2025-01-01',
     events: [

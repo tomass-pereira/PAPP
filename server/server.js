@@ -1,31 +1,24 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const connectDB = require('./config/db');
 const routes = require('./routes');
+const { errorMiddleware } = require('./middlewares');
+const cors = require('cors');
 
 const app = express();
-console.log('Variáveis de ambiente:', {
-  mongodb: process.env.MONGODB_URI,
-  node_env: process.env.NODE_ENV
-});
-// Conectar ao banco de dados
+
 connectDB();
 
-// Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
-
-// Rotas
-app.use('/api', routes);
-
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Algo deu errado!');
-});
+app.use('/', routes);  
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
