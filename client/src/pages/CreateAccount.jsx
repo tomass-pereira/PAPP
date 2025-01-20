@@ -13,8 +13,7 @@ function CreateAccount() {
   const [flagdis, setFlagdis] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  // Expanded form data state aligned with backend expectations
+
   const [formData, setFormData] = useState({
     codpostal: "",
     distrito: "",

@@ -1,5 +1,7 @@
 import React from "react";
 import SideBar from "../../components/SideBar";
+import WeeklyCalendar from "../../components/Calendar2";
+
 
 export default function Inicio() {
   return (
@@ -10,6 +12,7 @@ export default function Inicio() {
       <div className="flex overflow-hidden ">
         <SideBar />
       </div>
+      <WeeklyCalendar/>
     </>
   );
 }
