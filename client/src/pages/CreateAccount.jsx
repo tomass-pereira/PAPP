@@ -12,7 +12,10 @@ function CreateAccount() {
   const [preview, setPreview] = useState(null);
   const [flagdis, setFlagdis] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loadingpostal, setLoadingpostal] = useState(false);
   const [error, setError] = useState("");
+  const [errorpostal, setErrorpostal] = useState("");
+
 
   const [formData, setFormData] = useState({
     codpostal: "",
@@ -43,13 +46,14 @@ function CreateAccount() {
   });
 
   const handlePostalSearch = async () => {
+    setFlagdis(true);
     if (!formData.codpostal.match(/^\d{4}-\d{3}$/)) {
-      setError("Código postal inválido");
+      setErrorpostal("Código postal inválido");
       return;
     }
 
-    setLoading(true);
-    setError("");
+    setLoadingpostal(true);
+    setErrorpostal("");
 
     try {
       const response = await fetch(`http://localhost:3000/api/morada/${formData.codpostal}`);
@@ -57,6 +61,11 @@ function CreateAccount() {
 
       if (!response.ok) {
         throw new Error(data.message || "Erro ao buscar endereço");
+      }
+      if (!data || data.length === 0) {
+        setErrorpostal("Código postal não encontrado");
+        setFlagdis(false);
+        return;
       }
 
       setFormData((prev) => ({
@@ -67,15 +76,15 @@ function CreateAccount() {
       }));
       
       if(data[0].distrito != "Porto" && data[0].distrito != "Aveiro" ) {
-        setError("O código postal inserido não corresponde a um distrito suportado.");
+        setErrorpostal("O código postal inserido não corresponde a um distrito suportado.");
         setFlagdis(false);
       }
        
     } catch (err) {
       console.error('Erro completo:', err);
-      setError("Erro ao buscar o endereço. Tente novamente.");
+      setErrorpostal("Erro ao buscar o endereço. Tente novamente.");
     } finally {
-      setLoading(false);
+      setLoadingpostal(false);
     }
   };
 
@@ -105,18 +114,59 @@ function CreateAccount() {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        setFormData(prev => ({
-          ...prev,
-          foto: reader.result
-        }));
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+  
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+  
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to JPEG format and reduce quality
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(compressedDataUrl);
+        };
+        img.src = event.target.result;
       };
       reader.readAsDataURL(file);
+    });
+  };
+  
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const compressedImage = await compressImage(file);
+        setPreview(compressedImage);
+        setFormData(prev => ({
+          ...prev,
+          foto: compressedImage
+        }));
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        setError('Erro ao processar a foto de perfil. Tente novamente.');
+      }
     }
   };
 
@@ -171,44 +221,43 @@ function CreateAccount() {
 
     // Create the request payload with only the required fields
     // Log the form data before creating payload
-    console.log('Form data before payload:', {
-      nome: formData.nome,
-      email: formData.email,
-      telefone: formData.telefone.replace(/\D/g, ''), // Remove any non-digits
-      senha: formData.senha, // Mudando para 'password' conforme esperado pelo backend
-      dataNascimento: formData.dataNascimento,
-      queixaPrincipal: formData.queixaPrincipal,
-      inicioSintomas: formData.inicioSintomas,
-      codpostal: formData.codpostal,
-      distrito: formData.distrito,
-      concelho: formData.concelho,
-      rua: formData.rua,
-      numPorta: formData.numPorta,
-      condicaoMedica: formData.condicaoMedica,
-      diagnosticoMedico: formData.diagnosticoMedico,
-      lesoesCirurgias: formData.lesoesCirurgias,
-      alergias: formData.alergias,
-      foto: formData.foto
-    });
+   
 
-    const payload = {
+      const payload = {
+      profileImage: formData.foto,
       nome: formData.nome,
       email: formData.email,
-      telefone: formData.telefone.replace(/\D/g, ''), // Remove any non-digits
-      senha: formData.senha, // Mudando para 'password' conforme esperado pelo backend
+      telefone: formData.telefone.replace(/\D/g, ''),
+      senha: formData.senha,
       dataNascimento: formData.dataNascimento,
       queixaPrincipal: formData.queixaPrincipal,
       inicioSintomas: formData.inicioSintomas,
-      codpostal: formData.codpostal,
-      distrito: formData.distrito,
-      concelho: formData.concelho,
-      rua: formData.rua,
-      numPorta: formData.numPorta,
-      condicaoMedica: formData.condicaoMedica,
-      diagnosticoMedico: formData.diagnosticoMedico,
-      lesoesCirurgias: formData.lesoesCirurgias,
-      alergias: formData.alergias,
-      foto: formData.foto
+      condicaoMedica: {
+        tem: formData.condicaoMedica ? "Sim" : "Não",
+        descricao: formData.condicaoMedicaDesc || ""
+      },
+      lesoesOuCirurgias: {
+        tem: formData.lesoesCirurgias ? "Sim" : "Não",
+        descricao: formData.lesoesCirurgiasDesc || ""
+      },
+      diagnosticoMedico: {
+        tem: formData.diagnosticoMedico ? "Sim" : "Não",
+        descricao: formData.diagnosticoMedicoDesc || ""
+      },
+      alergias: {
+        tem: formData.alergias ? "Sim" : "Não",
+        descricao: formData.alergiasDesc || ""
+      },
+      morada: {
+        distrito: formData.distrito,
+        concelho: formData.concelho,
+        rua: formData.rua,
+        codigoPostal: formData.codpostal,
+        apartamento: {
+          vive: formData.edificio ? "Sim" : "Não",
+          detalhes: formData.edificioDesc || formData.numPorta || ""
+        }
+      }
     };
 
     try {
@@ -441,11 +490,11 @@ function CreateAccount() {
                   type="button"
                   disabled={loading}
                   style="py-2 px-4 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e]"
-                  legenda={loading ? "A procurar..." : "Procurar"}
+                  legenda={loadingpostal ? "A procurar..." : "Procurar"}
                 />
               </div>
               {error && (
-                <div className="text-red-500 text-sm mt-2">{error}</div>
+                <div className="text-red-500 text-sm mt-2">{errorpostal}</div>
               )}
               <div className="ml-4">
                 <Inputs

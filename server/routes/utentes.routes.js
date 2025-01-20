@@ -2,11 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const Utente = require('../models/utente');
-// const { validateUserData } = require('../middlewares'); // Comentar temporariamente
+ const { validateUserData } = require('../middlewares'); // Comentar temporariamente
 
-router.post('/register', async (req, res, next) => {
+router.post('/register',validateUserData, async (req, res, next) => {
   try {
-    console.log('Dados recebidos:', req.body); // Log para debug
+  
 
     const {
       profileImage,
@@ -24,14 +24,7 @@ router.post('/register', async (req, res, next) => {
       morada
     } = req.body;
 
-    // Log dos dados após desestruturação
-    console.log('Dados após desestruturação:', {
-      nome,
-      email,
-      telefone,
-      dataNascimento
-    });
-
+   
     const utenteExists = await Promise.all([
       Utente.findOne({ email: email.toLowerCase() }),
       Utente.findOne({ telefone: telefone })

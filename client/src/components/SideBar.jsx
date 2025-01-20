@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation} from "react-router-dom";
 import {
   Calendar,
   Dumbbell,
@@ -12,7 +12,7 @@ import {
   Bell,
 } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ nome }) => {
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
@@ -47,9 +47,13 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('utente');
     // Implementar a lógica de logout aqui
     console.log("Logout realizado");
     setShowLogoutDialog(false);
+    window.location.href = '/';
+
   };
   
 
@@ -93,7 +97,7 @@ const Sidebar = () => {
             />
             {!isCollapsed && (
               <div className="ml-3">
-                <p className="font-medium text-gray-800">Tomás Pereira</p>
+                <p className="font-medium text-gray-800">{nome}</p>
                 <p className="text-sm text-indigo-600">Utente</p>
               </div>
             )}
