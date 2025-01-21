@@ -22,7 +22,7 @@ export default function Inicio() {
       <div className="flex overflow-hidden">
         <SideBar nome={utente?.nome} />  {/* Passando como prop normal */}
       </div>
-      <WeeklyCalendar />
+      
     </>
   );
 }
