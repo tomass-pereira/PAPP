@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@sx-premium/drag-to-create": "^2.5.0",
     "@sx-premium/interactive-event-modal": "^2.5.0",
     "@sx-premium/sidebar": "^2.5.0",
     "dotenv": "^16.4.7"

@@ -30,7 +30,7 @@ function First() {
                   href="#"
                   className="inline-block rounded bg-[#4f4fb9] px-12 py-3 text-sm font-medium text-white transition hover:bg-[#3e3e9e]"
                 >
-                  Get Started Today
+                  Inicia sessão	agora
                 </a>
               </div>
             </div>

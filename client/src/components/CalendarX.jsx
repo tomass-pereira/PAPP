@@ -6,43 +6,128 @@ import {
   createViewWeek,
 } from '@schedule-x/calendar'
 import { createEventsServicePlugin } from '@schedule-x/events-service'
-import { createSidebarPlugin } from "@sx-premium/sidebar";
+import { createSidebarPlugin } from "@sx-premium/sidebar"
 import '@sx-premium/sidebar/index.css'
 import '@schedule-x/theme-default/dist/time-picker.css'
-import { createInteractiveEventModal } from "@sx-premium/interactive-event-modal";
+import { createInteractiveEventModal, createInputField } from "@sx-premium/interactive-event-modal"
 import '@sx-premium/interactive-event-modal/index.css'
-import React, { useState} from 'react'
-import { createEventModalPlugin } from '@schedule-x/event-modal'
+import React, { useState } from 'react'
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
 import '@schedule-x/theme-default/dist/index.css'
 import { createResizePlugin } from '@schedule-x/resize'
 
-
-
-
- 
 function CalendarApp() {
-  const eventsService = useState(() => createEventsServicePlugin())[0]
-  const interactiveEventModal = createInteractiveEventModal({
-    eventsService,
-    availablePeople: ['John Doe', 'Jane Doe'],
-    onAddEvent: (event) => {
-      console.log('Event added', event)
+  const eventsService = useState(() => createEventsServicePlugin({
+    calendars: [
+      {
+        id: 'personal',
+        name: 'Personal',
+        primary: true,
+        backgroundColor: '#2196F3'
+      },
+      {
+        id: 'work',
+        name: 'Work',
+        backgroundColor: '#4CAF50'
+      },
+      {
+        id: 'leisure',
+        name: 'Leisure',
+        backgroundColor: '#FF9800'
+      },
+      {
+        id: 'school',
+        name: 'School',
+        backgroundColor: '#9C27B0'
+      },
+      {
+        id: 'internal',
+        name: 'Internal',
+        backgroundColor: '#E91E63'
+      },
+      {
+        id: 'clients',
+        name: 'Clients',
+        backgroundColor: '#795548'
+      }
+    ],
+    onChange: (events) => {
+      console.log('Events changed:', events)
+    }
+  }))[0]
+
+  // Criar campos personalizados para o modal
+  const regionInputField = createInputField({
+    label: 'Região',
+    type: 'select',
+    items: [],
+  })
+
+  const countryInputField = createInputField({
+    label: 'País',
+    type: 'select',
+    items: [
+      { label: 'Brasil', value: 'BR' },
+      { label: 'Portugal', value: 'PT' },
+    ],
+    onChange: (value) => {
+      console.log('País selecionado:', value)
+      modalPlugin.formValues.value = {
+        ...modalPlugin.formValues.value,
+        region: ''
+      }
+      regionInputField.value.rerender()
+      
+      if (value === 'BR') {
+        regionInputField.value = {
+          ...regionInputField.value,
+          items: [
+            { label: 'São Paulo', value: 'sp' },
+            { label: 'Rio de Janeiro', value: 'rj' },
+          ]
+        }
+      } else if (value === 'PT') {
+        regionInputField.value = {
+          ...regionInputField.value,
+          items: [
+            { label: 'Lisboa', value: 'lisboa' },
+            { label: 'Porto', value: 'porto' },
+          ]
+        }
+      }
     }
   })
+
+  const modalPlugin = useState(() => createInteractiveEventModal({
+    eventsService,
+    onAddEvent: (event) => {
+      console.log('Evento adicionado:', event)
+    },
+    onDeleteEvent: (eventId) => {
+      console.log('Evento deletado:', eventId)
+    },
+    onUpdateEvent: (event) => {
+      console.log('Evento atualizado:', event)
+    },
+    fields: {
+      title: {},
+      startDate: {},
+      startTime: {},
+      endDate: {},
+      endTime: {},
+      description: {},
+    },
+    customFields: {
+      country: countryInputField,
+      region: regionInputField,
+    }
+  }))[0]
+ 
   const sidebar = createSidebarPlugin({
     eventsService,
-   
-    // Optional: Should the sidebar be open on render
     openOnRender: false,
-   
-    // Optional: Which calendars should be active on render
-    activeCalendarIds: ['personal', 'work', 'leisure', 'school'],
-   
-    // Optional: Should there be calendar toggles
+    activeCalendarIds: ['personal', 'work', 'leisure', 'school', 'internal', 'clients'],
     hasCalendarToggles: true,
-   
-    // Optional: placeholder events for drag-to-create
     placeholderEvents: [
       {
         title: 'Morning brief',
@@ -60,19 +145,16 @@ function CalendarApp() {
         people: ['John Doe', 'Jane Doe', 'Steve Smith'],
       }
     ],
-   
-    // Optional: factory function for generating event ids when events are created
-    idFactory: () => uuidv4() // or any other id generator
+    idFactory: () => crypto.randomUUID()
   })
-  const eventModal = useState(() => createEventModalPlugin())[0]
   
   const calendar = useCalendarApp({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
-    plugins: [eventsService, eventModal,interactiveEventModal, createDragAndDropPlugin(), createResizePlugin(), sidebar],
+    plugins: [eventsService, modalPlugin, createDragAndDropPlugin(), createResizePlugin(), sidebar],
     locale: 'pt-BR',
     defaultView: 'week',
     dayBoundaries: {
-      start: '09:00', // Alterado para incluir o horário do evento
+      start: '09:00',
       end: '20:00',
     },
     minDate: '2025-01-01',
@@ -83,10 +165,16 @@ function CalendarApp() {
         description: 'Discuss the project',
         start: '2025-01-20 10:05',
         end: '2025-01-20 12:35',
-        color: '#FF0000', // Adicionado cor para melhor visualização
-        isEditable: true  // Permite edição do evento
+        color: '#FF0000',
+        isEditable: true,
+        calendarId: 'work'
       },
     ],
+    defaultEventConfig: {
+      isEditable: true,
+      isDraggable: true,
+      isResizable: true
+    }
   })
  
   return (
