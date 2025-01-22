@@ -1,6 +1,6 @@
 import React from "react";
 import SideBar from "../../components/SideBar";
-import CalendarApp from "../../components/CalendarX";
+import CalendarApp from "../../components/Calendar/CalendarX";
 
 export default function MinhasSessoes() {
   return (

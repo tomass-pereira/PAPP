@@ -14,7 +14,7 @@ import {
 
 const Sidebar = ({ nome }) => {
   
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
