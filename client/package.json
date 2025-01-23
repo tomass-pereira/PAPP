@@ -21,6 +21,7 @@
     "@schedule-x/resize": "^2.14.3",
     "@schedule-x/scroll-controller": "^2.14.3",
     "@schedule-x/theme-default": "^2.14.3",
+    "@schedule-x/theme-shadcn": "^2.15.0",
     "@schedule-x/translations": "^2.14.3",
     "axios": "^1.7.8",
     "date-fns": "^4.1.0",

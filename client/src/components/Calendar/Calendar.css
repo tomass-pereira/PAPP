@@ -1,15 +1,12 @@
 
 .sx-react-calendar-wrapper {
-  width: 1200px;
+  width:auto;
   max-width:90vw ;
   height: 800px;
   max-height: 100vh;
 }
 
-/* remove after enabling hiding of this button */
-.sx__sidebar-inner .sx__add-event-button {
-  display: none;
-}
+
 
 
 
