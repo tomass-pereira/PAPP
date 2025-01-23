@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 
 const jwt = require('jsonwebtoken');
-const Utente = require('../models/utente'); // Corrigido para maiúscula
+const Utente = require('../models/utente');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 // Chave secreta para o JWT
@@ -62,8 +62,11 @@ router.post('/login', async (req, res) => {
             token,
             utente: {
                 id: utente._id,
+                profileImage: utente.profileImage,
                 nome: utente.nome,
-                email: utente.email
+                email: utente.email,
+                telefone: utente.telefone,
+                
             }
         });
 

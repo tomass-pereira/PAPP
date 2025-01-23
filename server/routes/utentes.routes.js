@@ -15,6 +15,7 @@ router.post('/register',validateUserData, async (req, res, next) => {
       email,
       dataNascimento,
       senha,
+      tipo,
       queixaPrincipal,
       inicioSintomas,
       condicaoMedica,

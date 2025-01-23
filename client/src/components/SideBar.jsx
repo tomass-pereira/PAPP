@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation} from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Calendar,
   Dumbbell,
@@ -12,16 +12,11 @@ import {
   Bell,
 } from "lucide-react";
 
-const Sidebar = ({ nome }) => {
-  
+const Sidebar = ({ nome, foto }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  
-
-  
-
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/Inicio" },
@@ -39,7 +34,7 @@ const Sidebar = ({ nome }) => {
     },
     {
       id: "appointments",
-      label: "Consultas",
+      label: "Sessões",
       icon: Clock,
       path: "/MinhasSessoes",
     },
@@ -47,15 +42,13 @@ const Sidebar = ({ nome }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('utente');
+    localStorage.removeItem("token");
+    localStorage.removeItem("utente");
     // Implementar a lógica de logout aqui
     console.log("Logout realizado");
     setShowLogoutDialog(false);
-    window.location.href = '/';
-
+    window.location.href = "/";
   };
-  
 
   return (
     <>
@@ -91,9 +84,9 @@ const Sidebar = ({ nome }) => {
         <div className="p-4 border-b">
           <div className="flex items-center">
             <img
-              src="/api/placeholder/40/40"
+              src={foto}
               alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-indigo-600"
+              className="w-10 h-10 rounded-full border-2 border-indigo-600 object-cover" // Adicionado object-cover
             />
             {!isCollapsed && (
               <div className="ml-3">

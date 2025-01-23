@@ -6,16 +6,16 @@ import Inputs from "../components/Inputs.jsx";
 import RadioButton from "../components/RadioButton.jsx";
 import Buttons from "../components/botoes.jsx";
 import Footer from "../components/Footer.jsx";
+import { buscaMorada } from '../api/morada';
+import { registarUtente } from '../api/utente';
 
 function CreateAccount() {
-  const [edificio, setEdificio] = useState(false);
   const [preview, setPreview] = useState(null);
   const [flagdis, setFlagdis] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingpostal, setLoadingpostal] = useState(false);
   const [error, setError] = useState("");
   const [errorpostal, setErrorpostal] = useState("");
-
 
   const [formData, setFormData] = useState({
     codpostal: "",
@@ -42,7 +42,7 @@ function CreateAccount() {
     alergiasDesc: "",
     edificio: false,
     edificioDesc: "",
-    foto: null
+    foto: null,
   });
 
   const handlePostalSearch = async () => {
@@ -56,12 +56,9 @@ function CreateAccount() {
     setErrorpostal("");
 
     try {
-      const response = await fetch(`http://localhost:3000/api/morada/${formData.codpostal}`);
-      const data = await response.json();
+    const data= await buscaMorada(formData.codpostal);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao buscar endereço");
-      }
+     
       if (!data || data.length === 0) {
         setErrorpostal("Código postal não encontrado");
         setFlagdis(false);
@@ -72,16 +69,17 @@ function CreateAccount() {
         ...prev,
         distrito: data[0].distrito || "",
         concelho: data[0].concelho || "",
-        rua: data[0].morada || "",        
+        rua: data[0].morada || "",
       }));
-      
-      if(data[0].distrito != "Porto" && data[0].distrito != "Aveiro" ) {
-        setErrorpostal("O código postal inserido não corresponde a um distrito suportado.");
+
+      if (data[0].distrito != "Porto" && data[0].distrito != "Aveiro") {
+        setErrorpostal(
+          "O código postal inserido não corresponde a um distrito suportado."
+        );
         setFlagdis(false);
       }
-       
     } catch (err) {
-      console.error('Erro completo:', err);
+      console.error("Erro completo:", err);
       setErrorpostal("Erro ao buscar o endereço. Tente novamente.");
     } finally {
       setLoadingpostal(false);
@@ -90,26 +88,26 @@ function CreateAccount() {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [id]: value
+      [id]: value,
     }));
   };
 
   const handleRadioChange = (name, value) => {
     const fieldMapping = {
-      'radio-condicao': 'condicaoMedica',
-      'radio-diagonostico': 'diagnosticoMedico',
-      'radio-cirugias': 'lesoesCirurgias',
-      'radio-alergias': 'alergias',
-      'radio=domicilio': 'edificio'
+      "radio-condicao": "condicaoMedica",
+      "radio-diagonostico": "diagnosticoMedico",
+      "radio-cirugias": "lesoesCirurgias",
+      "radio-alergias": "alergias",
+      "radio=domicilio": "edificio",
     };
 
     const field = fieldMapping[name];
     if (field) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: value === 'sim'
+        [field]: value === "sim",
       }));
     }
   };
@@ -120,12 +118,12 @@ function CreateAccount() {
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
+          const canvas = document.createElement("canvas");
           const MAX_WIDTH = 800;
           const MAX_HEIGHT = 800;
           let width = img.width;
           let height = img.height;
-  
+
           if (width > height) {
             if (width > MAX_WIDTH) {
               height *= MAX_WIDTH / width;
@@ -137,14 +135,14 @@ function CreateAccount() {
               height = MAX_HEIGHT;
             }
           }
-  
+
           canvas.width = width;
           canvas.height = height;
-          const ctx = canvas.getContext('2d');
+          const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           // Convert to JPEG format and reduce quality
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
           resolve(compressedDataUrl);
         };
         img.src = event.target.result;
@@ -152,27 +150,27 @@ function CreateAccount() {
       reader.readAsDataURL(file);
     });
   };
-  
+
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       try {
         const compressedImage = await compressImage(file);
         setPreview(compressedImage);
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          foto: compressedImage
+          foto: compressedImage,
         }));
       } catch (error) {
-        console.error('Error compressing image:', error);
-        setError('Erro ao processar a foto de perfil. Tente novamente.');
+        console.error("Error compressing image:", error);
+        setError("Erro ao processar a foto de perfil. Tente novamente.");
       }
     }
   };
 
   const validateForm = () => {
     // Validate email format
-    if (!formData.email || !formData.email.includes('@')) {
+    if (!formData.email || !formData.email.includes("@")) {
       setError("Email inválido");
       return false;
     }
@@ -190,11 +188,11 @@ function CreateAccount() {
     }
 
     // Validate password length with logging
-    console.log('Validating password:', {
+    console.log("Validating password:", {
       password: formData.senha,
-      length: formData.senha?.length
+      length: formData.senha?.length,
     });
-    
+
     if (!formData.senha || formData.senha.length < 6) {
       setError("Senha deve ter pelo menos 6 caracteres");
       return false;
@@ -211,7 +209,7 @@ function CreateAccount() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -221,32 +219,31 @@ function CreateAccount() {
 
     // Create the request payload with only the required fields
     // Log the form data before creating payload
-   
 
-      const payload = {
+    const payload = {
       profileImage: formData.foto,
       nome: formData.nome,
       email: formData.email,
-      telefone: formData.telefone.replace(/\D/g, ''),
+      telefone: formData.telefone.replace(/\D/g, ""),
       senha: formData.senha,
       dataNascimento: formData.dataNascimento,
       queixaPrincipal: formData.queixaPrincipal,
       inicioSintomas: formData.inicioSintomas,
       condicaoMedica: {
         tem: formData.condicaoMedica ? "Sim" : "Não",
-        descricao: formData.condicaoMedicaDesc || ""
+        descricao: formData.condicaoMedicaDesc || "",
       },
       lesoesOuCirurgias: {
         tem: formData.lesoesCirurgias ? "Sim" : "Não",
-        descricao: formData.lesoesCirurgiasDesc || ""
+        descricao: formData.lesoesCirurgiasDesc || "",
       },
       diagnosticoMedico: {
         tem: formData.diagnosticoMedico ? "Sim" : "Não",
-        descricao: formData.diagnosticoMedicoDesc || ""
+        descricao: formData.diagnosticoMedicoDesc || "",
       },
       alergias: {
         tem: formData.alergias ? "Sim" : "Não",
-        descricao: formData.alergiasDesc || ""
+        descricao: formData.alergiasDesc || "",
       },
       morada: {
         distrito: formData.distrito,
@@ -255,42 +252,27 @@ function CreateAccount() {
         codigoPostal: formData.codpostal,
         apartamento: {
           vive: formData.edificio ? "Sim" : "Não",
-          detalhes: formData.edificioDesc || formData.numPorta || ""
-        }
-      }
+          detalhes: formData.edificioDesc || formData.numPorta || "",
+        },
+      },
     };
 
     try {
-      
-      
-      const response = await fetch('http://localhost:3000/utentes/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
+     await registarUtente(payload);
+     alert("Conta criada com sucesso!");
+      window.location.href = "/LoginPage";
 
-      console.log('Response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao criar conta");
-      }
-
-      // Show success message
-      alert('Conta criada com sucesso!');
-      // Redirect to login page
-      window.location.href = '/login';
-      
+   
     } catch (err) {
-      console.error('Erro completo:', err);
-      if (err.message === 'Failed to fetch') {
-        setError("Não foi possível conectar ao servidor. Verifique se o servidor está rodando.");
+      console.error("Erro completo:", err);
+      if (err.message === "Failed to fetch") {
+        setError(
+          "Não foi possível conectar ao servidor. Verifique se o servidor está rodando."
+        );
       } else {
-        setError(err.message || "Erro ao criar conta. Por favor, tente novamente.");
+        setError(
+          err.message || "Erro ao criar conta. Por favor, tente novamente."
+        );
       }
     } finally {
       setLoading(false);
@@ -416,7 +398,9 @@ function CreateAccount() {
                     assunto="Possui alguma condição médica?"
                     id="sim-condicao"
                     id2="nao-condicao"
-                    onChange={(e) => handleRadioChange('radio-condicao', e.target.value)}
+                    onChange={(e) =>
+                      handleRadioChange("radio-condicao", e.target.value)
+                    }
                     style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
                   />
                 </div>
@@ -427,7 +411,9 @@ function CreateAccount() {
                     assunto="Tem algum diagnóstico médico relevante?"
                     id="sim-diago"
                     id2="nao-diago"
-                    onChange={(e) => handleRadioChange('radio-diagonostico', e.target.value)}
+                    onChange={(e) =>
+                      handleRadioChange("radio-diagonostico", e.target.value)
+                    }
                     style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
                   />
                 </div>
@@ -450,7 +436,9 @@ function CreateAccount() {
                     assunto="Tem lesões ou cirurgias anteriores?"
                     id="sim-cirugia"
                     id2="nao-cirugia"
-                    onChange={(e) => handleRadioChange('radio-cirugias', e.target.value)}
+                    onChange={(e) =>
+                      handleRadioChange("radio-cirugias", e.target.value)
+                    }
                     style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
                   />
                 </div>
@@ -461,7 +449,9 @@ function CreateAccount() {
                     assunto="Tem alergias a medicamentos ou outros tratamentos?"
                     id="sim-alergia"
                     id2="nao-alergia"
-                    onChange={(e) => handleRadioChange('radio-alergias', e.target.value)}
+                    onChange={(e) =>
+                      handleRadioChange("radio-alergias", e.target.value)
+                    }
                     style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
                   />
                 </div>
@@ -486,9 +476,12 @@ function CreateAccount() {
               </div>
               <div className="flex items-center">
                 <Buttons
-                  onClick={handlePostalSearch}
+                  onClick={(e) => {
+                    e.preventDefault(); // Previne o submit do formulário
+                    handlePostalSearch();
+                  }}
                   type="button"
-                  disabled={loading}
+                  disabled={loadingpostal}
                   style="py-2 px-4 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e]"
                   legenda={loadingpostal ? "A procurar..." : "Procurar"}
                 />
@@ -515,7 +508,7 @@ function CreateAccount() {
               placeholder=""
               value={flagdis ? formData.distrito : ""}
               disabled={true}
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
               style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
             />
             <Inputs
@@ -523,7 +516,7 @@ function CreateAccount() {
               label="Concelho"
               type="text"
               placeholder=""
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
               value={flagdis ? formData.concelho : ""}
               disabled={true}
               style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
@@ -532,7 +525,7 @@ function CreateAccount() {
               id="rua"
               label="Rua"
               type="text"
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
               value={flagdis ? formData.rua : ""}
               placeholder=""
               disabled={true}
@@ -541,14 +534,14 @@ function CreateAccount() {
             <RadioButton
               name="radio=domicilio"
               assunto="Vive num apartamento?"
-              onChange={(e) => handleRadioChange('radio=domicilio', e.target.value)}
+              onChange={(e) =>
+                handleRadioChange("radio=domicilio", e.target.value)
+              }
             />
           </Section>
-          
-          {error && (
-            <div className="text-red-500 text-sm mb-4">{error}</div>
-          )}
-          
+
+          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+
           <Buttons
             type="submit"
             disabled={loading}

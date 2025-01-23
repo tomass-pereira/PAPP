@@ -4,15 +4,17 @@ import NavBar from "../components/NavBar.jsx";
 import { Link } from "react-router-dom";
 import Inputs from "../components/Inputs.jsx";
 import Buttons from "../components/botoes.jsx";
+import { loginUtente } from '../api/utente';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
   });
 
-  // Função para lidar com mudanças nos inputs
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -20,37 +22,25 @@ function LoginPage() {
     });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const credentials = {
+      email: formData.email,
+      senha: formData.senha
+    };
     
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          senha: formData.senha
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Guarda o token e os dados do utente
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('utente', JSON.stringify(data.utente));
-        
-        // Redireciona para a página principal
-        navigate('/Inicio');
-      } else {
-        alert(data.message); // Você pode usar um componente de toast aqui
-      }
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      alert('Erro ao fazer login. Tente novamente.');
+      const data = await loginUtente(credentials);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('utente', JSON.stringify(data.utente));
+      navigate('/Inicio'); // Usando navigate em vez de window.location
+    } catch (err) {
+      setError(err.message || 'Email ou senha incorretos. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,6 +64,11 @@ function LoginPage() {
           <h1 className="text-3xl font-bold flex justify-center items-center gap-2 mb-6">
             Olá, outra vez! <span>👋</span>
           </h1>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="form-group mb-6">
               <Inputs
@@ -88,7 +83,7 @@ function LoginPage() {
 
             <div className="form-group mb-6">
               <Inputs
-                id="senha"  // Mudei de password para senha para manter consistência com o backend
+                id="senha"
                 label="Password"
                 type="password"
                 value={formData.senha}
@@ -108,8 +103,9 @@ function LoginPage() {
 
             <Buttons
               type="submit"
-              style="login-button w-full p-3 bg-indigo-600 text-white rounded-md text-sm cursor-pointer mb-4 hover:bg-[#5558DD]"
-              legenda="Iniciar Sessão"
+              disabled={loading}
+              style="login-button w-full p-3 bg-indigo-600 text-white rounded-md text-sm cursor-pointer mb-4 hover:bg-[#5558DD] disabled:bg-gray-400 disabled:cursor-not-allowed"
+              legenda={loading ? "A entrar..." : "Iniciar Sessão"}
             />
           </form>
         </div>

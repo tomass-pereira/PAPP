@@ -20,7 +20,7 @@ export default function Inicio() {
         
       </div>
       <div className="flex overflow-hidden">
-        <SideBar nome={utente?.nome} />  {/* Passando como prop normal */}
+        <SideBar nome={utente?.nome} foto={utente?.profileImage} />  {/* Passando como prop normal */}
       </div>
       
     </>
