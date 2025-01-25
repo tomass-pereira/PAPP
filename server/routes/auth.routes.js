@@ -10,7 +10,45 @@ const authMiddleware = require('../middlewares/auth.middleware');
 // Chave secreta para o JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Rota de login
+router.get('/aprovar/:id', async (req, res) => {
+    try {
+        await Utente.findByIdAndUpdate(req.params.id, { StatusConta: 'aprovado' });
+        // Redireciona para uma página simples de sucesso
+        res.send(`
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: green;">Conta aprovada com sucesso!</h1>
+                <p>Pode fechar esta janela.</p>
+            </div>
+        `);
+    } catch (error) {
+        res.status(500).send(`
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: red;">Erro ao aprovar conta</h1>
+                <p>Por favor, tente novamente.</p>
+            </div>
+        `);
+    }
+});
+router.get('/rejeitar/:id', async (req, res) => {
+    try {
+        await Utente.findByIdAndUpdate(req.params.id, { StatusConta: 'rejeitado' });
+        res.send(`
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: red;">Conta rejeitada</h1>
+                <p>Pode fechar esta janela.</p>
+            </div>
+        `);
+    } catch (error) {
+        res.status(500).send(`
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: red;">Erro ao rejeitar conta</h1>
+                <p>Por favor, tente novamente.</p>
+            </div>
+        `);
+    }
+});
+
+
 router.post('/login', async (req, res) => {
     try {
         // 1. Validar dados de entrada
@@ -25,11 +63,20 @@ router.post('/login', async (req, res) => {
 
         // 2. Buscar utente no banco
         const utente = await Utente.findOne({ email: email.toLowerCase() });
+       
+       
+      
         
         if (!utente) {
             return res.status(401).json({
                 success: false,
-                message: 'Credenciais inválidas'
+                message: 'Conta não encontrada'
+            });
+        }
+        if (utente.StatusConta != 'aprovado') {
+            return res.status(401).json({
+                success: false,
+                message: 'Não tem permissão para aceder a esta aplicação'
             });
         }
 
@@ -43,6 +90,7 @@ router.post('/login', async (req, res) => {
                 message: 'Credenciais inválidas'
             });
         }
+        
 
         // 4. Gerar token JWT
         const token = jwt.sign(

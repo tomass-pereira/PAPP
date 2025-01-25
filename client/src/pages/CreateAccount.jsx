@@ -8,6 +8,7 @@ import Buttons from "../components/botoes.jsx";
 import Footer from "../components/Footer.jsx";
 import { buscaMorada } from '../api/morada';
 import { registarUtente } from '../api/utente';
+import Alert from "../components/Alert.jsx";
 
 function CreateAccount() {
   const [preview, setPreview] = useState(null);
@@ -16,6 +17,7 @@ function CreateAccount() {
   const [loadingpostal, setLoadingpostal] = useState(false);
   const [error, setError] = useState("");
   const [errorpostal, setErrorpostal] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     codpostal: "",
@@ -259,8 +261,8 @@ function CreateAccount() {
 
     try {
      await registarUtente(payload);
-     alert("Conta criada com sucesso!");
-      window.location.href = "/LoginPage";
+      setSuccess(true);
+      
 
    
     } catch (err) {
@@ -282,6 +284,7 @@ function CreateAccount() {
   return (
     <>
       <NavBar />
+      <Alert isOpen={success} onClose={() => setSuccess(false)} />
       <form onSubmit={handleSubmit}>
         <div className="max-w-7xl mx-auto px-8 py-10 bg-white rounded-lg mt-3">
           <div className="mb-10 text-center">
@@ -546,7 +549,7 @@ function CreateAccount() {
             type="submit"
             disabled={loading}
             style="py-4 px-8 mt-0 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e] disabled:bg-gray-400"
-            legenda={loading ? "A criar conta..." : "Criar Conta"}
+            legenda={loading ? "Aguarde..." : "Criar Conta"}
           />
         </div>
       </form>

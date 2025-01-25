@@ -28,6 +28,15 @@ const utenteSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  StatusConta: {
+    type: String,
+    enum: ['pendente', 'aprovado', 'rejeitado'],
+    default: 'pendente'
+  },
+  requestDate: {
+    type: Date,
+    default: Date.now
+  },
   queixaPrincipal: {
     type: String,
     required: true
