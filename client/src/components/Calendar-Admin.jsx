@@ -29,31 +29,7 @@ import React from 'react'
             </li>
         )
     }
-    const meetings = [
-        {
-            id: 1,
-            name: 'Leslie Alexander',
-            imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-            startDatetime: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate() + 1).padStart(2, '0')}T13:00`,
-            endDatetime: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate() + 1).padStart(2, '0')}T14:30`,
-        },
-        {
-            id: 2,
-            name: 'Michael Foster',
-            imageUrl: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-            startDatetime: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}T09:00`,
-            endDatetime: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}T11:30`,
-        }
-    ]
-    let colStartClasses = [
-        '',
-        'col-start-2',
-        'col-start-3',
-        'col-start-4',
-        'col-start-5',
-        'col-start-6',
-        'col-start-7',
-    ]
+   
 export default function CalendarAdmin () {
   return (
     <section className="mt-12 md:mt-0 md:pl-14">

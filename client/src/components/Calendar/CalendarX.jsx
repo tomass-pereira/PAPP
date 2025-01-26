@@ -6,11 +6,9 @@ import {createViewDay, createViewMonthGrid, createViewWeek, createViewMonthAgend
 import '@schedule-x/theme-default/dist/index.css'
 import '@sx-premium/interactive-event-modal/index.css'
 import {createInputField, createInteractiveEventModal} from "@sx-premium/interactive-event-modal";
-import {createDragToCreatePlugin} from "@sx-premium/drag-to-create";
 import '@sx-premium/drag-to-create/index.css'
 import { v4 as uuidv4 } from 'uuid';
-import DraggableSession from './dragablesSession';
-
+import './CalendarModal.css';
 
 
 function CalendarApp() {
@@ -26,12 +24,7 @@ function CalendarApp() {
   ]);
 
   const [eventsService] = useState(() => createEventsServicePlugin());
-  let dragToCreatePlugin = useState(createDragToCreatePlugin({
-    onAddEvent: (event) => {
-      console.log(event)
-      // save to your server
-    }
-  }))[0];
+ 
 
  
 
@@ -90,9 +83,7 @@ function CalendarApp() {
         };
         setEvents(prevEvents => [...prevEvents, newEvent]);
       },
-      onDeleteEvent: (eventId) => {
-        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
-      },
+     
       onUpdateEvent: (updatedEvent) => {
         setEvents(prevEvents => prevEvents.map(event => 
           event.id === updatedEvent.id ? updatedEvent : event
@@ -134,37 +125,23 @@ function CalendarApp() {
     events: events, // Use the events from state
     plugins: [
       eventsService,
-      dragToCreatePlugin,
+      
       modalPlugin,
     ],
-    
+    callbacks: {
+      onDoubleClickDateTime: (date) => {
+        modalPlugin.clickToCreate(date, {
+          title: 'New event'
+        })
+      }
+    },
     locale: 'pt-BR',
   });
 
   return (
     <div>
-      <div
-        className={'placeholderEvent'}
-        draggable={true}
-        onDragStart={() => {
-          dragToCreatePlugin.dragToCreate(uuidv4(), {
-            title: 'Sessão de Fisioterapia',
-            description: 'Some description',
-            
-          })
-        }}
-        style={{
-          width: '100px',
-          height: '50px',
-          backgroundColor: '#eaddff',
-          color: '--sx-color-on-primary-container',
-          textAlign: 'center',
-          lineHeight: '50px',
-          cursor: 'move',
-        }}
-      >
-        Criar Sessão
-      </div>
+      
+       
 
       <ScheduleXCalendar calendarApp={calendar} />
     </div>
