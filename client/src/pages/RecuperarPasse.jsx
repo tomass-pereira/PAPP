@@ -1,56 +1,168 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import NavBar from "../components/NavBar";
 import Inputs from "../components/Inputs";
-import { RecoveryPassword } from "../api/utente";
-import { Verifycode } from "../api/utente";
+import { RecoveryPassword, Verifycode, alterarSenha } from "../api/utente";
+import Alert from "../components/Alert";
+
 export default function RecuperarPasse() {
+  const [step, setStep] = useState("email");
   const [success, setSuccess] = useState(false);
-  const [successcod, setSuccesscod] = useState(false);
-  const [error, setError] = useState("");
-
-
   const [email, setEmail] = useState("");
-  const [codigo, setCodigo]=useState("");
- 
- 
+  const [codigo, setCodigo] = useState("");
+  const [error, setError] = useState("");
+  const [passe, setPasse] = useState("");
+  const [confPasse, setConfPasse] = useState("");
+
   const handleSubmitEmail = async (e) => {
     e.preventDefault();
-
     try {
       await RecoveryPassword(email);
+      setStep("code");
+    } catch (error) {
+      setError("Erro ao enviar email");
+    }
+  };
+
+  const handleSubmitPasse = async (e) => {
+    e.preventDefault();
+
+    if (passe !== confPasse) {
+      setError("As palavras-passe não coincidem");
+      return;
+    }
+
+    if (passe.length < 8) {
+      setError("A palavra-passe deve ter pelo menos 8 caracteres");
+      return;
+    }
+
+    try {
+      await alterarSenha(email, passe);
       setSuccess(true);
     } catch (error) {
-      alert("Erro ao enviar email");
+      setError("Erro ao alterar palavra-passe");
     }
   };
 
   const handleSubmitCode = async (e) => {
     e.preventDefault();
-     
     try {
       const response = await Verifycode(email, codigo);
-      
+
       if (response.success) {
-        // Se deu certo
-        setSuccess(true);
-        // Você pode redirecionar ou mostrar próximo passo
-        // navigate('/reset-password') ou setStep(2)
+        setStep("reset");
+        setError("");
       } else {
-        // Se retornou falso mas não deu erro
-        setError(response.message || 'Erro ao verificar código');
+        setError(response.message || "Código inválido");
       }
     } catch (error) {
-      // Se deu erro na requisição
-      setError(error.message || 'Erro ao verificar código');
+      setError(error.message || "Erro ao verificar código");
     }
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-  const handleCodigoChange = (e) => {
-    setCodigo(e.target.value);
+  const renderForm = () => {
+    if (step === "code") {
+      return (
+        <form
+          className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
+          onSubmit={handleSubmitCode}
+        >
+          <p className="text-center text-lg font-medium">
+            Digite o código enviado
+          </p>
+          <div className="relative">
+            <Inputs
+              id="cod-recu"
+              label="Código de recuperação"
+              type="text"
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              style="w-full p-3 bg-white text-center border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
+          </div>
+          <button
+            type="submit"
+            className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
+          >
+            Confirmar
+          </button>
+        </form>
+      );
+    }
+
+    if (step === "reset") {
+      return (
+        <>
+          <Alert
+            isOpen={success}
+            onClose={() => setSuccess(false)}
+            texto="A sua palavra-passe foi alterada com sucesso!"
+            
+          />
+
+          <form
+            className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
+            onSubmit={handleSubmitPasse}
+          >
+            <p className="text-center text-lg font-medium">
+              Digite uma nova palavra-passe
+            </p>
+            <div className="relative">
+              <Inputs
+                id="nova-passe"
+                label="Nova palavra-passe"
+                type="password"
+                value={passe}
+                onChange={(e) => setPasse(e.target.value)}
+                style="w-full p-3 bg-white  border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+              />
+              <Inputs
+                id="confnova-passe"
+                label="Confirmação da nova palavra passe"
+                type="password"
+                value={confPasse}
+                onChange={(e) => setConfPasse(e.target.value)}
+                style="w-full p-3 bg-white  border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+              />
+            </div>
+            <button
+              type="submit"
+              className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
+            >
+              Confirmar
+            </button>
+          </form>
+        </>
+      );
+    }
+
+    return (
+      <form
+        className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
+        onSubmit={handleSubmitEmail}
+      >
+        <p className="text-center text-lg font-medium">
+          Digite o seu endereço de email
+        </p>
+        <div className="relative">
+          <Inputs
+            id="email"
+            label="Endereço email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="@"
+            style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+          />
+        </div>
+        <button
+          type="submit"
+          className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
+        >
+          Enviar email
+        </button>
+      </form>
+    );
   };
 
   return (
@@ -58,103 +170,11 @@ export default function RecuperarPasse() {
       <NavBar />
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-lg">
-          {success ? (
-            <>
-            <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-                Recupere a sua password
-              </h1>
-
-             
-
-              <form
-                action="#"
-                className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
-                onSubmit={handleSubmitCode}
-              >
-                <p className="text-center text-lg font-medium">
-                  Digite o código que lhe foi fornecido
-                </p>
-
-                <div>
-                  <label htmlFor="email" className="sr-only">
-                    Email
-                  </label>
-
-                  <div className="relative">
-                    <Inputs
-                      id="cod-recu"
-                      label="Código de recuperação"
-                      type="text"
-                      value={codigo}
-                      onChange={handleCodigoChange}
-                      placeholder=""
-                      style="w-full p-3 bg-white text-center border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    />
-                  </div>
-                </div>
-
-                <div></div>
-
-                <button
-                  
-                  type="submit"
-                  className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
-                >
-                  Confirmar
-                </button>
-              </form>
-            </>
-            
-          ) : (
-            <>
-              <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
-                Recupere a sua password
-              </h1>
-
-              <p className="mx-auto mt-4 max-w-md text-center text-gray-500">
-                Digite o seu endereço de email e iremos enviar-lhe um link para
-                recuperar a sua password
-              </p>
-
-              <form
-                action="#"
-                className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
-                onSubmit={handleSubmitEmail}
-              >
-                <p className="text-center text-lg font-medium">
-                  Digite o seu endereço de email
-                </p>
-
-                <div>
-                  <label htmlFor="email" className="sr-only">
-                    Email
-                  </label>
-
-                  <div className="relative">
-                    <Inputs
-                      id="email"
-                      label="Endereço email"
-                      type="email"
-                      value={email}
-                      onChange={handleEmailChange}
-                      placeholder="@"
-                      style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    />
-                  </div>
-                </div>
-
-                <div></div>
-
-                <button
-                  onClick={handleSubmitEmail}
-                  type="submit"
-                  className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
-                >
-                  Enviar email
-                </button>
-              </form>
-            </>
-          )}
+          <h1 className="text-center text-2xl font-bold text-indigo-600 sm:text-3xl">
+            Recupere a sua password
+          </h1>
+          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+          {renderForm()}
         </div>
       </div>
     </>

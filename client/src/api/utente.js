@@ -64,11 +64,29 @@ export const Verifycode = async (email, codigo) => {
   });
 
   const data = await response.json();
+  
 
   if (!response.ok) {
     throw new Error(data.message || "Erro ao verificar o código");
   }
 
-  return data.message;
+  return data;
 
+}
+export const alterarSenha = async (email, novaSenha) => {
+  const response = await fetch(`${BASE_URL}/utentes/alterar-senha`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, novaSenha }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Erro ao alterar senha");
+  }
+
+  return data;
 }

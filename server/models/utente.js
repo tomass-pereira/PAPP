@@ -46,68 +46,20 @@ const utenteSchema = new mongoose.Schema({
     required: true
   },
   condicaoMedica: {
-    type: {
-      tem: {
-        type: String,
-        enum: ['Sim', 'Não'],
-        default: 'Não'
-      },
-      descricao: {
-        type: String,
-        required: function() {
-          return this.tem === 'Sim';
-        }
-      }
-    },
-    required: false
+    type: String,
+    default: ''
   },
   lesoesOuCirurgias: {
-    type: {
-      tem: {
-        type: String,
-        enum: ['Sim', 'Não'],
-        default: 'Não'
-      },
-      descricao: {
-        type: String,
-        required: function() {
-          return this.tem === 'Sim';
-        }
-      }
-    },
-    required: false
+    type: String,
+    default: ''
   },
   diagnosticoMedico: {
-    type: {
-      tem: {
-        type: String,
-        enum: ['Sim', 'Não'],
-        default: 'Não'
-      },
-      descricao: {
-        type: String,
-        required: function() {
-          return this.tem === 'Sim';
-        }
-      }
-    },
-    required: false
+    type: String,
+    default: ''
   },
   alergias: {
-    type: {
-      tem: {
-        type: String,
-        enum: ['Sim', 'Não'],
-        default: 'Não'
-      },
-      descricao: {
-        type: String,
-        required: function() {
-          return this.tem === 'Sim';
-        }
-      }
-    },
-    required: false
+    type: String,
+    default: ''
   },
   morada: {
     distrito: {
@@ -128,20 +80,8 @@ const utenteSchema = new mongoose.Schema({
       match: [/^\d{4}-\d{3}$/, 'Por favor insira um código postal válido']
     },
     apartamento: {
-      type: {
-        vive: {
-          type: String,
-          enum: ['Sim', 'Não'],
-          default: 'Não'
-        },
-        detalhes: {
-          type: String,
-          required: function() {
-            return this.vive === 'Sim';
-          }
-        }
-      },
-      required: false
+      type: String,
+      default: ''
     }
   },
   dataCriacao: {

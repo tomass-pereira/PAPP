@@ -18,8 +18,6 @@ const Utente = require('../models/utente');
 
 router.post('/register',validateUserData, async (req, res, next) => {
   try {
-  
-
     const {
       profileImage,
       nome,
@@ -37,7 +35,6 @@ router.post('/register',validateUserData, async (req, res, next) => {
       morada
     } = req.body;
 
-   
     const utenteExists = await Promise.all([
       Utente.findOne({ email: email.toLowerCase() }),
       Utente.findOne({ telefone: telefone })
@@ -60,12 +57,13 @@ router.post('/register',validateUserData, async (req, res, next) => {
       StatusConta: 'pendente',
       queixaPrincipal,
       inicioSintomas: new Date(inicioSintomas),
-      condicaoMedica,
-      lesoesOuCirurgias,
-      diagnosticoMedico,
-      alergias,
+      condicaoMedica: condicaoMedica || '',
+      lesoesOuCirurgias: lesoesOuCirurgias || '',
+      diagnosticoMedico: diagnosticoMedico || '',
+      alergias: alergias || '',
       morada
     });
+
     try {
       await emailService.enviarEmail(
         'tj0816499@gmail.com',
@@ -75,30 +73,32 @@ router.post('/register',validateUserData, async (req, res, next) => {
             <h2>Novo Pedido de Aprovação de Conta</h2>
             <p>Um novo utilizador registrou-se e aguarda aprovação:</p>
             <ul>
-                <li><strong>Nome:</strong> ${req.body.nome}</li>
-                <li><strong>Email:</strong> ${req.body.email}</li>
-                <li><strong>Telefone:</strong> ${req.body.telefone}</li>
+                <li><strong>Nome:</strong> ${nome}</li>
+                <li><strong>Email:</strong> ${email}</li>
+                <li><strong>Telefone:</strong> ${telefone}</li>
                 <li><strong>Data do Pedido:</strong> ${new Date().toLocaleString()}</li>
             </ul>
             <div style="margin-top: 20px;">
                 <h3>Informações Médicas:</h3>
                 <ul>
-                    <li><strong>Queixa Principal:</strong> ${req.body.queixaPrincipal}</li>
-                    <li><strong>Início dos Sintomas:</strong> ${new Date(req.body.inicioSintomas).toLocaleDateString()}</li>
-                    <li><strong>Condição Médica:</strong> ${req.body.condicaoMedica}</li>
-                    <li><strong>Diagnóstico Médico:</strong> ${req.body.diagnosticoMedico}</li>
+                    <li><strong>Queixa Principal:</strong> ${queixaPrincipal}</li>
+                    <li><strong>Início dos Sintomas:</strong> ${new Date(inicioSintomas).toLocaleDateString()}</li>
+                    ${condicaoMedica ? `<li><strong>Condição Médica:</strong> ${condicaoMedica}</li>` : ''}
+                    ${diagnosticoMedico ? `<li><strong>Diagnóstico Médico:</strong> ${diagnosticoMedico}</li>` : ''}
+                    ${lesoesOuCirurgias ? `<li><strong>Lesões ou Cirurgias:</strong> ${lesoesOuCirurgias}</li>` : ''}
+                    ${alergias ? `<li><strong>Alergias:</strong> ${alergias}</li>` : ''}
                 </ul>
             </div>
-             <div style="margin-top: 20px;">
+            <div style="margin-top: 20px;">
                 <h3>Morada:</h3>
                 <ul>
-                    <li><strong>Distrito:</strong> ${req.body.morada.distrito}</li>
-                    <li><strong>Concelho:</strong> ${req.body.morada.concelho}</li>
-                    <li><strong>Rua:</strong> ${req.body.morada.rua}</li>
+                    <li><strong>Distrito:</strong> ${morada.distrito}</li>
+                    <li><strong>Concelho:</strong> ${morada.concelho}</li>
+                    <li><strong>Rua:</strong> ${morada.rua}</li>
                 </ul>
             </div>
         </div>
-         <div style="margin-top: 30px; text-align: center;">
+        <div style="margin-top: 30px; text-align: center;">
             <a href="http://localhost:3000/auth/aprovar/${novoUtente._id}" 
                style="background-color: #4CAF50; 
                       color: white; 
@@ -124,15 +124,15 @@ router.post('/register',validateUserData, async (req, res, next) => {
       );
     } catch (emailError) {
       console.error('Erro ao enviar email:', emailError);
-      // Não retornamos erro ao usuário pois a conta já foi criada
     }
+
     res.status(201).json({
       message: 'Usuário criado com sucesso',
       utente: novoUtente
     });
 
   } catch (error) {
-    console.error('Erro completo:', error); // Log do erro completo
+    console.error('Erro completo:', error);
     next(error);
   }
 });
@@ -174,10 +174,8 @@ router.post('/send-email', async (req, res) => {
 });
 router.post('/verificar-codigo', (req, res) => {
   const { email, codigo } = req.body;
-  console.log('Dados recebidos:', { email, codigo }); // Debug
   
   const codigoSalvo = codigosRecuperacao.get(email);
-  console.log('CODIGO:', codigoSalvo.codigo); // Debug
   
  
 
@@ -193,6 +191,42 @@ router.post('/verificar-codigo', (req, res) => {
     message: 'Código inválido' 
   });
 });
+router.put('/alterar-senha', async (req, res) => {
+  const { email, novaSenha } = req.body;
+ 
+  try {
+    
+    const utente = await Utente.findOne({ email });
+    if (!utente) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilizador não encontrado'
+      });
+    }
+ 
+   
+    await Utente.findOneAndUpdate(
+      { email },
+      { $set: { senha: novaSenha }},
+      { new: true }
+    );
+ 
+
+ 
+    res.status(200).json({
+      success: true,
+      message: 'Senha atualizada com sucesso'
+    });
+ 
+  } catch (error) {
+    console.error('Erro ao atualizar senha:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar senha',
+      error: error.message
+    });
+  }
+ });
 
 
 module.exports = router;

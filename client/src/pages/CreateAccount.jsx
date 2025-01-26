@@ -3,11 +3,10 @@ import { Camera } from "lucide-react";
 import NavBar from "../components/NavBar.jsx";
 import Section from "../components/Section.jsx";
 import Inputs from "../components/Inputs.jsx";
-import RadioButton from "../components/RadioButton.jsx";
 import Buttons from "../components/botoes.jsx";
 import Footer from "../components/Footer.jsx";
-import { buscaMorada } from '../api/morada';
-import { registarUtente } from '../api/utente';
+import { buscaMorada } from "../api/morada";
+import { registarUtente } from "../api/utente";
 import Alert from "../components/Alert.jsx";
 
 function CreateAccount() {
@@ -33,16 +32,11 @@ function CreateAccount() {
     queixaPrincipal: "",
     inicioSintomas: "",
     numPorta: "",
-    // Medical information with descriptions
-    condicaoMedica: false,
+    // Campos médicos simplificados
     condicaoMedicaDesc: "",
-    diagnosticoMedico: false,
     diagnosticoMedicoDesc: "",
-    lesoesCirurgias: false,
     lesoesCirurgiasDesc: "",
-    alergias: false,
     alergiasDesc: "",
-    edificio: false,
     edificioDesc: "",
     foto: null,
   });
@@ -58,9 +52,8 @@ function CreateAccount() {
     setErrorpostal("");
 
     try {
-    const data= await buscaMorada(formData.codpostal);
+      const data = await buscaMorada(formData.codpostal);
 
-     
       if (!data || data.length === 0) {
         setErrorpostal("Código postal não encontrado");
         setFlagdis(false);
@@ -94,24 +87,6 @@ function CreateAccount() {
       ...prev,
       [id]: value,
     }));
-  };
-
-  const handleRadioChange = (name, value) => {
-    const fieldMapping = {
-      "radio-condicao": "condicaoMedica",
-      "radio-diagonostico": "diagnosticoMedico",
-      "radio-cirugias": "lesoesCirurgias",
-      "radio-alergias": "alergias",
-      "radio=domicilio": "edificio",
-    };
-
-    const field = fieldMapping[name];
-    if (field) {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value === "sim",
-      }));
-    }
   };
 
   const compressImage = (file) => {
@@ -231,40 +206,21 @@ function CreateAccount() {
       dataNascimento: formData.dataNascimento,
       queixaPrincipal: formData.queixaPrincipal,
       inicioSintomas: formData.inicioSintomas,
-      condicaoMedica: {
-        tem: formData.condicaoMedica ? "Sim" : "Não",
-        descricao: formData.condicaoMedicaDesc || "",
-      },
-      lesoesOuCirurgias: {
-        tem: formData.lesoesCirurgias ? "Sim" : "Não",
-        descricao: formData.lesoesCirurgiasDesc || "",
-      },
-      diagnosticoMedico: {
-        tem: formData.diagnosticoMedico ? "Sim" : "Não",
-        descricao: formData.diagnosticoMedicoDesc || "",
-      },
-      alergias: {
-        tem: formData.alergias ? "Sim" : "Não",
-        descricao: formData.alergiasDesc || "",
-      },
+      condicaoMedica: formData.condicaoMedicaDesc || "",
+      lesoesOuCirurgias: formData.lesoesCirurgiasDesc || "",
+      diagnosticoMedico: formData.diagnosticoMedicoDesc || "",
+      alergias: formData.alergiasDesc || "",
       morada: {
         distrito: formData.distrito,
         concelho: formData.concelho,
         rua: formData.rua,
         codigoPostal: formData.codpostal,
-        apartamento: {
-          vive: formData.edificio ? "Sim" : "Não",
-          detalhes: formData.edificioDesc || formData.numPorta || "",
-        },
+        apartamento: formData.edificioDesc || formData.numPorta || "",
       },
     };
-
     try {
-     await registarUtente(payload);
+      await registarUtente(payload);
       setSuccess(true);
-      
-
-   
     } catch (err) {
       console.error("Erro completo:", err);
       if (err.message === "Failed to fetch") {
@@ -284,7 +240,11 @@ function CreateAccount() {
   return (
     <>
       <NavBar />
-      <Alert isOpen={success} onClose={() => setSuccess(false)} />
+      <Alert
+        isOpen={success}
+        onClose={() => setSuccess(false)}
+        texto="Enviamos um pedido ao administrador para autenticar a sua conta."
+      />
       <form onSubmit={handleSubmit}>
         <div className="max-w-7xl mx-auto px-8 py-10 bg-white rounded-lg mt-3">
           <div className="mb-10 text-center">
@@ -383,83 +343,61 @@ function CreateAccount() {
           </Section>
 
           <Section title="Informação Médica">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <Inputs
-                  id="queixaPrincipal"
-                  label="Queixa principal"
-                  type="text"
-                  value={formData.queixaPrincipal}
-                  onChange={handleInputChange}
-                  style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  required
-                />
+            <Inputs
+              id="queixaPrincipal"
+              label="Queixa principal"
+              type="text"
+              value={formData.queixaPrincipal}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+              required
+            />
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <RadioButton
-                    name="radio-condicao"
-                    assunto="Possui alguma condição médica?"
-                    id="sim-condicao"
-                    id2="nao-condicao"
-                    onChange={(e) =>
-                      handleRadioChange("radio-condicao", e.target.value)
-                    }
-                    style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  />
-                </div>
+            <Inputs
+              id="condicaoMedicaDesc"
+              label="Condição médica (se tiver)"
+              type="text"
+              value={formData.condicaoMedicaDesc}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <RadioButton
-                    name="radio-diagonostico"
-                    assunto="Tem algum diagnóstico médico relevante?"
-                    id="sim-diago"
-                    id2="nao-diago"
-                    onChange={(e) =>
-                      handleRadioChange("radio-diagonostico", e.target.value)
-                    }
-                    style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  />
-                </div>
-              </div>
+            <Inputs
+              id="diagnosticoMedicoDesc"
+              label="Diagnóstico médico (se tiver)"
+              type="text"
+              value={formData.diagnosticoMedicoDesc}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
 
-              <div className="space-y-6">
-                <Inputs
-                  id="inicioSintomas"
-                  label="Início dos sintomas"
-                  type="date"
-                  value={formData.inicioSintomas}
-                  onChange={handleInputChange}
-                  required
-                  style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                />
+            <Inputs
+              id="inicioSintomas"
+              label="Início dos sintomas"
+              type="date"
+              value={formData.inicioSintomas}
+              onChange={handleInputChange}
+              required
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <RadioButton
-                    name="radio-cirugias"
-                    assunto="Tem lesões ou cirurgias anteriores?"
-                    id="sim-cirugia"
-                    id2="nao-cirugia"
-                    onChange={(e) =>
-                      handleRadioChange("radio-cirugias", e.target.value)
-                    }
-                    style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  />
-                </div>
+            <Inputs
+              id="lesoesCirurgiasDesc"
+              label="Lesões ou cirurgias anteriores (se tiver)"
+              type="text"
+              value={formData.lesoesCirurgiasDesc}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <RadioButton
-                    name="radio-alergias"
-                    assunto="Tem alergias a medicamentos ou outros tratamentos?"
-                    id="sim-alergia"
-                    id2="nao-alergia"
-                    onChange={(e) =>
-                      handleRadioChange("radio-alergias", e.target.value)
-                    }
-                    style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  />
-                </div>
-              </div>
-            </div>
+            <Inputs
+              id="alergiasDesc"
+              label="Alergias a medicamentos ou tratamentos (se tiver)"
+              type="text"
+              value={formData.alergiasDesc}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+            />
           </Section>
 
           <Section title="Morada">
@@ -534,12 +472,13 @@ function CreateAccount() {
               disabled={true}
               style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
             />
-            <RadioButton
-              name="radio=domicilio"
-              assunto="Vive num apartamento?"
-              onChange={(e) =>
-                handleRadioChange("radio=domicilio", e.target.value)
-              }
+            <Inputs
+              id="edificioDesc"
+              label="Detalhes do apartamento (se aplicável)"
+              type="text"
+              value={formData.edificioDesc}
+              onChange={handleInputChange}
+              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
             />
           </Section>
 

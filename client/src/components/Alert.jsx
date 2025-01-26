@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-export default function Alert({ isOpen, onClose }) {
+export default function Alert({ isOpen, onClose, texto }) {
   // Fechar o alert com a tecla ESC
   useEffect(() => {
     const closeOnEsc = (e) => {
@@ -49,7 +49,7 @@ export default function Alert({ isOpen, onClose }) {
           <div className="flex-1">
             <strong className="block font-medium text-gray-900">Sucesso!</strong>
             <p className="mt-1 text-sm text-gray-700">
-              Enviamos um pedido ao administrador para autenticar a sua conta.
+              {texto}
             </p>
           </div>
 
