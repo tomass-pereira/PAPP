@@ -14,11 +14,13 @@ function LoginPage() {
     email: '',
     senha: ''
   });
+  
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.id]: e.target.value
+      
     });
   };
 
@@ -38,6 +40,7 @@ function LoginPage() {
       localStorage.setItem('utente', JSON.stringify(data.utente));
       navigate('/Inicio'); // Usando navigate em vez de window.location
     } catch (err) {
+
       setError(err.message || 'Email ou senha incorretos. Tente novamente.');
     } finally {
       setLoading(false);
