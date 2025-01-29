@@ -19,7 +19,7 @@ export default function Inicio() {
         
       </div>
       <div className="flex overflow-hidden">
-        <SideBar nome={utente?.nome} foto={utente?.profileImage} />  
+        <SideBar  />  
       </div>
       
     </>

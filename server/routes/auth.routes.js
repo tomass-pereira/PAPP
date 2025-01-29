@@ -32,6 +32,7 @@ router.get('/aprovar/:id', async (req, res) => {
 router.get('/rejeitar/:id', async (req, res) => {
     try {
         await Utente.findByIdAndUpdate(req.params.id, { StatusConta: 'rejeitado' });
+    
         res.send(`
             <div style="text-align: center; padding: 50px;">
                 <h1 style="color: red;">Conta rejeitada</h1>

@@ -146,35 +146,7 @@ function CreateAccount() {
   };
 
   const validateForm = () => {
-    // Validate email format
-    if (!formData.email || !formData.email.includes("@")) {
-      setError("Email inválido");
-      return false;
-    }
-
-    // Validate name length
-    if (!formData.nome || formData.nome.length < 3) {
-      setError("Nome deve ter pelo menos 3 caracteres");
-      return false;
-    }
-
-    // Validate phone number format (exactly 9 digits)
-    if (!formData.telefone || !/^\d{9}$/.test(formData.telefone)) {
-      setError("Telefone deve ter 9 dígitos");
-      return false;
-    }
-
-    // Validate password length with logging
-    console.log("Validating password:", {
-      password: formData.senha,
-      length: formData.senha?.length,
-    });
-
-    if (!formData.senha || formData.senha.length < 6) {
-      setError("Senha deve ter pelo menos 6 caracteres");
-      return false;
-    }
-
+    
     // Validate password confirmation
     if (formData.senha !== formData.confirmSenha) {
       setError("As senhas não coincidem");
@@ -193,9 +165,6 @@ function CreateAccount() {
 
     setLoading(true);
     setError("");
-
-    // Create the request payload with only the required fields
-    // Log the form data before creating payload
 
     const payload = {
       profileImage: formData.foto,

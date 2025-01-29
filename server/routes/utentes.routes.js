@@ -2,7 +2,7 @@ const codigosRecuperacao = new Map();
 const express = require('express');
 const router = express.Router();
 const Utente = require('../models/utente');
- const { validateUserData } = require('../middlewares'); // Comentar temporariamente
+ const { validateUserData } = require('../middlewares'); 
  const emailService = require('../services/nodemailer');
 
 
@@ -25,7 +25,6 @@ router.post('/register',validateUserData, async (req, res, next) => {
       email,
       dataNascimento,
       senha,
-      StatusConta,
       queixaPrincipal,
       inicioSintomas,
       condicaoMedica,
@@ -227,6 +226,15 @@ router.put('/alterar-senha', async (req, res) => {
     });
   }
  });
+ router.get('/Verificar-Status', (req, res) => {
+ const email=req.body.email;
+
+
+  res.status(400).json({ 
+    success: false, 
+    message: 'Código inválido' 
+  });
+});
 
 
 module.exports = router;

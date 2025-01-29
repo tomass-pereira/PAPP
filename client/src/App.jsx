@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter, useLocation } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginPage from './pages/LoginPage.jsx';
 import CreateAccount from './pages/CreateAccount.jsx';
+import { UserProvider } from './contexts/UserContext.jsX';
 import RecuperarPasse from './pages/RecuperarPasse.jsx';
 import First from './pages/First';
 import MinhasSessoes from './pages/PaginaInicial/MinhasSessoes.jsx';
@@ -120,9 +121,12 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
+    <UserProvider>
+
     <BrowserRouter>
       <AnimatedRoutes />
     </BrowserRouter>
+    </UserProvider>
   );
 }
 
