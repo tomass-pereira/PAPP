@@ -7,9 +7,7 @@ import Footer from "../components/Footer.jsx";
 function First() {
   return (
     <>
-      <NavBar 
-      style="fixed flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" 
-      />
+      <NavBar style="fixed flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" />
       <div id="inicio" className="flex pt-0">
         <section className="overflow-hidden bg-gray-50 sm:grid sm:grid-cols-2">
           <div className="p-8 md:p-12 lg:px-16 lg:py-24">
@@ -30,7 +28,7 @@ function First() {
                   href="#"
                   className="inline-block rounded bg-[#4f4fb9] px-12 py-3 text-sm font-medium text-white transition hover:bg-[#3e3e9e]"
                 >
-                  Inicia sessão	agora
+                  Inicia sessão agora
                 </a>
               </div>
             </div>
@@ -43,10 +41,10 @@ function First() {
           />
         </section>
       </div>
-      
+
       <div
         id="servicos"
-        className="grid grid-cols-3 gap-7 max-w-7xl mx-auto px-4 py-16 scroll-mt-20"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-7 max-w-7xl mx-auto px-4 py-8 md:py-16 scroll-mt-20"
       >
         <Card />
         <Card />
@@ -55,7 +53,7 @@ function First() {
         <Card />
         <Card />
       </div>
-      
+
       <div id="contactos" className="block scroll-mt-20">
         <Footer />
       </div>

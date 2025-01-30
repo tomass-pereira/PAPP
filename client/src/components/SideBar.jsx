@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useUser } from "../contexts/UserContext.jsX";
 import { Link, useLocation } from "react-router-dom";
 import {
   Calendar,
@@ -12,7 +13,8 @@ import {
   Bell,
 } from "lucide-react";
 
-const Sidebar = ({ nome, foto }) => {
+const Sidebar = () => {
+  const {userData}=useUser();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
@@ -84,13 +86,13 @@ const Sidebar = ({ nome, foto }) => {
         <div className="p-4 border-b">
           <div className="flex items-center">
             <img
-              src={foto}
+             src={userData.profileImage}
               alt="Profile"
               className="w-10 h-10 rounded-full border-2 border-indigo-600 object-cover" // Adicionado object-cover
             />
             {!isCollapsed && (
               <div className="ml-3">
-                <p className="font-medium text-gray-800">{nome}</p>
+                <p className="font-medium text-gray-800">{userData.nome}</p>
                 <p className="text-sm text-indigo-600">Utente</p>
               </div>
             )}

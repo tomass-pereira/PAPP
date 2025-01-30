@@ -8,7 +8,6 @@ import '@sx-premium/interactive-event-modal/index.css'
 import {createInputField, createInteractiveEventModal} from "@sx-premium/interactive-event-modal";
 import '@sx-premium/drag-to-create/index.css'
 import { v4 as uuidv4 } from 'uuid';
-import './CalendarModal.css';
 
 
 function CalendarApp() {
@@ -119,9 +118,13 @@ function CalendarApp() {
  
 
   const calendar = useCalendarApp({
-    views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
+    views: [ createViewDay(),createViewMonthGrid(),createViewWeek(),createViewMonthAgenda()],
+    
     defaultView: 'week',
-   
+   dayBoundaries:{
+   start:"10:00",
+   end:'19:00'
+   },
     events: events, // Use the events from state
     plugins: [
       eventsService,

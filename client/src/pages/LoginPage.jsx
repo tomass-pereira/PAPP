@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../components/NavBar.jsx";
 import { Link } from "react-router-dom";
+import NavBar from "../components/NavBar.jsx";
 import Inputs from "../components/Inputs.jsx";
 import Buttons from "../components/botoes.jsx";
-import { loginUtente } from '../api/utente';
-
+import { useUser } from "../contexts/UserContext.jsX";
 function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useUser(); // Usar o context
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -26,23 +26,26 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
-    const credentials = {
-      email: formData.email,
-      senha: formData.senha
-    };
-    
+  
     try {
-      const data = await loginUtente(credentials);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('utente', JSON.stringify(data.utente));
-      navigate('/Inicio'); // Usando navigate em vez de window.location
+      const data = await login({
+        email: formData.email,
+        senha: formData.senha
+      });
+      
+      console.log("Login bem sucedido:", data); // debug
+      
+      if (data.token) {
+        navigate('/Inicio', { replace: true });
+      }
     } catch (err) {
+      console.error("Erro no submit:", err);
       setError(err.message || 'Email ou senha incorretos. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <>
