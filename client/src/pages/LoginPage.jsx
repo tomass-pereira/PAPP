@@ -33,7 +33,6 @@ function LoginPage() {
         senha: formData.senha
       });
       
-      console.log("Login bem sucedido:", data); // debug
       
       if (data.token) {
         navigate('/Inicio', { replace: true });

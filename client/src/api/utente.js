@@ -1,4 +1,5 @@
 import { BASE_URL } from './config';
+
 export const registarUtente = async (payload) => {
   const response = await fetch(`${BASE_URL}/utentes/register`, {
     method: 'POST',
@@ -16,6 +17,10 @@ export const registarUtente = async (payload) => {
 
   return data;
 };
+
+
+
+
 
 export const loginUtente = async (credentials) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {

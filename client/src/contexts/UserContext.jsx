@@ -1,21 +1,40 @@
-// src/contexts/UserContext.jsx
-import { createContext, useState, useContext, useEffect } from "react"; // Adicionar useEffect
+import { createContext, useState, useContext, useEffect } from "react";
 import { loginUtente } from "../api/utente";
-import axios from "axios"; // Importar axios
+import api from "../api/api";
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [userData, setUserData] = useState(() => {
-    const storedUser = localStorage.getItem("utente");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+   console.log("Provider renderizou");
+  const [userData, setUserData] = useState();
+
+
+ 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.log("Não há token");
+      return;
+    }
+
+    api.get('/utentes/current')
+      .then(response => {
+        setUserData(response.data.utente);
+      })
+      .catch(error => {
+        console.log("Erro na requisição:", error);
+      });
+
+  }, []);
 
   const login = async (credentials) => {
     try {
       const data = await loginUtente(credentials);
       setUserData(data.utente);
-      console.log("Dados do utilizador:", data.utente);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
       return data;
     } catch (error) {
       console.error("Erro no login:", error);
@@ -25,59 +44,11 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     setUserData(null);
+    localStorage.removeItem("token");
     window.location.href = "/login";
   };
 
-  // Verificação periódica do status
-  useEffect(() => {
-    if (userData) {
-      const checkStatus = async () => {
-        try {
-          const response = await axios.get("/api/utentes/status"); // Ajuste a rota conforme sua API
-
-          if (response.data.StatusConta === "rejeitado") {
-            logout();
-            alert("A sua conta foi bloqueada "); 
-          }
-        } catch (error) {
-          console.error("Erro ao verificar status:", error);
-        }
-      };
-
-      // Verifica a cada 30 segundos
-      const interval = setInterval(checkStatus, 30000);
-
-      // Limpa o interval
-      return () => clearInterval(interval);
-    }
-  }, [userData]);
-
-  // Interceptor para verificar status em todas as respostas
-  useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
-      (response) => {
-        if (response.data?.utente?.StatusConta) {
-          const StatusConta = response.data.utente.status;
-          if (
-            StatusConta === "rejeitado" ||
-            StatusConta === "aprovado" ||
-            StatusConta === "inativo"
-          ) {
-            logout();
-            alert("Sua conta foi " + StatusConta);
-          }
-        }
-        return response;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
-  }, []);
+  // O resto do seu código permanece igual...
 
   const value = {
     userData,

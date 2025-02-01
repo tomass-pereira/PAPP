@@ -15,10 +15,14 @@ import {
 
 const Sidebar = () => {
   const {userData}=useUser();
+  console.log('Dados na side bar', userData);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  if (!userData) {
+    return null; // ou um loading
+  }
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/Inicio" },
@@ -43,14 +47,7 @@ const Sidebar = () => {
     { id: "notifications", label: "Notificações", icon: Bell },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("utente");
-    // Implementar a lógica de logout aqui
-    console.log("Logout realizado");
-    setShowLogoutDialog(false);
-    window.location.href = "/";
-  };
+  
 
   return (
     <>
@@ -195,7 +192,7 @@ const Sidebar = () => {
               Cancelar
             </button>
             <button
-              onClick={handleLogout}
+             
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Terminar Sessão
