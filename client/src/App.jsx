@@ -12,6 +12,8 @@ import Inicio from './pages/PaginaInicial/Inicio.jsx';
 import Exercicios from './pages/PaginaInicial/Exercicios.jsx';
 import AgendarSessao from './pages/PaginaInicial/AgendarSessao.jsx';
 import ErrorPage from './pages/Error.jsx';
+import NotificationsPage from './pages/PaginaInicial/NotificationsPage.jsx';
+import Config from './pages/PaginaInicial/Config.jsx';
 
 const AnimatedPage = ({ children }) => {
   const pageVariants = {
@@ -80,6 +82,15 @@ const AnimatedRoutes = () => {
         <Route 
           path="/exercicios" 
           element={<Exercicios />} 
+        />
+         
+        <Route 
+          path="/NotificationsPage" 
+          element={<NotificationsPage/>} 
+        />
+         <Route 
+          path="/Config" 
+          element={<Config/>} 
         />
         <Route 
           path="/Inicio" 

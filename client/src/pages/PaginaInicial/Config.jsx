@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Camera } from "lucide-react";
-import NavBar from "../components/NavBar.jsx";
-import Section from "../components/Section.jsx";
-import Inputs from "../components/Inputs.jsx";
-import Buttons from "../components/botoes.jsx";
-import Footer from "../components/Footer.jsx";
-import { buscaMorada } from "../api/morada";
-import { registarUtente } from "../api/utente";
-import Alert from "../components/Alert.jsx";
+import Sidebar from "../../components/SideBar.jsx";
+import Section from "../../components/Section.jsx";
+import Inputs from "../../components/Inputs.jsx";
+import Buttons from "../../components/botoes.jsx";
+import { buscaMorada } from "../../api/morada.js";
+import { registarUtente } from "../../api/utente";
+import Alert from "../../components/Alert.jsx";
 
 function CreateAccount() {
   const [preview, setPreview] = useState(null);
@@ -212,7 +211,7 @@ function CreateAccount() {
 
   return (
     <>
-      <NavBar />
+      <Sidebar />
       {loading && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -470,7 +469,6 @@ function CreateAccount() {
           />
         </div>
       </form>
-      <Footer />
     </>
   );
 }

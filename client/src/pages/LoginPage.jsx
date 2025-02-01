@@ -14,7 +14,9 @@ function LoginPage() {
     email: '',
     senha: ''
   });
-
+if(localStorage.getItem("token")){
+  window.location.href='/Inicio';
+}
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -38,7 +40,7 @@ function LoginPage() {
         navigate('/Inicio', { replace: true });
       }
     } catch (err) {
-      console.error("Erro no submit:", err);
+     
       setError(err.message || 'Email ou senha incorretos. Tente novamente.');
     } finally {
       setLoading(false);

@@ -14,14 +14,17 @@ import {
 } from "lucide-react";
 
 const Sidebar = () => {
-  const {userData}=useUser();
-  console.log('Dados na side bar', userData);
+  const { userData, logout } = useUser();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  // You should replace this with your actual unread notifications count
+  const unreadNotifications = 3;
+
   if (!userData) {
-    return null; // ou um loading
+    return null;
   }
 
   const menuItems = [
@@ -44,25 +47,52 @@ const Sidebar = () => {
       icon: Clock,
       path: "/MinhasSessoes",
     },
-    { id: "notifications", label: "Notificações", icon: Bell },
+    { 
+      id: "notifications", 
+      label: "Notificações",
+      icon: ({ size, className }) => (
+        <div className="relative">
+          <Bell size={size} className={className} />
+          {unreadNotifications > 0 && (
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadNotifications > 99 ? '99+' : unreadNotifications}
+            </div>
+          )}
+        </div>
+      ),
+      path: "/NotificationsPage"
+    },
+   
   ];
-
-  
 
   return (
     <>
+      {/* Rest of the component remains the same */}
+      <button
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md text-indigo-600 hover:bg-gray-50"
+      >
+        {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
       <div
         className={`
-        h-screen bg-white border-r relative
-        ${isCollapsed ? "w-20" : "w-64"}
-        transition-all duration-300 ease-in-out
-        ${showLogoutDialog ? "blur-sm" : ""}
-      `}
+          fixed md:relative h-screen bg-white border-r 
+          ${isCollapsed ? "w-20" : "w-64"}
+          transition-all duration-300 ease-in-out
+          ${showLogoutDialog ? "blur-sm" : ""}
+          ${
+            isMobileOpen
+              ? "translate-x-0"
+              : "-translate-x-full md:translate-x-0"
+          }
+          z-40
+        `}
       >
         {/* Toggle Button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-10 bg-white border rounded-full p-1.5 hover:bg-gray-50 text-indigo-600"
+          className="absolute -right-3 top-10 bg-white border rounded-full p-1.5 hover:bg-gray-50 text-indigo-600 hidden md:block"
         >
           {isCollapsed ? <Menu size={16} /> : <X size={16} />}
         </button>
@@ -83,9 +113,9 @@ const Sidebar = () => {
         <div className="p-4 border-b">
           <div className="flex items-center">
             <img
-             src={userData.profileImage}
+              src={userData.profileImage}
               alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-indigo-600 object-cover" // Adicionado object-cover
+              className="w-10 h-10 rounded-full border-2 border-indigo-600 object-cover"
             />
             {!isCollapsed && (
               <div className="ml-3">
@@ -106,15 +136,18 @@ const Sidebar = () => {
                 <li key={item.id}>
                   <Link
                     to={item.path}
-                    onClick={() => setActiveItem(item.path)}
+                    onClick={() => {
+                      setActiveItem(item.path);
+                      setIsMobileOpen(false);
+                    }}
                     className={`
-    flex items-center w-full p-3 rounded-lg transition-colors
-    ${
-      activeItem === item.path
-        ? "bg-indigo-50 text-indigo-600"
-        : "text-gray-600 hover:bg-gray-50 hover:text-indigo-600"
-    }
-  `}
+                      flex items-center w-full p-3 rounded-lg transition-colors
+                      ${
+                        activeItem === item.path
+                          ? "bg-indigo-50 text-indigo-600"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-indigo-600"
+                      }
+                    `}
                   >
                     <Icon size={20} />
                     {!isCollapsed && <span className="ml-3">{item.label}</span>}
@@ -126,13 +159,16 @@ const Sidebar = () => {
         </nav>
 
         {/* Bottom Menu */}
-        <div className="absolute bottom-0 w-full p-4 border-t">
+        <div className="absolute bottom-0 w-full p-4 border-t bg-white">
           <ul className="space-y-2">
             <li>
-              <button className="flex items-center w-full p-3 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg">
+            <Link 
+                to="/Config"
+                className="flex items-center w-full p-3 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
+              >
                 <Settings size={20} />
                 {!isCollapsed && <span className="ml-3">Configurações</span>}
-              </button>
+              </Link>
             </li>
             <li>
               <button
@@ -147,13 +183,21 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* Overlay para mobile */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
       {/* Logout Dialog */}
       <div
         className={`
-        fixed inset-0 z-50 
-        ${showLogoutDialog ? "opacity-100" : "opacity-0 pointer-events-none"}
-        transition-opacity duration-300 ease-in-out
-      `}
+          fixed inset-0 z-50 
+          ${showLogoutDialog ? "opacity-100" : "opacity-0 pointer-events-none"}
+          transition-opacity duration-300 ease-in-out
+        `}
       >
         {/* Backdrop */}
         <div
@@ -164,11 +208,11 @@ const Sidebar = () => {
         {/* Modal */}
         <div
           className={`
-          absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-          bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl
-          transition-all duration-300 ease-in-out
-          ${showLogoutDialog ? "scale-100 opacity-100" : "scale-95 opacity-0"}
-        `}
+            absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+            bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl
+            transition-all duration-300 ease-in-out
+            ${showLogoutDialog ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+          `}
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -192,7 +236,7 @@ const Sidebar = () => {
               Cancelar
             </button>
             <button
-             
+              onClick={logout}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Terminar Sessão

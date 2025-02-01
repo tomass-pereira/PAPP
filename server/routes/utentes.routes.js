@@ -95,6 +95,8 @@ router.post('/register',validateUserData, async (req, res, next) => {
                     <li><strong>Distrito:</strong> ${morada.distrito}</li>
                     <li><strong>Concelho:</strong> ${morada.concelho}</li>
                     <li><strong>Rua:</strong> ${morada.rua}</li>
+                   <li><strong>Código-Postal:</strong> ${morada.codigoPostal}</li>
+
                 </ul>
             </div>
         </div>

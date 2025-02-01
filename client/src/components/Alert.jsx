@@ -1,17 +1,8 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-export default function Alert({ isOpen, onClose, texto }) {
-  // Fechar o alert com a tecla ESC
-  useEffect(() => {
-    const closeOnEsc = (e) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", closeOnEsc);
-    return () => document.removeEventListener("keydown", closeOnEsc);
-  }, [onClose]);
+export default function Alert({ isOpen, texto }) {
+  
+ 
 
   if (!isOpen) return null;
 
@@ -20,7 +11,7 @@ export default function Alert({ isOpen, onClose, texto }) {
       {/* Overlay com fundo escuro */}
       <div 
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
+       
       />
       
       {/* Alert Container */}
@@ -55,7 +46,7 @@ export default function Alert({ isOpen, onClose, texto }) {
 
           <button 
             className="text-gray-500 transition hover:text-gray-600"
-            onClick={onClose}
+            onClick={window.location.href='/'}
           >
             <span className="sr-only">Fechar</span>
             <svg
