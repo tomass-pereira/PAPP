@@ -4,6 +4,7 @@ const router = express.Router();
 const Utente = require('../models/utente');
  const { validateUserData } = require('../middlewares'); 
  const emailService = require('../services/nodemailer');
+ const authMiddleware = require('../middlewares/auth.middleware');
 
 
  function gerarCodigo4Digitos() {
@@ -94,6 +95,8 @@ router.post('/register',validateUserData, async (req, res, next) => {
                     <li><strong>Distrito:</strong> ${morada.distrito}</li>
                     <li><strong>Concelho:</strong> ${morada.concelho}</li>
                     <li><strong>Rua:</strong> ${morada.rua}</li>
+                   <li><strong>Código-Postal:</strong> ${morada.codigoPostal}</li>
+
                 </ul>
             </div>
         </div>
@@ -236,5 +239,32 @@ router.put('/alterar-senha', async (req, res) => {
   });
 });
 
+router.get('/current', authMiddleware, async (req, res) => {
+  console.log("Chegou na rota current");
+  console.log("Headers recebidos:", req.headers);
+  console.log("ID do utente:", req.utente.id);
+  
+  try {
+    const utente = await Utente.findById(req.utente.id);
+    console.log("Utente encontrado:", utente);
+    
+    if (!utente) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Utente não encontrado" 
+      });
+    }
 
+    res.json({ 
+      success: true,
+      utente 
+    });
+  } catch (error) {
+    console.log("Erro na rota:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Erro ao buscar dados do utente" 
+    });
+  }
+});
 module.exports = router;

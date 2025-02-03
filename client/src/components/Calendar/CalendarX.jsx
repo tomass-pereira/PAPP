@@ -1,13 +1,15 @@
 import {useState, useRef} from 'react'
-import './Calendar.css'
 import {ScheduleXCalendar, useCalendarApp} from "@schedule-x/react";
 import {createEventsServicePlugin} from "@schedule-x/events-service";
-import {createViewDay, createViewMonthGrid, createViewWeek, createViewMonthAgenda} from "@schedule-x/calendar";
+import {createViewMonthGrid, createViewWeek, createViewMonthAgenda} from "@schedule-x/calendar";
 import '@schedule-x/theme-default/dist/index.css'
 import '@sx-premium/interactive-event-modal/index.css'
-import {createInputField, createInteractiveEventModal} from "@sx-premium/interactive-event-modal";
+import {createInputField} from "@sx-premium/interactive-event-modal";
 import '@sx-premium/drag-to-create/index.css'
+import Modal from './Modal';
 import { v4 as uuidv4 } from 'uuid';
+import './Calendar.css'
+
 
 
 function CalendarApp() {
@@ -16,11 +18,48 @@ function CalendarApp() {
     {
       id: '1',
       title: 'Event 5',
-      start: '2025-01-25 12:00',
-      end: '2025-01-25 15:00',
+      start: '2025-02-01 12:00',
+      end: '2025-02-01 15:00',
       isEditable: true,
+    },
+    {
+      id: '2',
+      title: 'Event 5',
+      start: '2025-02-01 12:00',
+      end: '2025-02-01 15:00',
+      isEditable: true,
+    },
+    {
+      id: '3',
+      title: 'Event 5',
+      start: '2025-02-01 12:00',
+      end: '2025-02-01 15:00',
+      isEditable: true,
+    },
+    {
+      id: '4',
+      title: 'Event 6',
+      start: '2025-02-01 12:00',
+      end: '2025-02-01 15:00',
+      isEditable: true,
+    },
+    {
+      title: "Meeting with Mr. boss",
+      start: "2025-02-03 13:15",
+      end: "2025-02-03 15:00",
+      id: "98d85d98541f",
+      calendarId: "work"
+    }, 
+    {
+      title: "Sipping Aperol Spritz on the beach",
+      start: "2025-02-07 12:00",
+      end: "2025-02-07 15:20",
+      id: "0d13aae3b8a1",
+      calendarId: "disponivel"
     }
   ]);
+  const modalRef = useRef(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [eventsService] = useState(() => createEventsServicePlugin());
  
@@ -69,85 +108,57 @@ function CalendarApp() {
     }
   });
 
-  const modalRef = useRef(null);
-  const [modalPlugin] = useState(() => {
-    const modal = createInteractiveEventModal({
-      eventsService,
-      onAddEvent: (event) => {
-        const newEvent = {
-          ...event,
-          id: uuidv4(),
-          calendar: event.calendar || 'personal',
-          isEditable: true
-        };
-        setEvents(prevEvents => [...prevEvents, newEvent]);
-      },
-     
-      onUpdateEvent: (updatedEvent) => {
-        setEvents(prevEvents => prevEvents.map(event => 
-          event.id === updatedEvent.id ? updatedEvent : event
-        ));
-      },
-      fields: {
-        title: {
-          required: true
-        },
-        startDate: {
-          required: true
-        },
-        startTime: {
-          required: true
-        },
-        endDate: {
-          required: true
-        },
-        endTime: {
-          required: true
-        },
-      },
-      customFields: {
-        country: countryInputField,
-        region: regionInputField,
-      }
-    });
-
-    modalRef.current = modal;
-    return modal;
-  });
+ 
 
  
 
   const calendar = useCalendarApp({
-    views: [ createViewDay(),createViewMonthGrid(),createViewWeek(),createViewMonthAgenda()],
+    views: [createViewMonthGrid(),createViewWeek(),createViewMonthAgenda()],
+    calendars: {
+     
+      disponivel: {
+        colorName: 'disponivel',
+        lightColors: {
+          main: '#34D399',       // Verde principal
+          container: '#ECFDF5',  // Verde claro para o fundo
+          onContainer: '#065F46' // Verde escuro para o texto
+        }
+      },
     
-    defaultView: 'week',
+     
+    },
+
+    
+    defaultView: 'month',
    dayBoundaries:{
    start:"10:00",
    end:'19:00'
    },
-    events: events, // Use the events from state
+   events:events,
+    
     plugins: [
-      eventsService,
+      eventsService
       
-      modalPlugin,
+    
     ],
     callbacks: {
-      onDoubleClickDateTime: (date) => {
-        modalPlugin.clickToCreate(date, {
-          title: 'New event'
-        })
+      onEventClick(calendarEvent) {
+        console.log('onEventClick', calendarEvent)
+        setSelectedEvent(calendarEvent);
+        modalRef.current?.showModal();
       }
+    
     },
+   
+  
     locale: 'pt-BR',
   });
 
   return (
     <div>
-      
-       
-
-      <ScheduleXCalendar calendarApp={calendar} />
-    </div>
+    <ScheduleXCalendar calendarApp={calendar} />
+    <Modal ref={modalRef} event={selectedEvent} />
+  </div>
   )
 }
 

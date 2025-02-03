@@ -1,4 +1,5 @@
 import { BASE_URL } from './config';
+
 export const registarUtente = async (payload) => {
   const response = await fetch(`${BASE_URL}/utentes/register`, {
     method: 'POST',
@@ -16,6 +17,26 @@ export const registarUtente = async (payload) => {
 
   return data;
 };
+export const AtualizarUtente = async (payload) => {
+  const response = await fetch(`${BASE_URL}/utentes/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Erro ao atualizar os dados");
+  }
+
+  return data;
+};
+
+
+
 
 export const loginUtente = async (credentials) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {

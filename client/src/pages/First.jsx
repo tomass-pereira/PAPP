@@ -8,6 +8,7 @@ function First() {
   return (
     <>
       <NavBar style="fixed flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" />
+
       <div id="inicio" className="flex pt-0">
         <section className="overflow-hidden bg-gray-50 sm:grid sm:grid-cols-2">
           <div className="p-8 md:p-12 lg:px-16 lg:py-24">

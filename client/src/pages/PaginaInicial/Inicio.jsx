@@ -5,6 +5,7 @@ import SideBar from "../../components/SideBar";
 export default function Inicio() {
   const navigate = useNavigate();
   const utente = JSON.parse(localStorage.getItem('utente'));
+  
 
   useEffect(() => {
     const token = localStorage.getItem('token');

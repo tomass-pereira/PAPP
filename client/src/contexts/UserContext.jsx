@@ -1,88 +1,93 @@
-// src/contexts/UserContext.jsx
-import { createContext, useState, useContext, useEffect } from "react"; // Adicionar useEffect
+import { createContext, useState, useContext, useEffect } from "react";
 import { loginUtente } from "../api/utente";
-import axios from "axios"; // Importar axios
+import api from "../api/api";
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [userData, setUserData] = useState(() => {
-    const storedUser = localStorage.getItem("utente");
-    return storedUser ? JSON.parse(storedUser) : null;
+  // Inicializa loading como true e verifica token imediatamente
+  const [loading, setLoading] = useState(() => {
+    return !!localStorage.getItem("token");
   });
+  const [userData, setUserData] = useState(null);
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setInitialized(true);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/utentes/current');
+        setUserData(response.data.utente);
+      } catch (error) {
+        console.log("Erro na requisição:", error);
+        localStorage.removeItem("token");
+
+        setUserData(null);
+      } finally {
+        setLoading(false);
+        setInitialized(true);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const login = async (credentials) => {
     try {
+      setLoading(true);
       const data = await loginUtente(credentials);
-      setUserData(data.utente);
-      console.log("Dados do utilizador:", data.utente);
+      
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setUserData(data.utente);
+      }
+      
       return data;
     } catch (error) {
       console.error("Erro no login:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = () => {
     setUserData(null);
-    window.location.href = "/login";
+    localStorage.removeItem("token");
+    window.location.href = "/";
   };
 
-  // Verificação periódica do status
-  useEffect(() => {
-    if (userData) {
-      const checkStatus = async () => {
-        try {
-          const response = await axios.get("/api/utentes/status"); // Ajuste a rota conforme sua API
-
-          if (response.data.StatusConta === "rejeitado") {
-            logout();
-            alert("A sua conta foi bloqueada "); 
-          }
-        } catch (error) {
-          console.error("Erro ao verificar status:", error);
-        }
-      };
-
-      // Verifica a cada 30 segundos
-      const interval = setInterval(checkStatus, 30000);
-
-      // Limpa o interval
-      return () => clearInterval(interval);
+  const updateUserData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/utentes/current');
+      setUserData(response.data.utente);
+    } catch (error) {
+      console.error("Erro ao atualizar dados do usuário:", error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-  }, [userData]);
+  };
 
-  // Interceptor para verificar status em todas as respostas
-  useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
-      (response) => {
-        if (response.data?.utente?.StatusConta) {
-          const StatusConta = response.data.utente.status;
-          if (
-            StatusConta === "rejeitado" ||
-            StatusConta === "aprovado" ||
-            StatusConta === "inativo"
-          ) {
-            logout();
-            alert("Sua conta foi " + StatusConta);
-          }
-        }
-        return response;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.response.eject(interceptor);
-    };
-  }, []);
+  // Não renderiza nada até a verificação inicial estar completa
+  if (!initialized) {
+    return null;
+  }
 
   const value = {
     userData,
     login,
     logout,
+    loading,
+    updateUserData,
     isAuthenticated: !!userData,
   };
 
@@ -90,5 +95,9 @@ export function UserProvider({ children }) {
 }
 
 export function useUser() {
-  return useContext(UserContext);
-}
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("useUser deve ser usado dentro de um UserProvider");
+  }
+  return context;
+} 

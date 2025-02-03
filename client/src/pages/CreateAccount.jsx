@@ -147,6 +147,10 @@ function CreateAccount() {
 
   const validateForm = () => {
     
+    if(!formData.numPorta){
+      setError('Preencha o número da porta');
+      return false;
+    }
     // Validate password confirmation
     if (formData.senha !== formData.confirmSenha) {
       setError("As senhas não coincidem");
@@ -209,9 +213,14 @@ function CreateAccount() {
   return (
     <>
       <NavBar />
+      {loading && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+)}
       <Alert
         isOpen={success}
-        onClose={() => setSuccess(false)}
+       
         texto="Enviamos um pedido ao administrador para autenticar a sua conta."
       />
       <form onSubmit={handleSubmit}>
@@ -457,7 +466,7 @@ function CreateAccount() {
             type="submit"
             disabled={loading}
             style="py-4 px-8 mt-0 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e] disabled:bg-gray-400"
-            legenda={loading ? "Aguarde..." : "Criar Conta"}
+            legenda="Criar Conta"
           />
         </div>
       </form>
