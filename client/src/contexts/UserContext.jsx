@@ -28,6 +28,7 @@ export function UserProvider({ children }) {
       } catch (error) {
         console.log("Erro na requisição:", error);
         localStorage.removeItem("token");
+      
 
         setUserData(null);
       } finally {

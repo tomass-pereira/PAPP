@@ -1,7 +1,6 @@
 // First.jsx
 import React from "react";
 import NavBar from "../components/NavBar.jsx";
-import Card from "../components/Card.jsx";
 import Footer from "../components/Footer.jsx";
 
 function First() {
@@ -47,12 +46,7 @@ function First() {
         id="servicos"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-7 max-w-7xl mx-auto px-4 py-8 md:py-16 scroll-mt-20"
       >
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+       
       </div>
 
       <div id="contactos" className="block scroll-mt-20">

@@ -63,54 +63,19 @@ function CalendarApp() {
 
   const [eventsService] = useState(() => createEventsServicePlugin());
  
+  const handleConfirm = (event) => {
+    console.log('Vaga confirmada:', event);
+    // Lógica adicional aqui
+  };
 
- 
-
-  const regionInputField = createInputField({
-    label: 'Region',
-    type: 'select',
-    items: [],
-  });
-
-  const countryInputField = createInputField({
-    label: 'Country',
-    type: 'select',
-    items: [
-      { label: 'USA', value: 'USA' },
-      { label: 'Germany', value: 'Germany' },
-    ],
-    onChange: (value) => {
-      if (!modalRef.current) return;
-      
-      modalRef.current.formValues.value = {
-        ...modalRef.current.formValues.value,
-        region: ''
-      };
-      regionInputField.value.rerender();
-
-      if (value === 'USA') {
-        regionInputField.value = {
-          ...regionInputField.value,
-          items: [
-            { label: 'California', value: 'ca' },
-            { label: 'New York', value: 'ny' },
-          ]
-        };
-      } else if (value === 'Germany') {
-        regionInputField.value = {
-          ...regionInputField.value,
-          items: [
-            { label: 'Berlin', value: 'berlin' },
-            { label: 'Munich', value: 'munich' },
-          ]
-        };
-      }
-    }
-  });
-
+  const handleClose = () => {
+    setSelectedEvent(null);
+    // Lógica adicional aqui
+  };
  
 
  
+
 
   const calendar = useCalendarApp({
     views: [createViewMonthGrid(),createViewWeek(),createViewMonthAgenda()],
@@ -157,7 +122,7 @@ function CalendarApp() {
   return (
     <div>
     <ScheduleXCalendar calendarApp={calendar} />
-    <Modal ref={modalRef} event={selectedEvent} />
+    <Modal ref={modalRef} event={selectedEvent} onConfirm={handleConfirm} onClose={handleClose} />
   </div>
   )
 }
