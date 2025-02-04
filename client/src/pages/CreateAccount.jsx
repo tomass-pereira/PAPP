@@ -187,8 +187,9 @@ function CreateAccount() {
         distrito: formData.distrito,
         concelho: formData.concelho,
         rua: formData.rua,
+        numPorta: formData.numPorta,
         codigoPostal: formData.codpostal,
-        apartamento: formData.edificioDesc || formData.numPorta || "",
+        apartamento: formData.edificioDesc || "",
       },
     };
     try {

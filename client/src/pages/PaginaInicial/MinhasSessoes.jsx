@@ -19,7 +19,7 @@ export default function MinhasSessoes() {
         <SideBar />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 h-screen">
           {/* Cabeçalho */}
-          <div className="mb-4 md:mb-8 sticky top-0 bg-gray-50 z-10 pb-2">
+          <div className="mb-4 md:mb-8  top-0 bg-gray-50 z-10 pb-2">
           <h1 className="text-2xl md:text-3xl font-bold text-indigo-600 text-center sm:text-left">
   Agende aqui a sua sessão!
 </h1>
