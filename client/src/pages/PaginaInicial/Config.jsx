@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { User, MapPin, Phone, Mail, Lock, Heart, Home } from "lucide-react";
+import {
+  Settings
+} from "lucide-react";
 import Inputs from "../../components/Inputs";
 import Sidebar from "../../components/SideBar";
 import Section from "../../components/Section";
 import Buttons from "../../components/botoes";
+import Modal from "../../components/Modal"
 import { useUser } from "../../contexts/UserContext.jsX";
 
 const Config = () => {
@@ -13,6 +16,9 @@ const Config = () => {
   const [loadingpostal, setLoadingpostal] = useState(false);
   const [errorpostal, setErrorpostal] = useState("");
   const [flagdis, setFlagdis] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+const [confirmPassword, setConfirmPassword] = useState('');
+const [passwordError, setPasswordError] = useState('');
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -27,7 +33,7 @@ const Config = () => {
     nome: userData.nome,
     telefone: userData.telefone,
     email: userData.email,
-    senha:userData.senha,
+    senha: userData.senha,
     dataNascimento: DataNasc,
     queixaPrincipal: userData.queixaPrincipal,
     inicioSintomas: InicioSintomas,
@@ -38,6 +44,23 @@ const Config = () => {
     alergias: userData.alergias,
     edificio: "",
   });
+  const handleEditClick = () => {
+    if (!isEditing) {
+      setShowPasswordModal(true);
+    } else {
+      setIsEditing(false);
+    }
+  };
+  const handlePasswordConfirm = () => {
+    if (confirmPassword === userData.senha) {
+      setShowPasswordModal(false);
+      setIsEditing(true);
+      setConfirmPassword('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Senha incorreta');
+    }
+  };
 
   const compressImage = (file) => {
     return new Promise((resolve) => {
@@ -79,9 +102,8 @@ const Config = () => {
   };
 
   const validateForm = () => {
-    
-    if(!formData.numPorta){
-      setError('Preencha o número da porta');
+    if (!formData.numPorta) {
+      setError("Preencha o número da porta");
       return false;
     }
     // Validate password confirmation
@@ -93,14 +115,6 @@ const Config = () => {
     return true;
   };
 
-
-
-
-
-
-  
-
-  
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -118,7 +132,7 @@ const Config = () => {
     }
   };
 
-const handlePostalSearch = async () => {
+  const handlePostalSearch = async () => {
     setFlagdis(true);
     if (!formData.codpostal.match(/^\d{4}-\d{3}$/)) {
       setErrorpostal("Código postal inválido");
@@ -206,270 +220,319 @@ const handlePostalSearch = async () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <>
+    
+    <div className="flex h-screen bg-[#f8fafc]">
       <Sidebar />
-      <div className="flex-1">
-        <div className="h-full p-6 overflow-y-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Configurações da Conta
-            </h1>
-            <Buttons
-              onClick={() => setIsEditing(!isEditing)}
-              type="button"
-              style="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e]"
-              legenda={isEditing ? "Cancelar Edição" : "Editar Dados"}
-            />
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-[1200px] mx-auto p-8">
+          {/* Header */}
+          <div className="bg-white px-8 pt-16 pb-20 mb-8 -mx-8 -mt-8">
+            <div className="w-100% mx-auto">
+              <div className="flex items-center gap-3 text-purple-600 mb-3">
+                <Settings size={20} />
+                <span className="text-sm font-medium">Configurações</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-3">
+                    Configurações da Conta
+                  </h1>
+                  <p className="text-gray-500">
+                    Gerencie suas informações pessoais e preferências
+                  </p>
+                </div>
+                <Buttons
+                  onClick={() => setIsEditing(!isEditing)}
+                  type="button"
+                  style={`px-6 py-3 rounded-xl font-medium transition-all ${
+                    isEditing
+                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      : "bg-purple-600 text-white hover:bg-purple-700"
+                    }`}
+                    legenda={isEditing ? "Cancelar Edição" : "Editar Dados"}
+                    />
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Seção de Informação Pessoal */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="-mt-24">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Grid Principal */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Informação Pessoal */}
+                <Section
+                  title="Informação Pessoal"
+                  className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
+                >
+                  <div className="space-y-5">
+                    <Inputs
+                      id="nome"
+                      label="Nome Completo"
+                      type="text"
+                      value={formData.nome}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="telefone"
+                      label="Número de telefone"
+                      type="text"
+                      value={userData.telefone}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                        } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="dataNascimento"
+                      label="Data de nascimento"
+                      type="date"
+                      value={formData.dataNascimento}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="email"
+                      label="Endereço email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                      />
+                    <Inputs
+                      id="senha"
+                      label="Palavra-passe"
+                      type="password"
+                      value={formData.senha}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                  </div>
+                </Section>
+
+                {/* Informação Médica */}
+                <Section
+                  title="Informação Médica"
+                  className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
+                >
+                  <div className="space-y-5">
+                    <Inputs
+                      id="queixaPrincipal"
+                      label="Queixa principal"
+                      type="text"
+                      value={formData.queixaPrincipal}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="inicioSintomas"
+                      label="Início dos sintomas"
+                      type="date"
+                      value={InicioSintomas}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="condicaoMedicaDesc"
+                      label="Condição médica"
+                      type="text"
+                      value={formData.condicaoMedica}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                        ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                        : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                      />
+                    <Inputs
+                      id="diagonosticoMedico"
+                      label="Diagnóstico Médico"
+                      type="text"
+                      value={formData.diagnosticoMedico}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                    />
+                    <Inputs
+                      id="cirurgias"
+                      label="Lesões ou cirurgias"
+                      type="text"
+                      value={formData.lesoesCirurgias}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                        ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                        : "bg-slate-50 border-transparent"
+                      } border focus:outline-none focus:ring-2`}
+                      />
+                    <Inputs
+                      id="alergias"
+                      label="Alergias"
+                      type="text"
+                      value={formData.alergias}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          : "bg-slate-50 border-transparent"
+                        } border focus:outline-none focus:ring-2`}
+                        />
+                  </div>
+                </Section>
+              </div>
+
+              {/* Seção de Morada */}
               <Section
-                title="Informação Pessoal"
-                className="p-4 bg-white rounded-lg shadow-sm"
-              >
-                <div className="space-y-4">
-                  <Inputs
-                    id="nome"
-                    label="Nome Completo"
-                    type="text"
-                    value={formData.nome}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                  <Inputs
-                    id="telefone"
-                    label="Número de telefone"
-                    type="text"
-                    value={userData.telefone}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                  <Inputs
-                    id="dataNascimento"
-                    label="Data de nascimento"
-                    type="date"
-                    value={formData.dataNascimento}
-                    disabled={!isEditing}
-                    onChange={handleInputChange}
-                    style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  />
-                  <Inputs
-                    id="email"
-                    label="Endereço email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                  <Inputs
-                    id="senha"
-                    label="Palavra-passe"
-                    type="password"
-                    value={formData.senha}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
+                title="Morada"
+                className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
+                >
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+                  {/* Linha 1: Código Postal e Nº Porta */}
+                  <div className="md:col-span-4">
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <Inputs
+                          id="codpostal"
+                          label="Código-postal"
+                          type="text"
+                          value={formData.codpostal}
+                          onChange={handleInputChange}
+                          disabled={!isEditing}
+                          style={`w-full px-4 py-3 rounded-xl transition-all ${
+                            isEditing
+                            ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
+                              : "bg-slate-50 border-transparent"
+                          } border focus:outline-none focus:ring-2`}
+                          />
+                      </div>
+                      <div className="mt-7">
+                        <Buttons
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePostalSearch();
+                          }}
+                          type="button"
+                          disabled={loadingpostal}
+                          style="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all h-[46px]"
+                          legenda={loadingpostal ? "..." : "Procurar"}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:col-span-1">
+                    <Inputs
+                      id="numPorta"
+                      label="Nº Porta"
+                      type="text"
+                      value={formData.numPorta}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      style={`w-full px-4 py-3 rounded-xl transition-all ${
+                        isEditing
+                          ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
+                          : "bg-slate-50 border-transparent"
+                        } border focus:outline-none focus:ring-2`}
+                        />
+                  </div>
+
+                  {/* Linha 2: Distrito, Concelho e Rua */}
+                  <div className="md:col-span-2">
+                    <Inputs
+                      id="distrito"
+                      label="Distrito"
+                      type="text"
+                      value={formData.distrito}
+                      disabled={true}
+                      style="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <Inputs
+                      id="concelho"
+                      label="Concelho"
+                      type="text"
+                      value={formData.concelho}
+                      disabled={true}
+                      style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
+                      />
+                  </div>
+                  <div className="md:col-span-6">
+                    <Inputs
+                      id="rua"
+                      label="Rua"
+                      type="text"
+                      value={formData.rua}
+                      disabled={true}
+                      style="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    />
+                  </div>
                 </div>
               </Section>
 
-              {/* Seção de Informação Médica */}
-              <Section
-                title="Informação Médica"
-                className="p-4 bg-white rounded-lg shadow-sm"
-              >
-                <div className="space-y-4">
-                  <Inputs
-                    id="queixaPrincipal"
-                    label="Queixa principal"
-                    type="text"
-                    value={formData.queixaPrincipal}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                  <Inputs
-                    id="inicioSintomas"
-                    label="Início dos sintomas"
-                    type="date"
-                    value={InicioSintomas}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                  <Inputs
-                    id="condicaoMedicaDesc"
-                    label="Condição médica"
-                    type="text"
-                    value={formData.condicaoMedica}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                   <Inputs
-                    id="diagonosticoMedico"
-                    label="Diagonóstico Médico"
-                    type="text"
-                    value={formData.diagnosticoMedico}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                   <Inputs
-                    id="cirurgias"
-                    label="Lesões ou cirurgias"
-                    type="text"
-                    value={formData.lesoesCirurgias}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
-                  />
-                   <Inputs
-                    id="alergias"
-                    label="Alergias"
-                    type="text"
-                    value={formData.alergias}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    style={
-                      isEditing
-                        ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                        : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                    }
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600">
+                  {error}
+                </div>
+              )}
+
+              {/* Botão de submissão */}
+              {isEditing && (
+                <div className="flex justify-end pt-4">
+                  <Buttons
+                    type="submit"
+                    disabled={loading}
+                    style="px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all text-base font-medium"
+                    legenda={loading ? "A processar..." : "Guardar alterações"}
                   />
                 </div>
-              </Section>
-            </div>
-
-            {/* Seção de Morada */}
-            <Section
-              title="Morada"
-              className="md:col-span-2 p-4 bg-white rounded-lg shadow-sm"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Inputs
-                  id="codpostal"
-                  label="Código-postal"
-                  type="text"
-                  value={formData.codpostal}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  style={
-                    isEditing
-                      ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                      : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  }
-                />
-                <div className="flex items-center">
-                <Buttons
-                  onClick={(e) => {
-                    e.preventDefault(); // Previne o submit do formulário
-                    handlePostalSearch();
-                  }}
-                  type="button"
-                  disabled={loadingpostal}
-                  style="py-2 px-4 bg-[#4f4fb9] text-white rounded-md text-base hover:bg-[#3e3e9e]"
-                  legenda={loadingpostal ? "A procurar..." : "Procurar"}
-                />
-              </div>
-                <Inputs
-                  id="numPorta"
-                  label="Nº Porta"
-                  type="text"
-                  value={formData.numPorta}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                  style={
-                    isEditing
-                      ? "w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                      : "w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                  }
-                />
-                <Inputs
-                  id="distrito"
-                  label="Distrito"
-                  type="text"
-                  value={formData.distrito}
-                  disabled={true}
-                  style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                />
-                <Inputs
-                  id="concelho"
-                  label="Concelho"
-                  type="text"
-                  value={formData.concelho}
-                  disabled={true}
-                  style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                />
-                <Inputs
-                  id="rua"
-                  label="Rua"
-                  type="text"
-                  value={formData.rua}
-                  disabled={true}
-                  style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                />
-              </div>
-            </Section>
-
-            {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-
-            {/* Botão de submissão */}
-            {isEditing && (
-              <div className="flex justify-end">
-                <Buttons
-                  type="submit"
-                  disabled={loading}
-                  style="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-lg hover:bg-[#3e3e9e]"
-                  legenda={loading ? "A processar..." : "Guardar alterações"}
-                />
-              </div>
-            )}
-          </form>
+              )}
+            </form>
+          </div>
         </div>
       </div>
     </div>
+              </>
   );
 };
 

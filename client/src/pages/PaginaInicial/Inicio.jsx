@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Bell, Home } from "lucide-react";
-import SideBar from "../../components/SideBar";
+import SideBar from "../../components/SideBar"
+import {useUser} from '../../contexts/UserContext.jsX';
 
 export default function Inicio() {
   const navigate = useNavigate();
-  const utente = JSON.parse(localStorage.getItem('utente'));
+  const {userData} =useUser();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -17,7 +18,7 @@ export default function Inicio() {
   const handleNavigate = (path) => {
     navigate(path);
   };
-
+  console.log(userData.nome);
   // Dados mockados - substituir pelos dados reais da API
   const proximasSessoes = [
     {
@@ -48,7 +49,6 @@ export default function Inicio() {
       data: "Ontem, 15:45"
     }
   ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
@@ -59,7 +59,7 @@ export default function Inicio() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">
-                  Olá, {utente?.nome}
+                  Olá, {userData.nome}
                 </h1>
                 <p className="text-gray-600 mt-2">
                   Bem-vindo(a) ao seu painel de fisioterapia domiciliar
