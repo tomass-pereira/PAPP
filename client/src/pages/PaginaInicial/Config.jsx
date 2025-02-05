@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   Settings
 } from "lucide-react";
@@ -8,6 +8,8 @@ import Section from "../../components/Section";
 import Buttons from "../../components/botoes";
 import Modal from "../../components/Modal"
 import { useUser } from "../../contexts/UserContext.jsX";
+import { buscaMorada } from "../../api/morada";
+
 
 const Config = () => {
   const { userData } = useUser();
@@ -19,7 +21,7 @@ const Config = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 const [confirmPassword, setConfirmPassword] = useState('');
 const [passwordError, setPasswordError] = useState('');
-
+const modalRef = useRef(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const InicioSintomas = userData.inicioSintomas.split("T")[0];
@@ -44,9 +46,10 @@ const [passwordError, setPasswordError] = useState('');
     alergias: userData.alergias,
     edificio: "",
   });
+
   const handleEditClick = () => {
     if (!isEditing) {
-      setShowPasswordModal(true);
+      modalRef.current?.showModal();
     } else {
       setIsEditing(false);
     }
@@ -221,7 +224,7 @@ const [passwordError, setPasswordError] = useState('');
 
   return (
     <>
-    
+   <Modal ref={modalRef}  />
     <div className="flex h-screen bg-[#f8fafc]">
       <Sidebar />
       <div className="flex-1 overflow-auto">
@@ -243,7 +246,7 @@ const [passwordError, setPasswordError] = useState('');
                   </p>
                 </div>
                 <Buttons
-                  onClick={() => setIsEditing(!isEditing)}
+                  onClick={handleEditClick}
                   type="button"
                   style={`px-6 py-3 rounded-xl font-medium transition-all ${
                     isEditing

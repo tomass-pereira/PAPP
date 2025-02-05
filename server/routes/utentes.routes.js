@@ -240,13 +240,11 @@ router.put('/alterar-senha', async (req, res) => {
 });
 
 router.get('/current', authMiddleware, async (req, res) => {
-  console.log("Chegou na rota current");
-  console.log("Headers recebidos:", req.headers);
-  console.log("ID do utente:", req.utente.id);
+
   
   try {
     const utente = await Utente.findById(req.utente.id);
-    console.log("Utente encontrado:", utente);
+    
     
     if (!utente) {
       return res.status(404).json({ 
