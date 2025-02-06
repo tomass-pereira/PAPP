@@ -17,11 +17,12 @@ export const registarUtente = async (payload) => {
 
   return data;
 };
-export const AtualizarUtente = async (payload) => {
-  const response = await fetch(`${BASE_URL}/utentes/update`, {
+export const AtualizarUtente = async (id, payload) => {
+  const response = await fetch(`${BASE_URL}/utentes/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+       'Authorization': `Bearer ${localStorage.getItem('token')}`
     },
     body: JSON.stringify(payload),
   });

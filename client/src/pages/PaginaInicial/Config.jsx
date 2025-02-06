@@ -9,6 +9,7 @@ import Buttons from "../../components/botoes";
 import Modal from "../../components/Modal"
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
+import { AtualizarUtente } from "../../api/utente";
 
 
 const Config = () => {
@@ -211,7 +212,7 @@ const modalRef = useRef(null);
     };
 
     try {
-      // await atualizarUtente(payload);
+      await AtualizarUtente(userData._id, payload);
       setSuccess(true);
       setIsEditing(false);
     } catch (err) {
@@ -221,10 +222,21 @@ const modalRef = useRef(null);
       setLoading(false);
     }
   };
-
+   
   return (
     <>
-   <Modal ref={modalRef}  />
+   <Modal 
+  ref={modalRef}
+  page="config"
+  password={confirmPassword}
+  onPasswordChange={setConfirmPassword}
+  passwordError={passwordError}
+  onConfirm={handlePasswordConfirm}
+  onClose={() => {
+    setConfirmPassword('');
+    setPasswordError('');
+  }}
+/>
     <div className="flex h-screen bg-[#f8fafc]">
       <Sidebar />
       <div className="flex-1 overflow-auto">

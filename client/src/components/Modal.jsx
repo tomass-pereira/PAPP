@@ -1,7 +1,6 @@
-// src/components/Modal.jsx
 import { forwardRef } from 'react';
 
-const Modal = forwardRef(({ event, onClose, onConfirm }, ref) => {
+const Modal = forwardRef(({ event, onClose, onConfirm, page = 'booking', password, onPasswordChange, passwordError }, ref) => {
   const handleCancel = () => {
     if (ref.current) {
       ref.current.close();
@@ -16,10 +15,71 @@ const Modal = forwardRef(({ event, onClose, onConfirm }, ref) => {
       ref.current.close();
     }
     if (onConfirm) {
-      onConfirm(event);
+      if (page === 'config') {
+        onConfirm();
+      } else {
+        onConfirm(event);
+      }
     }
   };
 
+  if (page === 'config') {
+    return (
+      <dialog id="my_modal_1" className="modal" ref={ref}>
+        <div className="modal-box bg-white border border-[#34D399]/20">
+          {/* Cabeçalho com ícone */}
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+            <div className="w-10 h-10 rounded-full bg-[#ECFDF5] flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#34D399]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-xl text-gray-800">Confirmar Senha</h3>
+              <p className="text-sm text-[#34D399]">Verificação de segurança</p>
+            </div>
+          </div>
+          
+          {/* Campo de senha */}
+          <div className="space-y-4 mb-6">
+            <div className="p-4 bg-[#ECFDF5] rounded-lg">
+              <label className="text-sm text-gray-600 font-medium block mb-2">
+                Digite sua senha para continuar
+              </label>
+              <input
+                type="password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#34D399]"
+                placeholder="********"
+                value={password}
+                onChange={(e) => onPasswordChange(e.target.value)}
+              />
+              {passwordError && (
+                <p className="text-red-500 text-sm mt-2">{passwordError}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Ações */}
+          <div className="modal-action flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <button 
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleConfirm}
+              className="px-4 py-2 rounded-lg bg-[#34D399] text-white hover:bg-[#34D399]/90 transition-colors"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </dialog>
+    );
+  }
+
+  // Modal original de reserva
   return (
     <dialog id="my_modal_1" className="modal" ref={ref}>
       <div className="modal-box bg-white border border-[#34D399]/20">

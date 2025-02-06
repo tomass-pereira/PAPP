@@ -239,6 +239,12 @@ router.put('/alterar-senha', async (req, res) => {
   });
 });
 
+
+
+
+
+
+
 router.get('/current', authMiddleware, async (req, res) => {
 
   
@@ -265,4 +271,69 @@ router.get('/current', authMiddleware, async (req, res) => {
     });
   }
 });
+
+router.put('/:id',authMiddleware,  async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verifica se o ID é válido
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    const {
+      nome,
+      email,
+      telefone,
+      dataNascimento,
+      queixaPrincipal,
+      inicioSintomas,
+      condicaoMedica,
+      lesoesOuCirurgias,
+      diagnosticoMedico,
+      alergias,
+      morada
+    } = req.body;
+
+    // Estrutura o documento para atualização
+    const updateDoc = {
+      $set: {
+        nome,
+        email,
+        telefone,
+        dataNascimento,
+        queixaPrincipal,
+        inicioSintomas,
+        condicaoMedica,
+        lesoesOuCirurgias,
+        diagnosticoMedico,
+        alergias,
+        morada,
+        updatedAt: new Date()
+      }
+    };
+
+    // Atualiza o documento no MongoDB
+    const result = await req.db.collection('utentes').findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      updateDoc,
+      { returnDocument: 'after' } // Retorna o documento atualizado
+    );
+
+    if (!result.value) {
+      return res.status(404).json({ message: 'Utente não encontrado' });
+    }
+
+    res.json(result.value);
+  } catch (error) {
+    console.error('Erro ao atualizar utente:', error);
+    res.status(500).json({ 
+      message: 'Erro ao atualizar dados do utente',
+      error: error.message 
+    });
+  }
+});
+
+
+
 module.exports = router;
