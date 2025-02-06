@@ -1,8 +1,10 @@
 const codigosRecuperacao = new Map();
 const express = require('express');
 const router = express.Router();
+const { ObjectId } = require('mongodb');  
+const mongoose = require('mongoose');  // Adicione esta linha
 const Utente = require('../models/utente');
- const { validateUserData } = require('../middlewares'); 
+const { validateUserData } = require('../middlewares'); 
  const emailService = require('../services/nodemailer');
  const authMiddleware = require('../middlewares/auth.middleware');
 
@@ -26,9 +28,7 @@ router.post('/register',validateUserData, async (req, res, next) => {
       email,
       dataNascimento,
       senha,
-      queixaPrincipal,
-      inicioSintomas,
-      condicaoMedica,
+     
       lesoesOuCirurgias,
       diagnosticoMedico,
       alergias,
@@ -55,9 +55,7 @@ router.post('/register',validateUserData, async (req, res, next) => {
       dataNascimento: new Date(dataNascimento),
       senha,
       StatusConta: 'pendente',
-      queixaPrincipal,
-      inicioSintomas: new Date(inicioSintomas),
-      condicaoMedica: condicaoMedica || '',
+     
       lesoesOuCirurgias: lesoesOuCirurgias || '',
       diagnosticoMedico: diagnosticoMedico || '',
       alergias: alergias || '',
@@ -81,9 +79,6 @@ router.post('/register',validateUserData, async (req, res, next) => {
             <div style="margin-top: 20px;">
                 <h3>Informações Médicas:</h3>
                 <ul>
-                    <li><strong>Queixa Principal:</strong> ${queixaPrincipal}</li>
-                    <li><strong>Início dos Sintomas:</strong> ${new Date(inicioSintomas).toLocaleDateString()}</li>
-                    ${condicaoMedica ? `<li><strong>Condição Médica:</strong> ${condicaoMedica}</li>` : ''}
                     ${diagnosticoMedico ? `<li><strong>Diagnóstico Médico:</strong> ${diagnosticoMedico}</li>` : ''}
                     ${lesoesOuCirurgias ? `<li><strong>Lesões ou Cirurgias:</strong> ${lesoesOuCirurgias}</li>` : ''}
                     ${alergias ? `<li><strong>Alergias:</strong> ${alergias}</li>` : ''}
@@ -263,59 +258,46 @@ router.get('/current', authMiddleware, async (req, res) => {
     });
   }
 });
-router.put('/:id',authMiddleware,  async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
     // Verifica se o ID é válido
-    if (!ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID inválido' });
     }
 
-    const {
-      nome,
-      email,
-      telefone,
-      dataNascimento,
-      queixaPrincipal,
-      inicioSintomas,
-      condicaoMedica,
-      lesoesOuCirurgias,
-      diagnosticoMedico,
-      alergias,
-      morada
-    } = req.body;
-
-    // Estrutura o documento para atualização
-    const updateDoc = {
-      $set: {
-        nome,
-        email,
-        telefone,
-        dataNascimento,
-        queixaPrincipal,
-        inicioSintomas,
-        condicaoMedica,
-        lesoesOuCirurgias,
-        diagnosticoMedico,
-        alergias,
-        morada,
-        updatedAt: new Date()
-      }
+    const updateFields = {
+      nome: req.body.nome,
+      email: req.body.email,
+      senha:req.body.senha,
+      telefone: req.body.telefone,
+      dataNascimento: new Date(req.body.dataNascimento),
+      lesoesOuCirurgias: req.body.lesoesOuCirurgias || '',
+      diagnosticoMedico: req.body.diagnosticoMedico || '',
+      alergias: req.body.alergias || '',
+      morada: {
+        distrito: req.body.morada.distrito,
+        concelho: req.body.morada.concelho,
+        rua: req.body.morada.rua,
+        codigoPostal: req.body.morada.codigoPostal,
+        apartamento: req.body.morada.apartamento || ''
+      },
+      updatedAt: new Date()
     };
 
-    // Atualiza o documento no MongoDB
-    const result = await req.db.collection('utentes').findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      updateDoc,
-      { returnDocument: 'after' } // Retorna o documento atualizado
+    const result = await Utente.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true }  // retorna o documento atualizado
     );
 
-    if (!result.value) {
+    if (!result) {
       return res.status(404).json({ message: 'Utente não encontrado' });
     }
 
-    res.json(result.value);
+    res.json(result);
+
   } catch (error) {
     console.error('Erro ao atualizar utente:', error);
     res.status(500).json({ 

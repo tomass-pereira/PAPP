@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { loginUtente } from "../api/utente";
+import { loginUtente, getCurrentUser,  updateUtente } from "../api/utente";
 import api from "../api/api";
 
 const UserContext = createContext();
@@ -13,23 +13,19 @@ export function UserProvider({ children }) {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setInitialized(true);
-        setLoading(false);
-        return;
-      }
-
+    const initializeUser = async () => {
       try {
-        const response = await api.get('/utentes/current');
-        setUserData(response.data.utente);
-      } catch (error) {
-        console.log("Erro na requisição:", error);
-        localStorage.removeItem("token");
-      
+        if (!localStorage.getItem("token")) {
+          setInitialized(true);
+          setLoading(false);
+          return;
+        }
 
+        const utente = await getCurrentUser();
+        setUserData(utente);
+      } catch (error) {
+        console.error("Error initializing user:", error);
+        localStorage.removeItem("token");
         setUserData(null);
       } finally {
         setLoading(false);
@@ -37,7 +33,7 @@ export function UserProvider({ children }) {
       }
     };
 
-    fetchUserData();
+    initializeUser();
   }, []);
 
   const login = async (credentials) => {
@@ -71,10 +67,10 @@ export function UserProvider({ children }) {
       console.log(utenteId);
       
       // Envia os dados atualizados no corpo da requisição
-      const response = await fetch(`/utentes/${utenteId}`, updatedData);
-      
+  const utenteAtualizado= await updateUtente(utenteId, updatedData);    
       // Acessa a resposta correta
-      setUserData(response.data);  // Vai conter o objeto atualizado
+      setUserData(utenteAtualizado); 
+      return utenteAtualizado; // Vai conter o objeto atualizado
     } catch (error) {
       console.error("Erro ao atualizar dados do usuário:", error);
       

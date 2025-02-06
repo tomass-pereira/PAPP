@@ -1,4 +1,5 @@
 import { BASE_URL } from './config';
+import api from "../api/api";
 
 export const registarUtente = async (payload) => {
   const response = await fetch(`${BASE_URL}/utentes/register`, {
@@ -17,8 +18,29 @@ export const registarUtente = async (payload) => {
 
   return data;
 };
+export const updateUtente = async (utenteId, updatedData) => {
+  try {
+    console.log(updatedData);
+    console.log(utenteId);
+    const response = await api.put(`/utentes/${utenteId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      throw new Error("Utente não encontrado");
+    }
+    throw error;
+  }
+};
+export const getCurrentUser = async () => {
+  const token = localStorage.getItem("token");
+  
+  if (!token) {
+    throw new Error("No token found");
+  }
 
-
+  const response = await api.get('/utentes/current');
+  return response.data.utente;
+};
 
 
 

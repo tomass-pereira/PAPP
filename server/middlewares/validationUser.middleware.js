@@ -35,20 +35,13 @@ const validateUserData = (req, res, next) => {
     return res.status(400).json({ message: 'O usuário deve ter pelo menos 18 anos' });
   }
 
-  const symptomsDate = new Date(inicioSintomas);
-  if (!inicioSintomas || isNaN(symptomsDate)) {
-    return res.status(400).json({ message: 'Data de início dos sintomas inválida' });
-  }
+ 
 
   // Verifica se a data dos sintomas é futura
-  if (symptomsDate > today) {
-    return res.status(400).json({ message: 'A data de início dos sintomas não pode ser futura' });
-  }
+  
 
   // Verifica se a data dos sintomas é anterior à data de nascimento
-  if (symptomsDate <= birthDate) {
-    return res.status(400).json({ message: 'A data de início dos sintomas não pode ser igual ou anterior à data de nascimento' });
-  }
+ 
 
   next();
 };

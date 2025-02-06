@@ -29,11 +29,10 @@ function CreateAccount() {
     dataNascimento: "",
     senha: "",
     confirmSenha: "",
-    queixaPrincipal: "",
-    inicioSintomas: "",
+   
     numPorta: "",
     // Campos médicos simplificados
-    condicaoMedicaDesc: "",
+   
     diagnosticoMedicoDesc: "",
     lesoesCirurgiasDesc: "",
     alergiasDesc: "",
@@ -45,37 +44,67 @@ function CreateAccount() {
     setFlagdis(true);
     if (!formData.codpostal.match(/^\d{4}-\d{3}$/)) {
       setErrorpostal("Código postal inválido");
+      // Limpar campos quando há erro
+      setFormData(prev => ({
+        ...prev,
+        distrito: "",
+        concelho: "",
+        rua: ""
+      }));
+      setFlagdis(false);
       return;
     }
-
+  
     setLoadingpostal(true);
     setErrorpostal("");
-
+  
     try {
       const data = await buscaMorada(formData.codpostal);
-
+  
       if (!data || data.length === 0) {
         setErrorpostal("Código postal não encontrado");
+        // Limpar campos quando não encontra o código postal
+        setFormData(prev => ({
+          ...prev,
+          distrito: "",
+          concelho: "",
+          rua: ""
+        }));
         setFlagdis(false);
         return;
       }
-
+  
       setFormData((prev) => ({
         ...prev,
         distrito: data[0].distrito || "",
         concelho: data[0].concelho || "",
         rua: data[0].morada || "",
       }));
-
-      if (data[0].distrito != "Porto" && data[0].distrito != "Aveiro") {
+  
+      if (data[0].distrito !== "Porto" && data[0].distrito !== "Aveiro") {
         setErrorpostal(
           "O código postal inserido não corresponde a um distrito suportado."
         );
+        // Limpar campos quando o distrito não é suportado
+        setFormData(prev => ({
+          ...prev,
+          distrito: "",
+          concelho: "",
+          rua: ""
+        }));
         setFlagdis(false);
       }
     } catch (err) {
       console.error("Erro completo:", err);
       setErrorpostal("Erro ao buscar o endereço. Tente novamente.");
+      // Limpar campos quando há erro na busca
+      setFormData(prev => ({
+        ...prev,
+        distrito: "",
+        concelho: "",
+        rua: ""
+      }));
+      setFlagdis(false);
     } finally {
       setLoadingpostal(false);
     }
@@ -177,9 +206,6 @@ function CreateAccount() {
       telefone: formData.telefone.replace(/\D/g, ""),
       senha: formData.senha,
       dataNascimento: formData.dataNascimento,
-      queixaPrincipal: formData.queixaPrincipal,
-      inicioSintomas: formData.inicioSintomas,
-      condicaoMedica: formData.condicaoMedicaDesc || "",
       lesoesOuCirurgias: formData.lesoesCirurgiasDesc || "",
       diagnosticoMedico: formData.diagnosticoMedicoDesc || "",
       alergias: formData.alergiasDesc || "",
@@ -322,24 +348,7 @@ function CreateAccount() {
           </Section>
 
           <Section title="Informação Médica">
-            <Inputs
-              id="queixaPrincipal"
-              label="Queixa principal"
-              type="text"
-              value={formData.queixaPrincipal}
-              onChange={handleInputChange}
-              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-              required
-            />
-
-            <Inputs
-              id="condicaoMedicaDesc"
-              label="Condição médica (se tiver)"
-              type="text"
-              value={formData.condicaoMedicaDesc}
-              onChange={handleInputChange}
-              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-            />
+           
 
             <Inputs
               id="diagnosticoMedicoDesc"
@@ -350,15 +359,7 @@ function CreateAccount() {
               style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
             />
 
-            <Inputs
-              id="inicioSintomas"
-              label="Início dos sintomas"
-              type="date"
-              value={formData.inicioSintomas}
-              onChange={handleInputChange}
-              required
-              style="w-full p-3 bg-white border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-            />
+           
 
             <Inputs
               id="lesoesCirurgiasDesc"
@@ -406,7 +407,7 @@ function CreateAccount() {
                   legenda={loadingpostal ? "A procurar..." : "Procurar"}
                 />
               </div>
-              {error && (
+              {errorpostal && (
                 <div className="text-red-500 text-sm mt-2">{errorpostal}</div>
               )}
               <div className="ml-4">

@@ -25,7 +25,6 @@ const modalRef = useRef(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
  const DataNasc=userData.dataNascimento;
- const InicioSintomas=userData.inicioSintomas;
 
   const [formData, setFormData] = useState({
     codpostal: userData.morada.codigoPostal,
@@ -37,8 +36,6 @@ const modalRef = useRef(null);
     email: userData.email,
     senha: userData.senha,
     dataNascimento: DataNasc,
-    queixaPrincipal: userData.queixaPrincipal,
-    inicioSintomas: InicioSintomas,
     numPorta: userData.morada.apartamento,
     condicaoMedica: userData.condicaoMedica,
     diagnosticoMedico: userData.diagnosticoMedico,
@@ -109,13 +106,8 @@ const modalRef = useRef(null);
       setError("Preencha o número da porta");
       return false;
     }
-    // Validate password confirmation
-    if (formData.senha !== formData.confirmSenha) {
-      setError("As senhas não coincidem");
-      return false;
-    }
 
-    return true;
+   
   };
 
   const handleImageChange = async (e) => {
@@ -138,38 +130,68 @@ const modalRef = useRef(null);
   const handlePostalSearch = async () => {
     setFlagdis(true);
     if (!formData.codpostal.match(/^\d{4}-\d{3}$/)) {
-      setErrorpostal("Código postal inválido");
+      setError("Código postal inválido");
+      // Limpar campos quando há erro
+      setFormData(prev => ({
+        ...prev,
+        distrito: "",
+        concelho: "",
+        rua: ""
+      }));
+      setFlagdis(false);
       return;
     }
-
+  
     setLoadingpostal(true);
-    setErrorpostal("");
-
+    setError("");
+  
     try {
       const data = await buscaMorada(formData.codpostal);
-
+  
       if (!data || data.length === 0) {
-        setErrorpostal("Código postal não encontrado");
+        setError("Código postal não encontrado");
+        // Limpar campos quando não encontra o código postal
+        setFormData(prev => ({
+          ...prev,
+          distrito: "",
+          concelho: "",
+          rua: ""
+        }));
         setFlagdis(false);
         return;
       }
-
+  
       setFormData((prev) => ({
         ...prev,
         distrito: data[0].distrito || "",
         concelho: data[0].concelho || "",
         rua: data[0].morada || "",
       }));
-
-      if (data[0].distrito != "Porto" && data[0].distrito != "Aveiro") {
-        setErrorpostal(
+  
+      if (data[0].distrito !== "Porto" && data[0].distrito !== "Aveiro") {
+        setError(
           "O código postal inserido não corresponde a um distrito suportado."
         );
+        // Limpar campos quando o distrito não é suportado
+        setFormData(prev => ({
+          ...prev,
+          distrito: "",
+          concelho: "",
+          rua: ""
+        }));
         setFlagdis(false);
       }
     } catch (err) {
       console.error("Erro completo:", err);
-      setErrorpostal("Erro ao buscar o endereço. Tente novamente.");
+      setError("Erro ao buscar o endereço. Tente novamente.");
+      // Limpar campos quando há erro na busca
+      setFormData(prev => ({
+        ...prev,
+        distrito: "",
+        concelho: "",
+        rua: ""
+      }));
+      setFlagdis(false);
     } finally {
       setLoadingpostal(false);
     }
@@ -186,6 +208,9 @@ const modalRef = useRef(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isEditing) return;
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -193,6 +218,7 @@ const modalRef = useRef(null);
     const payload = {
       nome: formData.nome,
       email: formData.email,
+      senha:formData.senha,
       telefone: formData.telefone.replace(/\D/g, ""),
       dataNascimento: formData.dataNascimento,
       queixaPrincipal: formData.queixaPrincipal,
@@ -354,45 +380,7 @@ const modalRef = useRef(null);
                   className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
                 >
                   <div className="space-y-5">
-                    <Inputs
-                      id="queixaPrincipal"
-                      label="Queixa principal"
-                      type="text"
-                      value={formData.queixaPrincipal}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={`w-full px-4 py-3 rounded-xl transition-all ${
-                        isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                          : "bg-slate-50 border-transparent"
-                      } border focus:outline-none focus:ring-2`}
-                    />
-                    <Inputs
-                      id="inicioSintomas"
-                      label="Início dos sintomas"
-                      type="date"
-                      value={formData.inicioSintomas}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={`w-full px-4 py-3 rounded-xl transition-all ${
-                        isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                          : "bg-slate-50 border-transparent"
-                      } border focus:outline-none focus:ring-2`}
-                    />
-                    <Inputs
-                      id="condicaoMedicaDesc"
-                      label="Condição médica"
-                      type="text"
-                      value={formData.condicaoMedica}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={`w-full px-4 py-3 rounded-xl transition-all ${
-                        isEditing
-                        ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                        : "bg-slate-50 border-transparent"
-                      } border focus:outline-none focus:ring-2`}
-                      />
+                   
                     <Inputs
                       id="diagonosticoMedico"
                       label="Diagnóstico Médico"
@@ -471,7 +459,10 @@ const modalRef = useRef(null);
                           style="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all h-[46px]"
                           legenda={loadingpostal ? "..." : "Procurar"}
                         />
+                        
+              
                       </div>
+                    
                     </div>
                   </div>
                   <div className="md:col-span-1">
@@ -531,7 +522,7 @@ const modalRef = useRef(null);
               )}
 
               {/* Botão de submissão */}
-              {isEditing && (
+              {(isEditing && !error) && (
                 <div className="flex justify-end pt-4">
                   <Buttons
                     type="submit"

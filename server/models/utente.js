@@ -37,18 +37,7 @@ const utenteSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  queixaPrincipal: {
-    type: String,
-    required: true
-  },
-  inicioSintomas: {
-    type: Date,
-    required: true
-  },
-  condicaoMedica: {
-    type: String,
-    default: ''
-  },
+  
   lesoesOuCirurgias: {
     type: String,
     default: ''
