@@ -17,24 +17,7 @@ export const registarUtente = async (payload) => {
 
   return data;
 };
-export const AtualizarUtente = async (id, payload) => {
-  const response = await fetch(`${BASE_URL}/utentes/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-       'Authorization': `Bearer ${localStorage.getItem('token')}`
-    },
-    body: JSON.stringify(payload),
-  });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Erro ao atualizar os dados");
-  }
-
-  return data;
-};
 
 
 

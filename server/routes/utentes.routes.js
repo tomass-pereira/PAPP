@@ -238,13 +238,6 @@ router.put('/alterar-senha', async (req, res) => {
     message: 'Código inválido' 
   });
 });
-
-
-
-
-
-
-
 router.get('/current', authMiddleware, async (req, res) => {
 
   
@@ -258,7 +251,6 @@ router.get('/current', authMiddleware, async (req, res) => {
         message: "Utente não encontrado" 
       });
     }
-
     res.json({ 
       success: true,
       utente 
@@ -271,7 +263,6 @@ router.get('/current', authMiddleware, async (req, res) => {
     });
   }
 });
-
 router.put('/:id',authMiddleware,  async (req, res) => {
   try {
     const { id } = req.params;

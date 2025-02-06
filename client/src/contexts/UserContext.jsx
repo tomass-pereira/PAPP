@@ -65,13 +65,22 @@ export function UserProvider({ children }) {
     window.location.href = "/";
   };
 
-  const updateUserData = async () => {
+  const updateUserData = async (utenteId, updatedData) => {
     try {
       setLoading(true);
-      const response = await api.get('/utentes/current');
-      setUserData(response.data.utente);
+      console.log(utenteId);
+      
+      // Envia os dados atualizados no corpo da requisição
+      const response = await fetch(`/utentes/${utenteId}`, updatedData);
+      
+      // Acessa a resposta correta
+      setUserData(response.data);  // Vai conter o objeto atualizado
     } catch (error) {
       console.error("Erro ao atualizar dados do usuário:", error);
+      
+      if (error.response?.status === 404) {
+        console.error("Utente não encontrado");
+      }
       throw error;
     } finally {
       setLoading(false);

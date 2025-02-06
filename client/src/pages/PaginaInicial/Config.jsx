@@ -9,11 +9,10 @@ import Buttons from "../../components/botoes";
 import Modal from "../../components/Modal"
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
-import { AtualizarUtente } from "../../api/utente";
 
 
 const Config = () => {
-  const { userData } = useUser();
+  const { userData, updateUserData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingpostal, setLoadingpostal] = useState(false);
@@ -25,8 +24,8 @@ const [passwordError, setPasswordError] = useState('');
 const modalRef = useRef(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const InicioSintomas = userData.inicioSintomas.split("T")[0];
-  const DataNasc = userData.dataNascimento.split("T")[0];
+ const DataNasc=userData.dataNascimento;
+ const InicioSintomas=userData.inicioSintomas;
 
   const [formData, setFormData] = useState({
     codpostal: userData.morada.codigoPostal,
@@ -212,7 +211,7 @@ const modalRef = useRef(null);
     };
 
     try {
-      await AtualizarUtente(userData._id, payload);
+      await updateUserData(userData._id, payload);
       setSuccess(true);
       setIsEditing(false);
     } catch (err) {
@@ -372,7 +371,7 @@ const modalRef = useRef(null);
                       id="inicioSintomas"
                       label="Início dos sintomas"
                       type="date"
-                      value={InicioSintomas}
+                      value={formData.inicioSintomas}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
