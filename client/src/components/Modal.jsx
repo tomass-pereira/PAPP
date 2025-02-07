@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 
-const Modal = forwardRef(({ event, onClose, onConfirm, page = 'booking', password, onPasswordChange, passwordError }, ref) => {
+const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswordChange, passwordError }, ref) => {
   const handleCancel = () => {
     if (ref.current) {
       ref.current.close();
@@ -11,6 +11,9 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page = 'booking', passwor
   };
 
   const handleConfirm = () => {
+   
+    
+    
     if (ref.current) {
       ref.current.close();
     }

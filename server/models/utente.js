@@ -21,8 +21,14 @@ const utenteSchema = new mongoose.Schema({
     lowercase: true
   },
   dataNascimento: {
-    type: Date,
-    required: true
+    type: String, // Mudado para String
+    required: true,
+    set: function(date) {
+      if (date instanceof Date) {
+        return date.toISOString().split('T')[0];
+      }
+      return date.split('T')[0];
+    }
   },
   senha: {
     type: String,
@@ -37,7 +43,6 @@ const utenteSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  
   lesoesOuCirurgias: {
     type: String,
     default: ''

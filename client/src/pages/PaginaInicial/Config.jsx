@@ -7,6 +7,8 @@ import Sidebar from "../../components/SideBar";
 import Section from "../../components/Section";
 import Buttons from "../../components/botoes";
 import Modal from "../../components/Modal"
+import Alert from "../components/Alert.jsx";
+
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
 
@@ -24,7 +26,7 @@ const [passwordError, setPasswordError] = useState('');
 const modalRef = useRef(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
- const DataNasc=userData.dataNascimento;
+ const DataNasc=userData.dataNascimento.split("T")[0];
 
   const [formData, setFormData] = useState({
     codpostal: userData.morada.codigoPostal,
@@ -35,7 +37,7 @@ const modalRef = useRef(null);
     telefone: userData.telefone,
     email: userData.email,
     senha: userData.senha,
-    dataNascimento: DataNasc,
+    dataNascimento: userData.dataNascimento,
     numPorta: userData.morada.apartamento,
     condicaoMedica: userData.condicaoMedica,
     diagnosticoMedico: userData.diagnosticoMedico,
@@ -208,9 +210,7 @@ const modalRef = useRef(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isEditing) return;
-    if (!validateForm()) {
-      return;
-    }
+   
 
     setLoading(true);
     setError("");
@@ -323,7 +323,7 @@ const modalRef = useRef(null);
                       id="telefone"
                       label="Número de telefone"
                       type="text"
-                      value={userData.telefone}
+                      value={formData.telefone}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
@@ -382,7 +382,7 @@ const modalRef = useRef(null);
                   <div className="space-y-5">
                    
                     <Inputs
-                      id="diagonosticoMedico"
+                      id="diagnosticoMedico"
                       label="Diagnóstico Médico"
                       type="text"
                       value={formData.diagnosticoMedico}
@@ -395,7 +395,7 @@ const modalRef = useRef(null);
                       } border focus:outline-none focus:ring-2`}
                     />
                     <Inputs
-                      id="cirurgias"
+                      id="lesoesCirurgias"
                       label="Lesões ou cirurgias"
                       type="text"
                       value={formData.lesoesCirurgias}
