@@ -7,8 +7,7 @@ import Sidebar from "../../components/SideBar";
 import Section from "../../components/Section";
 import Buttons from "../../components/botoes";
 import Modal from "../../components/Modal"
-import Alert from "../components/Alert.jsx";
-
+import Alert from '../../components/Alert'
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
 
