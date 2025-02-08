@@ -3,9 +3,9 @@ const router = express.Router();
 const utentesRoutes = require('./utentes.routes');
 const moradaRoutes = require('./morada.routes');
 const loginRouter = require('./auth.routes');
-
+const sessoesRoutes=require('./sessoes.routes.js');
 router.use('/auth', loginRouter);
-
+router.use('/sessoes', sessoesRoutes);
 router.use('/utentes', utentesRoutes);
 router.use('/api/morada', moradaRoutes); 
 module.exports = router;

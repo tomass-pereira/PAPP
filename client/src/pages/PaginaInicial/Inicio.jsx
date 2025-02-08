@@ -18,7 +18,7 @@ export default function Inicio() {
   const handleNavigate = (path) => {
     navigate(path);
   };
-  console.log(userData.nome);
+
   // Dados mockados - substituir pelos dados reais da API
   const proximasSessoes = [
     {

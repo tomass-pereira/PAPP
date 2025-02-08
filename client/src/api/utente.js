@@ -54,7 +54,8 @@ export const loginUtente = async (credentials) => {
   });
 
   const data = await response.json();
-  console.log("Dados do usuário:", data);
+  localStorage.setItem('utenteId', data.utente.id);
+
 
   if (!response.ok) {
     throw new Error(data.message || "Erro ao fazer login");

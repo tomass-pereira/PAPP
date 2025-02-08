@@ -1,6 +1,9 @@
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 
-const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswordChange, passwordError }, ref) => {
+const Modal = forwardRef(({ event, onClose, onConfirm, page, password, onPasswordChange, passwordError, erro }, ref) => {
+  const [success, setSuccess] = useState(false);
+  const [motivo, setMotivo] = useState('');  // Estado para o motivo
+
   const handleCancel = () => {
     if (ref.current) {
       ref.current.close();
@@ -11,47 +14,55 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswo
   };
 
   const handleConfirm = () => {
-   
-    
-    
-    if (ref.current) {
-      ref.current.close();
-    }
-    if (onConfirm) {
-      if (page === 'config') {
-        onConfirm();
-      } else {
-        onConfirm(event);
+if(erro!=''){
+  window.location.href='/';
+
+}
+
+
+    if (page === 'config') {
+      onConfirm();
+      if (onConfirm()) {
+        ref.current.close();
+        window.location.reload();  // Atualiza a página após a confirmação
       }
+    } else {
+      onConfirm(event, motivo); 
+      console.log(erro)
+      window.location.reload();  // Atualiza a página após a confirmação
     }
+  };
+
+  const handleMotivoChange = (e) => {
+    setMotivo(e.target.value); // Atualiza o estado com o valor do motivo
   };
 
   if (page === 'config') {
     return (
       <dialog id="my_modal_1" className="modal" ref={ref}>
-        <div className="modal-box bg-white border border-[#34D399]/20">
+        <div className="modal-box bg-white border border-indigo-200">
           {/* Cabeçalho com ícone */}
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-            <div className="w-10 h-10 rounded-full bg-[#ECFDF5] flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#34D399]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <div>
               <h3 className="font-bold text-xl text-gray-800">Confirmar Senha</h3>
-              <p className="text-sm text-[#34D399]">Verificação de segurança</p>
+              <p className="text-sm text-indigo-600">Verificação de segurança</p>
             </div>
           </div>
-          
+
           {/* Campo de senha */}
           <div className="space-y-4 mb-6">
-            <div className="p-4 bg-[#ECFDF5] rounded-lg">
+            <div className="p-4 bg-indigo-50 rounded-lg">
               <label className="text-sm text-gray-600 font-medium block mb-2">
                 Digite sua senha para continuar
               </label>
               <input
                 type="password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#34D399]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 placeholder="********"
                 value={password}
                 onChange={(e) => onPasswordChange(e.target.value)}
@@ -72,7 +83,7 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswo
             </button>
             <button 
               onClick={handleConfirm}
-              className="px-4 py-2 rounded-lg bg-[#34D399] text-white hover:bg-[#34D399]/90 transition-colors"
+              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
             >
               Confirmar
             </button>
@@ -122,7 +133,6 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswo
               </p>
             </div>
           </div>
-
           <div className="flex justify-between items-center p-4 bg-[#ECFDF5] rounded-lg">
             <div>
               <span className="text-sm text-gray-600 font-medium">Duração</span>
@@ -156,8 +166,19 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page , password, onPasswo
               {event?.id || '-'}
             </p>
           </div>
-        </div>
 
+          <div className="p-4 bg-[#ECFDF5] rounded-lg">
+            <span className="text-sm text-gray-600 font-medium">Motivo:</span>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:[#34D399]"
+              placeholder="ex: Dor de costas"
+              value={motivo}
+              onChange={handleMotivoChange} // Atualiza o estado com o motivo
+            />
+          </div>
+        </div>
+            
         {/* Ações */}
         <div className="modal-action flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button 

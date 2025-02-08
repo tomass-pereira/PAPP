@@ -52,8 +52,10 @@ const Config = () => {
       setIsEditing(true);
       setConfirmPassword("");
       setPasswordError("");
+      return true
     } else {
       setPasswordError("Senha incorreta");
+      return false;
     }
   };
 
