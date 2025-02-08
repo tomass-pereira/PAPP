@@ -1,31 +1,26 @@
 import React, { useState, useRef } from "react";
-import {
-  Settings
-} from "lucide-react";
+import { Settings, Home, CircleUser } from "lucide-react";
 import Inputs from "../../components/Inputs";
 import Sidebar from "../../components/SideBar";
 import Section from "../../components/Section";
 import Buttons from "../../components/botoes";
-import Modal from "../../components/Modal"
-import Alert from '../../components/Alert'
+import Modal from "../../components/Modal";
+import Alert from "../../components/Alert";
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
-
 
 const Config = () => {
   const { userData, updateUserData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [loadingpostal, setLoadingpostal] = useState(false);
-  const [errorpostal, setErrorpostal] = useState("");
   const [flagdis, setFlagdis] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-const [confirmPassword, setConfirmPassword] = useState('');
-const [passwordError, setPasswordError] = useState('');
-const modalRef = useRef(null);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const modalRef = useRef(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
- const DataNasc=userData.dataNascimento.split("T")[0];
 
   const [formData, setFormData] = useState({
     codpostal: userData.morada.codigoPostal,
@@ -37,8 +32,7 @@ const modalRef = useRef(null);
     email: userData.email,
     senha: userData.senha,
     dataNascimento: userData.dataNascimento,
-    numPorta: userData.morada.apartamento,
-    condicaoMedica: userData.condicaoMedica,
+    numPorta: userData.morada.numPorta,
     diagnosticoMedico: userData.diagnosticoMedico,
     lesoesCirurgias: userData.lesoesOuCirurgias,
     alergias: userData.alergias,
@@ -56,10 +50,10 @@ const modalRef = useRef(null);
     if (confirmPassword === userData.senha) {
       setShowPasswordModal(false);
       setIsEditing(true);
-      setConfirmPassword('');
-      setPasswordError('');
+      setConfirmPassword("");
+      setPasswordError("");
     } else {
-      setPasswordError('Senha incorreta');
+      setPasswordError("Senha incorreta");
     }
   };
 
@@ -107,8 +101,6 @@ const modalRef = useRef(null);
       setError("Preencha o número da porta");
       return false;
     }
-
-   
   };
 
   const handleImageChange = async (e) => {
@@ -133,52 +125,52 @@ const modalRef = useRef(null);
     if (!formData.codpostal.match(/^\d{4}-\d{3}$/)) {
       setError("Código postal inválido");
       // Limpar campos quando há erro
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         distrito: "",
         concelho: "",
-        rua: ""
+        rua: "",
       }));
       setFlagdis(false);
       return;
     }
-  
+
     setLoadingpostal(true);
     setError("");
-  
+
     try {
       const data = await buscaMorada(formData.codpostal);
-  
+
       if (!data || data.length === 0) {
         setError("Código postal não encontrado");
         // Limpar campos quando não encontra o código postal
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           distrito: "",
           concelho: "",
-          rua: ""
+          rua: "",
         }));
         setFlagdis(false);
         return;
       }
-  
+
       setFormData((prev) => ({
         ...prev,
         distrito: data[0].distrito || "",
         concelho: data[0].concelho || "",
         rua: data[0].morada || "",
       }));
-  
+
       if (data[0].distrito !== "Porto" && data[0].distrito !== "Aveiro") {
         setError(
           "O código postal inserido não corresponde a um distrito suportado."
         );
         // Limpar campos quando o distrito não é suportado
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           distrito: "",
           concelho: "",
-          rua: ""
+          rua: "",
         }));
         setFlagdis(false);
       }
@@ -186,11 +178,11 @@ const modalRef = useRef(null);
       console.error("Erro completo:", err);
       setError("Erro ao buscar o endereço. Tente novamente.");
       // Limpar campos quando há erro na busca
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         distrito: "",
         concelho: "",
-        rua: ""
+        rua: "",
       }));
       setFlagdis(false);
     } finally {
@@ -209,7 +201,6 @@ const modalRef = useRef(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isEditing) return;
-   
 
     setLoading(true);
     setError("");
@@ -217,27 +208,24 @@ const modalRef = useRef(null);
     const payload = {
       nome: formData.nome,
       email: formData.email,
-      senha:formData.senha,
+      senha: formData.senha,
       telefone: formData.telefone.replace(/\D/g, ""),
       dataNascimento: formData.dataNascimento,
-      queixaPrincipal: formData.queixaPrincipal,
-      inicioSintomas: formData.inicioSintomas,
-      condicaoMedica: formData.condicaoMedicaDesc || "",
       lesoesOuCirurgias: formData.lesoesCirurgiasDesc || "",
-      diagnosticoMedico: formData.diagnosticoMedicoDesc || "",
       alergias: formData.alergiasDesc || "",
       morada: {
         distrito: formData.distrito,
         concelho: formData.concelho,
         rua: formData.rua,
         codigoPostal: formData.codpostal,
-        apartamento: formData.edificioDesc || formData.numPorta || "",
+        numPorta:formData.numPorta,
+        apartamento: formData.edificioDesc || "",
       },
     };
 
     try {
       await updateUserData(userData._id, payload);
-      setSuccess(true);
+      setIsAlertOpen(true);
       setIsEditing(false);
     } catch (err) {
       console.error("Erro:", err);
@@ -246,40 +234,49 @@ const modalRef = useRef(null);
       setLoading(false);
     }
   };
-   
+
   return (
     <>
-   <Modal 
-  ref={modalRef}
-  page="config"
-  password={confirmPassword}
-  onPasswordChange={setConfirmPassword}
-  passwordError={passwordError}
-  onConfirm={handlePasswordConfirm}
-  onClose={() => {
-    setConfirmPassword('');
-    setPasswordError('');
-  }}
-/>
+    <Modal
+      ref={modalRef}
+      page="config"
+      password={confirmPassword}
+      onPasswordChange={setConfirmPassword}
+      passwordError={passwordError}
+      onConfirm={handlePasswordConfirm}
+      onClose={() => {
+        setConfirmPassword("");
+        setPasswordError("");
+      }}
+    />
+    <Alert
+      isOpen={isAlertOpen}
+      onClose={() => setIsAlertOpen(false)}
+      texto="Os seus dados foram atualizados com sucesso!"
+    />
     <div className="flex h-screen bg-[#f8fafc]">
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <div className="max-w-[1200px] mx-auto p-8">
           {/* Header */}
-          <div className="bg-white px-8 pt-16 pb-20 mb-8 -mx-8 -mt-8">
+          <div className="bg-white px-8 pt-16 pb-20 mb-8 -mx-8 -mt-8 border-b border-gray-100">
             <div className="w-100% mx-auto">
-              <div className="flex items-center gap-3 text-purple-600 mb-3">
+              <div className="flex items-center gap-3 text-indigo-600 mb-3">
                 <Settings size={20} />
                 <span className="text-sm font-medium">Configurações</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-3">
                     Configurações da Conta
                   </h1>
-                  <p className="text-gray-500">
-                    Gerencie suas informações pessoais e preferências
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-gray-500">
+                      Gerencie suas informações pessoais e preferências
+                    </p>
+                    <div className="h-1 w-1 rounded-full bg-gray-300" />
+                   
+                  </div>
                 </div>
                 <Buttons
                   onClick={handleEditClick}
@@ -287,23 +284,25 @@ const modalRef = useRef(null);
                   style={`px-6 py-3 rounded-xl font-medium transition-all ${
                     isEditing
                       ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      : "bg-purple-600 text-white hover:bg-purple-700"
-                    }`}
-                    legenda={isEditing ? "Cancelar Edição" : "Editar Dados"}
-                    />
+                      : "bg-indigo-600 text-white hover:bg-indigo-700"
+                  }`}
+                  legenda={isEditing ? "Cancelar Edição" : "Editar Dados"}
+                />
               </div>
             </div>
           </div>
 
           <div className="-mt-24">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Grid Principal */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
                 {/* Informação Pessoal */}
                 <Section
                   title="Informação Pessoal"
-                  className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
+                  className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 transition-all hover:shadow-lg"
                 >
+                  
                   <div className="space-y-5">
                     <Inputs
                       id="nome"
@@ -314,7 +313,7 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
                     />
@@ -327,9 +326,9 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
-                        } border focus:outline-none focus:ring-2`}
+                      } border focus:outline-none focus:ring-2`}
                     />
                     <Inputs
                       id="dataNascimento"
@@ -340,7 +339,7 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
                     />
@@ -353,10 +352,10 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
-                      />
+                    />
                     <Inputs
                       id="senha"
                       label="Palavra-passe"
@@ -366,7 +365,7 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
                     />
@@ -376,10 +375,9 @@ const modalRef = useRef(null);
                 {/* Informação Médica */}
                 <Section
                   title="Informação Médica"
-                  className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
+                  className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 transition-all hover:shadow-lg"
                 >
                   <div className="space-y-5">
-                   
                     <Inputs
                       id="diagnosticoMedico"
                       label="Diagnóstico Médico"
@@ -389,7 +387,7 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
                     />
@@ -402,10 +400,10 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                        ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-                        : "bg-slate-50 border-transparent"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
+                          : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
-                      />
+                    />
                     <Inputs
                       id="alergias"
                       label="Alergias"
@@ -415,104 +413,123 @@ const modalRef = useRef(null);
                       disabled={!isEditing}
                       style={`w-full px-4 py-3 rounded-xl transition-all ${
                         isEditing
-                          ? "bg-white border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                           : "bg-slate-50 border-transparent"
-                        } border focus:outline-none focus:ring-2`}
-                        />
+                      } border focus:outline-none focus:ring-2`}
+                    />
                   </div>
                 </Section>
               </div>
 
               {/* Seção de Morada */}
-              <Section
-                title="Morada"
-                className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100"
-                >
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
-                  {/* Linha 1: Código Postal e Nº Porta */}
-                  <div className="md:col-span-4">
-                    <div className="flex gap-3">
-                      <div className="flex-1">
-                        <Inputs
-                          id="codpostal"
-                          label="Código-postal"
-                          type="text"
-                          value={formData.codpostal}
-                          onChange={handleInputChange}
-                          disabled={!isEditing}
-                          style={`w-full px-4 py-3 rounded-xl transition-all ${
-                            isEditing
-                            ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
-                              : "bg-slate-50 border-transparent"
-                          } border focus:outline-none focus:ring-2`}
-                          />
-                      </div>
-                      <div className="mt-7">
-                        <Buttons
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handlePostalSearch();
-                          }}
-                          type="button"
-                          disabled={loadingpostal}
-                          style="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all h-[46px]"
-                          legenda={loadingpostal ? "..." : "Procurar"}
-                        />
-                        
-              
-                      </div>
-                    
-                    </div>
-                  </div>
-                  <div className="md:col-span-1">
-                    <Inputs
-                      id="numPorta"
-                      label="Nº Porta"
-                      type="text"
-                      value={formData.numPorta}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={`w-full px-4 py-3 rounded-xl transition-all ${
-                        isEditing
-                          ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
-                          : "bg-slate-50 border-transparent"
-                        } border focus:outline-none focus:ring-2`}
-                        />
-                  </div>
+             {/* Seção de Morada */}
+<Section
+  title={
+    <div className="flex items-center gap-3 text-gray-900">
+      <div className="p-2 bg-indigo-50 rounded-lg">
+        <Home size={20} className="text-indigo-600" />
+      </div>
+      Morada
+    </div>
+  }
+  className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 transition-all hover:shadow-2xl"
+>
+  <div className="space-y-5">
+    {/* Código Postal e Nº Porta */}
+    <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
+      <div className="sm:col-span-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Código-postal
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={formData.codpostal}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className={`w-full px-4 py-3 rounded-xl transition-all ${
+                  isEditing
+                    ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
+                    : "bg-slate-50 border-transparent"
+                } border focus:outline-none focus:ring-2`}
+                placeholder="XXXX-XXX"
+              />
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePostalSearch();
+                }}
+                disabled={loadingpostal}
+                className="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 whitespace-nowrap"
+              >
+                {loadingpostal ? "..." : "Procurar"}
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">Formato: XXXX-XXX</p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="sm:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Nº Porta
+        </label>
+        <input
+          type="text"
+          value={formData.numPorta}
+          onChange={handleInputChange}
+          disabled={!isEditing}
+          className={`w-full px-4 py-3 rounded-xl transition-all ${
+            isEditing
+              ? "bg-white border-gray-200 focus:border-indigo-600 focus:ring-indigo-600"
+              : "bg-slate-50 border-transparent"
+          } border focus:outline-none focus:ring-2`}
+        />
+      </div>
+    </div>
 
-                  {/* Linha 2: Distrito, Concelho e Rua */}
-                  <div className="md:col-span-2">
-                    <Inputs
-                      id="distrito"
-                      label="Distrito"
-                      type="text"
-                      value={formData.distrito}
-                      disabled={true}
-                      style="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                    />
-                  </div>
-                  <div className="md:col-span-3">
-                    <Inputs
-                      id="concelho"
-                      label="Concelho"
-                      type="text"
-                      value={formData.concelho}
-                      disabled={true}
-                      style="w-full p-3 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#4f4fb9]"
-                      />
-                  </div>
-                  <div className="md:col-span-6">
-                    <Inputs
-                      id="rua"
-                      label="Rua"
-                      type="text"
-                      value={formData.rua}
-                      disabled={true}
-                      style="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                    />
-                  </div>
-                </div>
-              </Section>
+    {/* Distrito e Concelho */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Distrito
+        </label>
+        <input
+          type="text"
+          value={formData.distrito}
+          disabled={true}
+          className="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Concelho
+        </label>
+        <input
+          type="text"
+          value={formData.concelho}
+          disabled={true}
+          className="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
+        />
+      </div>
+    </div>
+
+    {/* Rua */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Rua
+      </label>
+      <input
+        type="text"
+        value={formData.rua}
+        disabled={true}
+        className="w-full px-4 py-3 bg-slate-50 border-transparent rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-600"
+      />
+    </div>
+  </div>
+</Section>
 
               {error && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600">
@@ -521,12 +538,12 @@ const modalRef = useRef(null);
               )}
 
               {/* Botão de submissão */}
-              {(isEditing && !error) && (
+              {isEditing && !error && (
                 <div className="flex justify-end pt-4">
                   <Buttons
                     type="submit"
                     disabled={loading}
-                    style="px-8 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all text-base font-medium"
+                    style="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-base font-medium shadow-sm hover:shadow-md"
                     legenda={loading ? "A processar..." : "Guardar alterações"}
                   />
                 </div>
@@ -536,7 +553,7 @@ const modalRef = useRef(null);
         </div>
       </div>
     </div>
-              </>
+  </>
   );
 };
 

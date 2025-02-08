@@ -73,6 +73,10 @@ const utenteSchema = new mongoose.Schema({
       required: true,
       match: [/^\d{4}-\d{3}$/, 'Por favor insira um código postal válido']
     },
+    numPorta: {
+      type: String,
+      required: true
+    },
     apartamento: {
       type: String,
       default: ''

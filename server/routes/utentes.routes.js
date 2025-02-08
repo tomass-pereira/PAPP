@@ -91,6 +91,8 @@ router.post('/register',validateUserData, async (req, res, next) => {
                     <li><strong>Concelho:</strong> ${morada.concelho}</li>
                     <li><strong>Rua:</strong> ${morada.rua}</li>
                    <li><strong>Código-Postal:</strong> ${morada.codigoPostal}</li>
+                   <li><strong>Número da Porta:</strong> ${morada.numPorta}</li>
+
 
                 </ul>
             </div>
@@ -281,6 +283,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
         concelho: req.body.morada.concelho,
         rua: req.body.morada.rua,
         codigoPostal: req.body.morada.codigoPostal,
+        numPorta:req.body.morada.numPorta,
         apartamento: req.body.morada.apartamento || ''
       },
       updatedAt: new Date()

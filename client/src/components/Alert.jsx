@@ -1,9 +1,6 @@
 import React from 'react'
 
-export default function Alert({ isOpen, texto }) {
-  
- 
-
+export default function Alert({ isOpen, texto, onClose }) {
   if (!isOpen) return null;
 
   return (
@@ -11,7 +8,7 @@ export default function Alert({ isOpen, texto }) {
       {/* Overlay com fundo escuro */}
       <div 
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-       
+        onClick={onClose} // Fecha ao clicar no overlay
       />
       
       {/* Alert Container */}
@@ -46,7 +43,7 @@ export default function Alert({ isOpen, texto }) {
 
           <button 
             className="text-gray-500 transition hover:text-gray-600"
-            onClick={window.location.href='/'}
+            onClick={onClose} // Fecha ao clicar no botão X
           >
             <span className="sr-only">Fechar</span>
             <svg

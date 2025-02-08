@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { loginUtente, getCurrentUser,  updateUtente } from "../api/utente";
-import api from "../api/api";
 
 const UserContext = createContext();
 
@@ -16,6 +15,7 @@ export function UserProvider({ children }) {
     const initializeUser = async () => {
       try {
         if (!localStorage.getItem("token")) {
+
           setInitialized(true);
           setLoading(false);
           return;
@@ -25,6 +25,7 @@ export function UserProvider({ children }) {
         setUserData(utente);
       } catch (error) {
         console.error("Error initializing user:", error);
+        window.location.href='/';
         localStorage.removeItem("token");
         setUserData(null);
       } finally {
