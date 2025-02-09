@@ -1,7 +1,9 @@
+import React, { useState } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import SmoothScroll from "./SmoothScroll";
 
 function NavBar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const isLoginPage = location.pathname === "/LoginPage";
@@ -9,52 +11,56 @@ function NavBar() {
   const isInicioPage = location.pathname === "/Inicio";
   const isFirstPage = location.pathname === "/";
 
-  return (
-    <nav className="flex items-center justify-between bg-white py-4 px-8 border-b top-0 z-50 w-full" >
-      <div className="flex items-center">
-        <img src="../imgs/logo-minii.png" alt="Logo" className="w-14 h-14" />
-        <Link to="/" className="text-indigo-600 text-2xl font-bold no-underline">
-          FisioHome
-        </Link>
-      </div>
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const NavLinks = () => (
+    <>
       {isFirstPage && (
         <>
-          <div className="flex gap-8">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center">
             <SmoothScroll
               targetId="inicio"
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
-              onClick={() => setActiveTarget('inicio')}
+              className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
+              onClick={closeMenu}
             >
               Inicio
             </SmoothScroll>
 
             <SmoothScroll
               targetId="servicos"
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
-              onClick={() => setActiveTarget('servicos')}
+              className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
+              onClick={closeMenu}
             >
               Serviços
             </SmoothScroll>
 
             <SmoothScroll
               targetId="contactos"
-              className="text-gray-800 text-base hover:text-[#4F4FB9] mr-4 cursor-pointer"
-              onClick={() => setActiveTarget('contactos')}
+              className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
+              onClick={closeMenu}
             >
               Contactos
             </SmoothScroll>
-
-          
           </div>
 
-          <div>
-            <Link className="text-gray-800 no-underline mr-5" to="Registar">
+          <div className="flex flex-col md:flex-row items-center gap-4 mt-4 md:mt-0">
+            <Link 
+              className="text-gray-800 no-underline" 
+              to="Registar"
+              onClick={closeMenu}
+            >
               Registar
             </Link>
             <Link
               className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
               to="LoginPage"
+              onClick={closeMenu}
             >
               Iniciar sessão
             </Link>
@@ -63,7 +69,11 @@ function NavBar() {
       )}
 
       {isLoginPage && (
-        <Link className="text-gray-800 no-underline mr-5" to="/Registar">
+        <Link 
+          className="text-gray-800 no-underline" 
+          to="/Registar"
+          onClick={closeMenu}
+        >
           Registar
         </Link>
       )}
@@ -72,11 +82,28 @@ function NavBar() {
         <Link
           className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
           to="/LoginPage"
+          onClick={closeMenu}
         >
           Iniciar sessão
         </Link>
       )}
+    </>
+  );
 
+  return (
+    <nav className="relative flex items-center justify-between bg-white h-20 px-4 md:px-8 border-b top-0 z-50 w-full">
+      {/* Logo */}
+      <div className="flex items-center h-full">
+        <Link to={'/'}>
+          <img 
+            src="/imgs/fisiohome.svg" 
+            alt="FisioHome Logo" 
+            className="h-44 w-auto object-contain"
+          />
+        </Link>
+      </div>
+
+      {/* Profile Dropdown for Inicio Page */}
       {isInicioPage && (
         <div className="dropdown dropdown-end">
           <div
@@ -110,6 +137,59 @@ function NavBar() {
           </ul>
         </div>
       )}
+
+      {/* Hamburger Menu for Mobile */}
+      <div className="md:hidden">
+        <button 
+          onClick={toggleMenu} 
+          className="text-gray-800 focus:outline-none"
+        >
+          {isMenuOpen ? (
+            <svg 
+              className="w-6 h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12" 
+              />
+            </svg>
+          ) : (
+            <svg 
+              className="w-6 h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 6h16M4 12h16M4 18h16" 
+              />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Desktop and Mobile Menu */}
+      <div className={`
+        ${isMenuOpen ? 'block' : 'hidden'} 
+        absolute top-full left-0 w-full bg-white 
+        md:static md:block md:w-auto
+        shadow-lg md:shadow-none
+        p-4 md:p-0
+      `}>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <NavLinks />
+        </div>
+      </div>
     </nav>
   );
 }
