@@ -6,7 +6,7 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   // Inicializa loading como true e verifica token imediatamente
   const [loading, setLoading] = useState(() => {
-    return !!localStorage.getItem("token");
+    return !!sessionStorage.getItem("token");
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
@@ -14,7 +14,7 @@ export function UserProvider({ children }) {
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        if (!localStorage.getItem("token")) {
+        if (!sessionStorage.getItem("token")) {
 
           setInitialized(true);
           setLoading(false);
@@ -26,7 +26,7 @@ export function UserProvider({ children }) {
       } catch (error) {
         console.error("Error initializing user:", error);
         window.location.href='/';
-        localStorage.removeItem("token");
+        
         setUserData(null);
       } finally {
         setLoading(false);
@@ -41,9 +41,10 @@ export function UserProvider({ children }) {
     try {
       setLoading(true);
       const data = await loginUtente(credentials);
-      
+       
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        sessionStorage.setItem("token", data.token);
+       sessionStorage.setItem("utenteId", data.utente.id);
         setUserData(data.utente);
       }
       
@@ -58,7 +59,8 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     setUserData(null);
-    localStorage.removeItem("token");
+    sessionStorage.clear();
+
     window.location.href = "/";
   };
 

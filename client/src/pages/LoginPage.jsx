@@ -10,13 +10,13 @@ function LoginPage() {
   const { login } = useUser(); // Usar o context
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [lembrar, setLembrar]=useState(false);
+  
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
   });
-if(localStorage.getItem("token")){
-  window.location.href='/Inicio';
-}
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -32,7 +32,8 @@ if(localStorage.getItem("token")){
     try {
       const data = await login({
         email: formData.email,
-        senha: formData.senha
+        senha: formData.senha,
+        lembrar
       });
       
       
@@ -104,7 +105,9 @@ if(localStorage.getItem("token")){
                 Esqueceu-se a password?
               </Link>
             </div>
-
+            <div className="flex items-center mb-6">
+  
+</div>
             <Buttons
               type="submit"
               disabled={loading}

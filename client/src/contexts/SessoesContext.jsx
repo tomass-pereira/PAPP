@@ -8,14 +8,16 @@ export function SessoesProvider({ children }) {
   const [sessoes, setSessoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
+  const utenteId= sessionStorage.getItem("utenteId");
+
+
 
   const fetchSessoes = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getSessoes();
-
+      const data = await getSessoes(utenteId);
       setSessoes(data);
     } catch (error) {
       setError(error.message);
@@ -24,11 +26,11 @@ export function SessoesProvider({ children }) {
       setLoading(false);
     }
   };
-  if (token) {
+ 
     useEffect(() => {
       fetchSessoes();
     }, []);
-  }
+  
 
   return (
     <SessoesContext.Provider
@@ -44,7 +46,7 @@ export function SessoesProvider({ children }) {
   );
 }
 
-// Hook personalizado para usar o context
+
 export function useSessoes() {
   const context = useContext(SessoesContext);
   if (!context) {

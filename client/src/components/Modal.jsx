@@ -14,25 +14,21 @@ const Modal = forwardRef(({ event, onClose, onConfirm, page, password, onPasswor
   };
 
   const handleConfirm = () => {
-if(erro!=''){
-  window.location.href='/';
-
-}
-
-
     if (page === 'config') {
       onConfirm();
       if (onConfirm()) {
         ref.current.close();
-        window.location.reload();  // Atualiza a página após a confirmação
+        window.location.reload();
       }
     } else {
-      onConfirm(event, motivo); 
-      console.log(erro)
-      window.location.reload();  // Atualiza a página após a confirmação
+      onConfirm(event);
+      // Só fecha o modal se não houver erro
+      if (!erro) {
+        ref.current.close();
+      }
     }
   };
-
+  
   const handleMotivoChange = (e) => {
     setMotivo(e.target.value); // Atualiza o estado com o valor do motivo
   };
@@ -178,6 +174,16 @@ if(erro!=''){
             />
           </div>
         </div>
+        {erro && (
+  <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+    <div className="flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+      <p className="text-red-700 font-medium">{erro}</p>
+    </div>
+  </div>
+)}
             
         {/* Ações */}
         <div className="modal-action flex justify-end gap-3 pt-4 border-t border-gray-100">

@@ -32,7 +32,7 @@ export const updateUtente = async (utenteId, updatedData) => {
   }
 };
 export const getCurrentUser = async () => {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
   
   if (!token) {
     throw new Error("No token found");
@@ -54,7 +54,6 @@ export const loginUtente = async (credentials) => {
   });
 
   const data = await response.json();
-  localStorage.setItem('utenteId', data.utente.id);
 
 
   if (!response.ok) {

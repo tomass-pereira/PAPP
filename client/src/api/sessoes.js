@@ -1,12 +1,13 @@
 import { BASE_URL } from './config';
 
-export const getSessoes = async () => {
+export const getSessoes = async (utenteId) => {
 
-    const response = await fetch(`${BASE_URL}/sessoes/buscarSessoes`, {
+    const response = await fetch(`${BASE_URL}/sessoes/buscarSessoes/${utenteId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+    
     });
   
     const data = await response.json();
@@ -18,29 +19,36 @@ export const getSessoes = async () => {
   
     return data;
 };
-export const reservarSessao = async (sessaoId, utenteId) => {
-  try {
-
-   
-    const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/reservar`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ utenteId, sessaoId }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Erro ao reservar sessão');
-    }
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error('Erro ao reservar sessão');
-    }
-    return data;
-  } catch (error) {
-    console.error('Erro ao reservar sessão:', error);
-    throw error;
+export const reservarSessao = async (sessaoId, utenteId, motivo) => {
+  const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/reservar`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ utenteId, sessaoId, motivo }),
+  });                                 
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message);
   }
+  
+  return data;
+};
+export const cancelarSessao = async (sessaoId) => {
+  const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/cancelar`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+  
+  return data;
 };
