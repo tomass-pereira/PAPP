@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Settings, Home, CircleUser } from "lucide-react";
 import Inputs from "../../components/Inputs";
 import Sidebar from "../../components/SideBar";
@@ -21,8 +21,11 @@ const Config = () => {
   const [passwordError, setPasswordError] = useState("");
   const modalRef = useRef(null);
   const [error, setError] = useState("");
+  const [preview, setPreview] = useState(userData.profileImage || "");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
+    profileImage: userData.profileImage,
     codpostal: userData.morada.codigoPostal,
     distrito: userData.morada.distrito,
     concelho: userData.morada.concelho,
@@ -41,23 +44,45 @@ const Config = () => {
 
   const handleEditClick = () => {
     if (!isEditing) {
+      setModalOpen(true);
       modalRef.current?.showModal();
     } else {
       setIsEditing(false);
     }
   };
+
   const handlePasswordConfirm = () => {
     if (confirmPassword === userData.senha) {
-      setShowPasswordModal(false);
       setIsEditing(true);
       setConfirmPassword("");
       setPasswordError("");
-      return true
+      setModalOpen(false);
+      modalRef.current?.close();
     } else {
       setPasswordError("Senha incorreta");
-      return false;
     }
   };
+
+  useEffect(() => {
+    const modal = modalRef.current;
+    
+    const handleCloseModal = (e) => {
+      if (!modalOpen) return;
+      
+      if (confirmPassword === userData.senha) {
+        setIsEditing(true);
+      }
+      setModalOpen(false);
+      setConfirmPassword("");
+      setPasswordError("");
+    };
+
+    modal?.addEventListener('close', handleCloseModal);
+    
+    return () => {
+      modal?.removeEventListener('close', handleCloseModal);
+    };
+  }, [modalOpen, confirmPassword, userData.senha]);
 
   const compressImage = (file) => {
     return new Promise((resolve) => {
@@ -113,7 +138,7 @@ const Config = () => {
         setPreview(compressedImage);
         setFormData((prev) => ({
           ...prev,
-          foto: compressedImage,
+          profileImage: compressedImage,
         }));
       } catch (error) {
         console.error("Error compressing image:", error);
@@ -208,6 +233,8 @@ const Config = () => {
     setError("");
 
     const payload = {
+      
+      profileImage: formData.profileImage,
       nome: formData.nome,
       email: formData.email,
       senha: formData.senha,
@@ -218,9 +245,10 @@ const Config = () => {
       morada: {
         distrito: formData.distrito,
         concelho: formData.concelho,
+
         rua: formData.rua,
         codigoPostal: formData.codpostal,
-        numPorta:formData.numPorta,
+        numPorta: formData.numPorta,
         apartamento: formData.edificioDesc || "",
       },
     };
@@ -247,6 +275,7 @@ const Config = () => {
       passwordError={passwordError}
       onConfirm={handlePasswordConfirm}
       onClose={() => {
+        setModalOpen(false);
         setConfirmPassword("");
         setPasswordError("");
       }}
@@ -296,6 +325,49 @@ const Config = () => {
 
           <div className="-mt-24">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Seção de Foto de Perfil - Adicione antes do Grid Principal */}
+              <Section
+                title="Foto de Perfil"
+                className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 transition-all hover:shadow-lg"
+              >
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+                      {(preview || userData.profileImage) ? (
+                        <img
+                          src={preview || userData.profileImage}
+                          alt="Foto de perfil"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <CircleUser className="w-full h-full text-gray-400 p-4" />
+                      )}
+                    </div>
+                    {isEditing && (
+                      <label
+                        htmlFor="foto"
+                        className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-700 transition-all"
+                      >
+                        <input
+                          type="file"
+                          id="foto"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                        <Settings size={16} />
+                      </label>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Foto de perfil</h4>
+                    <p className="text-sm text-gray-500">
+                      JPG ou PNG. Tamanho máximo de 1MB.
+                    </p>
+                  </div>
+                </div>
+              </Section>
+
               {/* Grid Principal */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 

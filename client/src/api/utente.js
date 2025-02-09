@@ -34,13 +34,20 @@ export const updateUtente = async (utenteId, updatedData) => {
 export const getCurrentUser = async () => {
   const token = sessionStorage.getItem("token");
   
-  if (!token) {
-    throw new Error("No token found");
-  }
-
+ try{
   const response = await api.get('/utentes/current');
   return response.data.utente;
+
+ }
+ catch(error){
+  if (error.response?.status === 404) {
+    window.location.href = "/";
+    return;
+  }
+
+ 
 };
+}
 
 
 

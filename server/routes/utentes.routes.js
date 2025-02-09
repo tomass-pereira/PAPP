@@ -243,6 +243,7 @@ router.get('/current', authMiddleware, async (req, res) => {
     
     
     if (!utente) {
+      
       return res.status(404).json({ 
         success: false,
         message: "Utente não encontrado" 
@@ -254,6 +255,7 @@ router.get('/current', authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.log("Erro na rota:", error);
+
     res.status(500).json({ 
       success: false,
       message: "Erro ao buscar dados do utente" 
@@ -270,6 +272,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     }
 
     const updateFields = {
+      profileImage: req.body.profileImage,
       nome: req.body.nome,
       email: req.body.email,
       senha:req.body.senha,

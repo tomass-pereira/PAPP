@@ -8,17 +8,20 @@ export function SessoesProvider({ children }) {
   const [sessoes, setSessoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
   const token = sessionStorage.getItem("token");
   const utenteId= sessionStorage.getItem("utenteId");
 
 
 
   const fetchSessoes = async () => {
+   
     try {
       setLoading(true);
       setError(null);
       const data = await getSessoes(utenteId);
       setSessoes(data);
+
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar sessões:", error);
@@ -27,9 +30,15 @@ export function SessoesProvider({ children }) {
     }
   };
  
-    useEffect(() => {
+  useEffect(() => {
+   
+      console.log("entrou");
       fetchSessoes();
-    }, []);
+   
+      setSessoes([]);
+      setError(null);
+    
+  }, [token]);
   
 
   return (

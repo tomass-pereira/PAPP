@@ -46,8 +46,10 @@ export function UserProvider({ children }) {
         sessionStorage.setItem("token", data.token);
        sessionStorage.setItem("utenteId", data.utente.id);
         setUserData(data.utente);
+        
       }
       
+
       return data;
     } catch (error) {
       console.error("Erro no login:", error);
