@@ -25,6 +25,8 @@ function CalendarApp() {
   const [motivo, setMotivo]=useState('');
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [sessaoParaCancelar, setSessaoParaCancelar] = useState(null);
+  const [motivoCancelamento, setMotivoCancelamento] = useState('');
+  const [erroCancelamento, setErroCancelamento] = useState('');
  
   const handleCancelar = async (event) => {
     setSessaoParaCancelar(event);
@@ -32,13 +34,19 @@ function CalendarApp() {
   };
  
   const confirmarCancelamento = async () => {
+   if(motivoCancelamento!=''){
     try {
-      await cancelarSessao(sessaoParaCancelar.id);
+      await cancelarSessao(sessaoParaCancelar.id, motivoCancelamento);
       setShowCancelDialog(false);
       window.location.reload();
+      console.log(motivoCancelamento);
     } catch (error) {
       setErro(error.message);
     }
+   }
+   else{
+    setErroCancelamento("Digite o motivo do cancelamento");
+   }
   };
  
   const handleConfirm = async (event) => {
@@ -251,9 +259,36 @@ function CalendarApp() {
                 <p className="text-gray-600 mb-6">
                   Tem a certeza que pretende cancelar esta sessão?
                 </p>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Motivo do Cancelamento *
+                  </label>
+                  <input
+                  type="text"
+                    value={motivoCancelamento}
+                    onChange={(e) => {
+                      setMotivoCancelamento(e.target.value);
+                      if (erroCancelamento) setErroCancelamento('');
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Digite o motivo do cancelamento"
+                    rows="3"
+                  />
+                   {erroCancelamento && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-red-700 font-medium">{erro}</p>
+                </div>
+              </div>
+            )}
+                </div>
+
                 <div className="flex justify-end gap-3">
                   <button
-                    onClick={() => setShowCancelDialog(false)}
+                    onClick={() => setShowCancelDialog(false)       }
                     className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     Voltar

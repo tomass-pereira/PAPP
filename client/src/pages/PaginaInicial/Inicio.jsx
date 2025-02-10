@@ -10,6 +10,24 @@ export default function Inicio() {
   const navigate = useNavigate();
   const {userData} =useUser();
 
+  // Pegando a primeira sessão (próxima sessão)
+  const proximaSessao = sessoesReservadas[0];
+  let dataFormatada = '';
+  let horaFormatada = '';
+  
+  if (proximaSessao) {
+    const data = new Date(proximaSessao.dataHoraInicio);
+    dataFormatada = data.toLocaleDateString('pt-BR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    horaFormatada = data.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   useEffect(() => {
     const token = sessionStorage.getItem('token');
     if (!token) {
@@ -55,7 +73,11 @@ export default function Inicio() {
               <div className="flex gap-4">
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Próxima sessão</p>
-                  <p className="font-medium text-gray-800">10 Março, 14:30</p>
+                  {proximaSessao ? (
+                    <p className="font-medium text-gray-800">{dataFormatada}, {horaFormatada}</p>
+                  ) : (
+                    <p className="font-medium text-gray-800">Nenhuma sessão agendada</p>
+                  )}
                 </div>
                 <div 
                   className="relative cursor-pointer"
