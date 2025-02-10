@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Bell, Home } from "lucide-react";
 import SideBar from "../../components/SideBar"
 import {useUser} from '../../contexts/UserContext.jsX';
+import { useSessoes } from "../../contexts/SessoesContext.jsx";
 
 export default function Inicio() {
+  const {sessoesReservadas}=useSessoes();
   const navigate = useNavigate();
   const {userData} =useUser();
 
@@ -18,22 +20,6 @@ export default function Inicio() {
   const handleNavigate = (path) => {
     navigate(path);
   };
-
-  // Dados mockados - substituir pelos dados reais da API
-  const proximasSessoes = [
-    {
-      data: "10 Março 2024",
-      hora: "14:30",
-      tipo: "Fisioterapia Geral",
-      local: "Domicílio"
-    },
-    {
-      data: "15 Março 2024",
-      hora: "16:00",
-      tipo: "Avaliação",
-      local: "Domicílio"
-    }
-  ];
 
   const notificacoes = [
     {
@@ -49,6 +35,7 @@ export default function Inicio() {
       data: "Ontem, 15:45"
     }
   ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
@@ -142,21 +129,39 @@ export default function Inicio() {
                 </div>
               </div>
               <div className="p-6">
-                {proximasSessoes.map((sessao, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-start space-x-4 mb-4 last:mb-0 p-4 hover:bg-gray-50 rounded-lg"
-                  >
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <Calendar className="w-5 h-5 text-blue-500" />
+                {sessoesReservadas.map((sessao) => {
+                  const data = new Date(sessao.dataHoraInicio);
+                  const dataFormatada = data.toLocaleDateString('pt-BR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  });
+                  const horaFormatada = data.toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+
+                  return (
+                    <div 
+                      key={sessao._id}
+                      className="flex items-start space-x-4 mb-4 last:mb-0 p-4 hover:bg-gray-50 rounded-lg"
+                    >
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <Calendar className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">{dataFormatada}</p>
+                        <p className="text-gray-600">Fisioterapia</p>
+                        <p className="text-sm text-gray-500">{horaFormatada} - Domicílio</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{sessao.data}</p>
-                      <p className="text-gray-600">{sessao.tipo}</p>
-                      <p className="text-sm text-gray-500">{sessao.hora} - {sessao.local}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
+                {sessoesReservadas.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">
+                    Não há sessões agendadas no momento
+                  </p>
+                )}
               </div>
             </div>
 

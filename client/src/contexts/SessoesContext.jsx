@@ -8,7 +8,7 @@ export function SessoesProvider({ children }) {
   const [sessoes, setSessoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+  const [sessoesReservadas, setSessoesReservadas] = useState([]);
   const token = sessionStorage.getItem("token");
   const utenteId= sessionStorage.getItem("utenteId");
 
@@ -21,7 +21,8 @@ export function SessoesProvider({ children }) {
       setError(null);
       const data = await getSessoes(utenteId);
       setSessoes(data);
-
+      const reservadas = data.filter(sessao => sessao.status === "reservada");
+      setSessoesReservadas(reservadas);
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar sessões:", error);
@@ -45,6 +46,7 @@ export function SessoesProvider({ children }) {
     <SessoesContext.Provider
       value={{
         sessoes,
+        sessoesReservadas,
         loading,
         error,
         fetchSessoes,
