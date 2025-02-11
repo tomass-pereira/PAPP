@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 
 export default function HistoricoConsultas() {
-  const { sessoesReservadaseConcluidas, sessoesCanceladas, loading } = useSessoes();
+  const { sessoesReservadas, sessoesConcluidas, sessoesCanceladas, loading } =
+    useSessoes();
 
   // Definir qual tipo de sessões mostrar
   const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas" ou "canceladas"
@@ -22,7 +23,11 @@ export default function HistoricoConsultas() {
 
   // Definir qual array usar baseado no tipo selecionado
   const sessoesPorTipo =
-    tipoHistorico === "reservadas" ? sessoesReservadaseConcluidas : sessoesCanceladas;
+    tipoHistorico === "reservadas"
+      ? sessoesReservadas
+      : tipoHistorico === "concluidas"
+      ? sessoesConcluidas
+      : sessoesCanceladas;
 
   // Lógica de paginação
   const totalPages = Math.ceil(sessoesPorTipo.length / itemsPerPage);
@@ -99,7 +104,9 @@ export default function HistoricoConsultas() {
                     Total de Sessões
                   </h3>
                   <p className="text-3xl font-bold text-gray-900">
-                    {sessoesReservadaseConcluidas.length + sessoesCanceladas.length}
+                    {sessoesReservadas.length +
+                      sessoesCanceladas.length +
+                      sessoesConcluidas.length}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -107,9 +114,12 @@ export default function HistoricoConsultas() {
                     Realizadas/Concluídas
                   </h3>
                   <p className="text-3xl font-bold text-indigo-600">
-                    {sessoesReservadaseConcluidas.filter((s) => 
-                      s.status === "realizada" || s.status === "concluida"
-                    ).length}
+                    {
+                      sessoesConcluidas.filter(
+                        (s) =>
+                          s.status === "realizada" || s.status === "concluida"
+                      ).length
+                    }
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -140,9 +150,8 @@ export default function HistoricoConsultas() {
                       }}
                       className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
                     >
-                      <option value="reservadas">
-                        Sessões Reservadas/Concluídas
-                      </option>
+                      <option value="reservadas">Sessões Reservadas</option>
+                      <option value="concluidas">Sessões Concluídas</option>
                       <option value="canceladas">Sessões Canceladas</option>
                     </select>
                   </div>
@@ -203,7 +212,8 @@ export default function HistoricoConsultas() {
                           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                             tipoHistorico === "canceladas"
                               ? "bg-red-100 text-red-700"
-                              : sessao.status === "realizada" || sessao.status === "concluida"
+                              : sessao.status === "realizada" ||
+                                sessao.status === "concluida"
                               ? "bg-green-100 text-green-700"
                               : "bg-indigo-100 text-indigo-700"
                           }`}

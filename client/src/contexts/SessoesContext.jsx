@@ -9,7 +9,9 @@ export function SessoesProvider({ children }) {
   const [sessoesCanceladas, setSessoesCanceladas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [sessoesReservadaseConcluidas, setSessoesReservadaseConcluidas] = useState([]);
+  const [sessoesReservadas, setSessoesReservadas] = useState([]);
+  const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
+
   const token = sessionStorage.getItem("token");
   const utenteId= sessionStorage.getItem("utenteId");
 
@@ -30,11 +32,18 @@ export function SessoesProvider({ children }) {
       setLoading(true);
       setError(null);
       const data = await getSessoes(utenteId);
+
       setSessoes(data);
-      const reservadasEConcluidas = data.filter(sessao => 
-        sessao.status === "reservada" || sessao.status === "concluida"
+      const reservadas = data.filter(sessao => 
+        sessao.status === "reservada" 
     );
-      setSessoesReservadaseConcluidas(reservadasEConcluidas);
+      setSessoesReservadas(reservadas);
+
+      setSessoes(data);
+      const concluidas = data.filter(sessao => 
+        sessao.status === "concluida" 
+    );
+      setSessoesConcluidas(concluidas);
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar sessões:", error);
@@ -45,9 +54,9 @@ export function SessoesProvider({ children }) {
  
   useEffect(() => {
     if (token && utenteId) {
-      console.log("oa");
       fetchSessoes();
       fetchSessoesCanceladas();
+      
     } else {
       setSessoes([]);
       setSessoesCanceladas([]);
@@ -61,7 +70,8 @@ export function SessoesProvider({ children }) {
       value={{
         sessoes,
         sessoesCanceladas,
-        sessoesReservadaseConcluidas,
+        sessoesReservadas,
+        sessoesConcluidas,
         loading,
         error,
         fetchSessoes,

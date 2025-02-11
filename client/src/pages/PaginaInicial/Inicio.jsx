@@ -6,12 +6,12 @@ import {useUser} from '../../contexts/UserContext.jsX';
 import { useSessoes } from "../../contexts/SessoesContext.jsx";
 
 export default function Inicio() {
-  const {sessoesReservadas}=useSessoes();
+  const { sessoesReservadas}=useSessoes();
   const navigate = useNavigate();
   const {userData} =useUser();
 
   // Pegando a primeira sessão (próxima sessão)
-  const proximaSessao = sessoesReservadas[0];
+  const proximaSessao =  sessoesReservadas[0];
   let dataFormatada = '';
   let horaFormatada = '';
   
@@ -179,7 +179,7 @@ export default function Inicio() {
                     </div>
                   );
                 })}
-                {sessoesReservadas.length === 0 && (
+                { sessoesReservadas.length === 0 && (
                   <p className="text-gray-500 text-center py-4">
                     Não há sessões agendadas no momento
                   </p>

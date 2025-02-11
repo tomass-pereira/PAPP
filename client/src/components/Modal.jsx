@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState } from 'react'; 
 
 const Modal = forwardRef(({ event, onClose, onConfirm, page, password, onPasswordChange, passwordError, erro }, ref) => {
   const [success, setSuccess] = useState(false);
