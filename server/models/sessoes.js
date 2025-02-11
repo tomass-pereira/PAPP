@@ -4,7 +4,7 @@ const sessoesSchema = new mongoose.Schema({
   clienteId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'utentes',
-    default: null  // Começa null pois ainda não tem cliente
+    default:null
   },
   dataHoraInicio: {
     type: Date,

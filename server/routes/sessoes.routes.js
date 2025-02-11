@@ -27,29 +27,22 @@ router.post('/criarSessao', async (req, res, next) => {
     }
   });
   router.get('/buscarSessoes/:utenteId', async (req, res) => {
+    console.log('Rota buscarSessoes chamada');
     try {
-      const utenteId = req.params.utenteId;
+        const utenteId = req.params.utenteId;
 
-      
-      const sessoes = await Sessoes.find({
-        $or: [
-          { status: 'disponivel' },  // Todas as sessões disponíveis
-          { 
-            status: 'reservada',     // Sessões reservadas
-            clienteId: utenteId      // Apenas do utente específico
-          }
-        ]
-      }); // Popula os dados do utente se necessário
-
-      res.status(200).json(sessoes);
-      
+        const sessoes = await Sessoes.find();
+        
+        res.status(200).json(sessoes);
+        console.log(sessoes);
+        
     } catch (error) {
-      res.status(500).json({ 
-        message: "Erro ao buscar sessões",
-        error: error.message 
-      });
+        res.status(500).json({ 
+            message: "Erro ao buscar sessões",
+            error: error.message 
+        });
     }
-  });
+});
   router.get('/canceladas/:utenteId', async (req, res) => {
     try {
       const utenteId = req.params.utenteId;
@@ -261,6 +254,45 @@ router.post('/criarSessao', async (req, res, next) => {
       });
     }
   });
+
+  router.put('/:id/realizada', async (req, res) => {
+    try {
+      const sessaoId = req.params.id;
+      
+      // Busca a sessão pelo ID com os dados do utente
+      const sessao = await Sessoes.findById(sessaoId);
+  
+      if (!sessao) {
+        return res.status(404).json({ 
+          error: true,
+          message: 'Sessão não encontrada' 
+        });
+      }
+  
+  
+      sessao.status = 'concluida';
+  
+      await sessao.save();
+  
+      
+  
+      res.json({ 
+        message: 'Sessão concluida com sucesso',
+        sessao 
+      });
+     
+      
+    } catch (error) {
+      console.error('Erro ao concluir sessão:', error);
+      res.status(500).json({ 
+        error: true,
+        message: 'Erro ao concluir sessão' 
+      });
+    }
+  });
+
+
+
 
 
 

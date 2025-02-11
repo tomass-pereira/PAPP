@@ -69,3 +69,21 @@ export const cancelarSessao = async (sessaoId, motivo) => {
   
   return data;
 };
+
+
+export const concluirSessao = async (sessaoId) => {
+  const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/realizada`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });                                 
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+  
+  return data;
+};
