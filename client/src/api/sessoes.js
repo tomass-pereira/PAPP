@@ -1,5 +1,6 @@
 import { BASE_URL } from './config';
 
+
 export const getSessoes = async (utenteId) => {
 
     const response = await fetch(`${BASE_URL}/sessoes/buscarSessoes/${utenteId}`, {

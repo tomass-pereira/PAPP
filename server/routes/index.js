@@ -4,6 +4,8 @@ const utentesRoutes = require('./utentes.routes');
 const moradaRoutes = require('./morada.routes');
 const loginRouter = require('./auth.routes');
 const sessoesRoutes=require('./sessoes.routes.js');
+const notificacoesRoutes=require('./notificacoes.routes.js');
+router.use('/notificacoes', notificacoesRoutes);
 router.use('/auth', loginRouter);
 router.use('/sessoes', sessoesRoutes);
 router.use('/utentes', utentesRoutes);

@@ -5,6 +5,8 @@ const Utente =require("../models/utente")
 const Cancelamentos=require("../models/cancelamentos")
 const VerificarSessaoMesmoDia=require('../middlewares/sessoes.middleware');
 const emailService = require('../services/nodemailer');
+const notificacoes = require('../models/Notificacoes');
+
 
 router.post('/criarSessao', async (req, res, next) => {
     try {
@@ -95,6 +97,13 @@ router.post('/criarSessao', async (req, res, next) => {
 
    
       await sessao.save();
+      await notificacoes.create({
+        utenteId,
+        titulo: 'Sessão Reservada',
+        descricao: `A sua sessão foi reservada com sucesso para ${sessao.
+          dataHoraInicio}`,
+        tipo: 'success'
+    });
   
       res.json(sessao);
       try {

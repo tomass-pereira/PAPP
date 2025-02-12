@@ -12,7 +12,7 @@ import {
   Home,
   Bell,
 } from "lucide-react";
-
+import { useNotificacoes } from "../contexts/NotificacaoContext";
 const Sidebar = () => {
   const { userData, logout } = useUser();
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -21,7 +21,7 @@ const Sidebar = () => {
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   // You should replace this with your actual unread notifications count
-  const unreadNotifications = 3;
+  const {naoLidas}=useNotificacoes();
 
   if (!userData) {
     return null;
@@ -53,9 +53,9 @@ const Sidebar = () => {
       icon: ({ size, className }) => (
         <div className="relative">
           <Bell size={size} className={className} />
-          {unreadNotifications > 0 && (
+          {naoLidas > 0 && (
             <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {unreadNotifications > 99 ? '99+' : unreadNotifications}
+              {naoLidas > 99 ? '99+' :naoLidas}
             </div>
           )}
         </div>

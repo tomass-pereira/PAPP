@@ -1,27 +1,34 @@
-import React from 'react';
-import './App.css'
-import { BrowserRouter as Router, Route, Routes, BrowserRouter, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import LoginPage from './pages/LoginPage.jsx';
-import CreateAccount from './pages/CreateAccount.jsx';
-import { UserProvider } from './contexts/UserContext.jsX';
-import { SessoesProvider } from './contexts/SessoesContext.jsX';
+import React from "react";
+import "./App.css";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  BrowserRouter,
+  useLocation,
+} from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import LoginPage from "./pages/LoginPage.jsx";
+import CreateAccount from "./pages/CreateAccount.jsx";
+import { UserProvider } from "./contexts/UserContext.jsX";
+import { SessoesProvider } from "./contexts/SessoesContext.jsX";
+import { NotificacoesProvider } from "./contexts/NotificacaoContext.jsx";
 
-import RecuperarPasse from './pages/RecuperarPasse.jsx';
-import First from './pages/First';
-import MinhasSessoes from './pages/PaginaInicial/MinhasSessoes.jsx';
-import Inicio from './pages/PaginaInicial/Inicio.jsx';
-import Exercicios from './pages/PaginaInicial/Exercicios.jsx';
-import AgendarSessao from './pages/PaginaInicial/AgendarSessao.jsx';
-import ErrorPage from './pages/Error.jsx';
-import NotificationsPage from './pages/PaginaInicial/NotificationsPage.jsx';
-import Config from './pages/PaginaInicial/Config.jsx';
+import RecuperarPasse from "./pages/RecuperarPasse.jsx";
+import First from "./pages/First";
+import MinhasSessoes from "./pages/PaginaInicial/MinhasSessoes.jsx";
+import Inicio from "./pages/PaginaInicial/Inicio.jsx";
+import Exercicios from "./pages/PaginaInicial/Exercicios.jsx";
+import AgendarSessao from "./pages/PaginaInicial/AgendarSessao.jsx";
+import ErrorPage from "./pages/Error.jsx";
+import NotificationsPage from "./pages/PaginaInicial/NotificationsPage.jsx";
+import Config from "./pages/PaginaInicial/Config.jsx";
 
 const AnimatedPage = ({ children }) => {
   const pageVariants = {
     initial: {
       opacity: 0,
-      x: -200
+      x: -200,
     },
     animate: {
       opacity: 1,
@@ -29,16 +36,16 @@ const AnimatedPage = ({ children }) => {
       transition: {
         type: "spring",
         damping: 25,
-        stiffness: 100
-      }
+        stiffness: 100,
+      },
     },
     exit: {
       opacity: 0,
       x: 200,
       transition: {
-        duration: 0.3
-      }
-    }
+        duration: 0.3,
+      },
+    },
   };
 
   return (
@@ -60,72 +67,54 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <AnimatedPage>
               <First />
             </AnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/RecuperarPasse" 
+        <Route
+          path="/RecuperarPasse"
           element={
             <AnimatedPage>
               <RecuperarPasse />
             </AnimatedPage>
-          } 
+          }
         />
-       
-        <Route 
-          path="/AgendarSessao" 
-          element={<AgendarSessao />} 
-        />
-        <Route 
-          path="/exercicios" 
-          element={<Exercicios />} 
-        />
-         
-        <Route 
-          path="/NotificationsPage" 
-          element={<NotificationsPage/>} 
-        />
-         <Route 
-          path="/Config" 
-          element={<Config/>} 
-        />
-        <Route 
-          path="/Inicio" 
-          element={<Inicio />} 
-        />
-        <Route 
-          path="/MinhasSessoes" 
-          element={<MinhasSessoes />} 
-        />
-       
-        <Route 
-          path="/Registar" 
+
+        <Route path="/AgendarSessao" element={<AgendarSessao />} />
+        <Route path="/exercicios" element={<Exercicios />} />
+
+        <Route path="/NotificationsPage" element={<NotificationsPage />} />
+        <Route path="/Config" element={<Config />} />
+        <Route path="/Inicio" element={<Inicio />} />
+        <Route path="/MinhasSessoes" element={<MinhasSessoes />} />
+
+        <Route
+          path="/Registar"
           element={
             <AnimatedPage>
               <CreateAccount />
             </AnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/LoginPage" 
+        <Route
+          path="/LoginPage"
           element={
             <AnimatedPage>
               <LoginPage />
             </AnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="*" 
+        <Route
+          path="*"
           element={
             <AnimatedPage>
               <ErrorPage />
             </AnimatedPage>
-          } 
+          }
         />
       </Routes>
     </AnimatePresence>
@@ -134,14 +123,15 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <SessoesProvider>
-      <UserProvider>
-
-<BrowserRouter>
-  <AnimatedRoutes />
-</BrowserRouter>
-</UserProvider>
-    </SessoesProvider>
+    <NotificacoesProvider>
+      <SessoesProvider>
+        <UserProvider>
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </UserProvider>
+      </SessoesProvider>
+    </NotificacoesProvider>
   );
 }
 

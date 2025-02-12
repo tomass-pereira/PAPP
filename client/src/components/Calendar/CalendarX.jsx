@@ -13,11 +13,11 @@ import "@sx-premium/drag-to-create/index.css";
 import SessionModal from "./SessionModal.jsx";
 import { v4 as uuidv4 } from "uuid";
 import "./Calendar.css";
-import { reservarSessao, cancelarSessao } from "../../api/sessoes.js";
+import { reservarSessao, cancelarSessao} from "../../api/sessoes.js";
 
 function CalendarApp() {
   const [eventsService] = useState(() => createEventsServicePlugin());
-  const { sessoes, sessoesCanceladas } = useSessoes();
+  const { sessoes, sessoesCanceladas} = useSessoes();
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const utenteId = sessionStorage.getItem("utenteId");
@@ -28,6 +28,10 @@ function CalendarApp() {
   const [motivoCancelamento, setMotivoCancelamento] = useState('');
   const [erroCancelamento, setErroCancelamento] = useState('');
  
+ 
+
+
+
   const handleCancelar = async (event) => {
     setSessaoParaCancelar(event);
     setShowCancelDialog(true);
@@ -73,20 +77,20 @@ function CalendarApp() {
   };
 
   useEffect(() => {
-    console.log(sessoesCanceladas);
     if (sessoes && sessoes.length > 0) {
+      // Verifica se há sessões para concluir antes de renderizar
+     
+      
       const currentEvents = eventsService.getAll();
       currentEvents.forEach((event) => eventsService.remove(event.id));
 
       sessoes.forEach((sessao) => {
-        // Verifica se a sessão está cancelada para este utente
         const sessaoCancelada = sessoesCanceladas.some(
           cancelada => 
             cancelada.utenteId === utenteId && 
             cancelada.consultaId === sessao._id
         );
 
-        // Só adiciona a sessão se não estiver cancelada
         if (!sessaoCancelada) {
           const evento = {
             id: sessao._id,
