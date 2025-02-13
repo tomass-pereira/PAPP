@@ -1,6 +1,5 @@
-// contexts/SessoesContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import { getSessoes, getSessoesCanceladas } from "../api/sessoes";
+import { getSessoes, getSessoesCanceladas, concluirSessao } from "../api/sessoes";
 
 const SessoesContext = createContext({});
 
@@ -13,7 +12,7 @@ export function SessoesProvider({ children }) {
   const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
 
   const token = sessionStorage.getItem("token");
-  const utenteId= sessionStorage.getItem("utenteId");
+  const utenteId = sessionStorage.getItem("utenteId");
 
   const fetchSessoesCanceladas = async () => {
     try {
@@ -24,26 +23,62 @@ export function SessoesProvider({ children }) {
     }
   };
 
-  
-
   const fetchSessoes = async () => {
-   
     try {
       setLoading(true);
       setError(null);
       const data = await getSessoes(utenteId);
-
+  
       setSessoes(data);
       const reservadas = data.filter(sessao => 
         sessao.status === "reservada" 
-    );
+      );
       setSessoesReservadas(reservadas);
-
-      setSessoes(data);
-      const concluidas = data.filter(sessao => 
-        sessao.status === "concluida" 
-    );
-      setSessoesConcluidas(concluidas);
+  
+      const agora = new Date();
+      const sessoesParaConcluir = reservadas.filter(sessao => {
+        const dataInicio = new Date(sessao.dataHoraInicio);
+        return dataInicio < agora;
+      });
+      
+      console.log('Sessões que precisam ser concluídas:', sessoesParaConcluir);
+  
+      if (sessoesParaConcluir.length > 0) {
+        let houveErro = false;
+        
+        for (const sessao of sessoesParaConcluir) {
+          try {
+            console.log('Concluindo sessão:', sessao._id);
+            await concluirSessao(sessao._id);
+          } catch (err) {
+            console.error(`Erro ao concluir sessão ${sessao._id}:`, err);
+            houveErro = true;
+          }
+        }
+  
+        if (houveErro) {
+          console.log('Houve erros ao concluir algumas sessões. Recarregando dados...');
+        }
+  
+        // Recarrega os dados após as conclusões
+        const dadosAtualizados = await getSessoes(utenteId);
+        setSessoes(dadosAtualizados);
+        
+        const novasReservadas = dadosAtualizados.filter(sessao => 
+          sessao.status === "reservada"
+        );
+        setSessoesReservadas(novasReservadas);
+        
+        const novasConcluidas = dadosAtualizados.filter(sessao => 
+          sessao.status === "concluida"
+        );
+        setSessoesConcluidas(novasConcluidas);
+      } else {
+        const concluidas = data.filter(sessao => 
+          sessao.status === "concluida"
+        );
+        setSessoesConcluidas(concluidas);
+      }
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar sessões:", error);
@@ -51,19 +86,17 @@ export function SessoesProvider({ children }) {
       setLoading(false);
     }
   };
- 
+
   useEffect(() => {
     if (token && utenteId) {
       fetchSessoes();
       fetchSessoesCanceladas();
-      
     } else {
       setSessoes([]);
       setSessoesCanceladas([]);
       setError(null);
     }
   }, [token, utenteId]);
-  
 
   return (
     <SessoesContext.Provider
@@ -81,7 +114,6 @@ export function SessoesProvider({ children }) {
     </SessoesContext.Provider>
   );
 }
-
 
 export function useSessoes() {
   const context = useContext(SessoesContext);

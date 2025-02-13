@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Bell, Home } from "lucide-react";
 import SideBar from "../../components/SideBar"
@@ -10,8 +10,14 @@ export default function Inicio() {
   const { sessoesReservadas}=useSessoes();
   const {notificacoes, naoLidas}=useNotificacoes();
   const {userData} =useUser();
-  const navigate = useNavigate();
+  
 
+
+// Seu código atual - boa prática
+const handleNavigate = (path) => {
+  navigate(path);
+};
+  
   // Pegando a primeira sessão (próxima sessão)
   const proximaSessao =  sessoesReservadas[0];
   let dataFormatada = '';
@@ -35,11 +41,9 @@ export default function Inicio() {
     if (!token) {
       navigate('/LoginPage');
     }
-  }, [navigate]);
+  }, []);
 
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
+  
 
   
 
@@ -142,7 +146,7 @@ export default function Inicio() {
                 </div>
               </div>
               <div className="p-6">
-                {sessoesReservadas.map((sessao) => {
+                {sessoesReservadas.slice(0,2).map((sessao) => {
                   const data = new Date(sessao.dataHoraInicio);
                   const dataFormatada = data.toLocaleDateString('pt-BR', {
                     day: 'numeric',
@@ -195,7 +199,7 @@ export default function Inicio() {
                 </div>
               </div>
               <div className="p-6">
-                {notificacoes.map((notificacao) => (
+                {notificacoes.slice(0,2).map((notificacao) => (
                   <div 
                     key={notificacao._id}
                     className="mb-4 last:mb-0 p-4 hover:bg-gray-50 rounded-lg cursor-pointer"

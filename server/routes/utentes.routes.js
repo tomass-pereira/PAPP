@@ -13,8 +13,7 @@ const { validateUserData } = require('../middlewares');
   // Gera um número entre 0000 e 9999
   const codigo = Math.floor(1000 + Math.random() * 9000);
   
-  // Converte para string e garante que sempre terá 4 dígitos
-  // padStart garante que se for menor que 4 dígitos, será preenchido com zeros à esquerda
+ 
   return codigo.toString().padStart(4, '0');
 }
 

@@ -73,6 +73,7 @@ export const cancelarSessao = async (sessaoId, motivo) => {
 
 
 export const concluirSessao = async (sessaoId) => {
+  
   const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/realizada`, {
     method: 'POST',
     headers: {

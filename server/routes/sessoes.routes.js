@@ -273,6 +273,7 @@ router.post('/criarSessao', async (req, res, next) => {
 
   router.put('/:id/realizada', async (req, res) => {
     try {
+     
       const sessaoId = req.params.id;
       
       // Busca a sessão pelo ID com os dados do utente
