@@ -7,7 +7,7 @@ export function NotificacoesProvider({ children }) {
   const [notificacoes, setNotificacoes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [naoLidas, setnaoLidas] = useState([]);
+  const [naoLidas, setnaoLidas] = useState(0);
 
   const token = sessionStorage.getItem("token");
   const utenteId = sessionStorage.getItem("utenteId");
@@ -25,6 +25,7 @@ export function NotificacoesProvider({ children }) {
 
 
       setnaoLidas(naoLidas.length);
+      console.log(naoLidas);
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar notificações:", error);
@@ -38,8 +39,7 @@ export function NotificacoesProvider({ children }) {
       fetchNotificacoes();
     } else {
       setNotificacoes([]);
-      setLidas([]);
-      setNotificacoesNaoLidas([]);
+      setnaoLidas([]);
       setError(null);
     }
   }, [token, utenteId]);

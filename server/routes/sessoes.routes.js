@@ -204,6 +204,7 @@ router.post('/criarSessao', async (req, res, next) => {
       });
 
       await novoCancelamento.save();
+     
   
       sessao.status = 'disponivel';
       sessao.clienteId = null;
@@ -217,6 +218,12 @@ router.post('/criarSessao', async (req, res, next) => {
         message: 'Sessão cancelada com sucesso',
         sessao 
       });
+      await notificacoes.create({
+        utenteId:dadosUtente._id,
+        titulo: 'Sessão Cancelada',
+        descricao: `A sua sessão foi cancelada`,
+        tipo: 'info'
+    });
       try {
         await emailService.enviarEmail(
           'tj0816499@gmail.com',

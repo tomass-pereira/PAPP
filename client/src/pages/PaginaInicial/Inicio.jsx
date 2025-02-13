@@ -4,11 +4,13 @@ import { Calendar, Clock, Bell, Home } from "lucide-react";
 import SideBar from "../../components/SideBar"
 import {useUser} from '../../contexts/UserContext.jsX';
 import { useSessoes } from "../../contexts/SessoesContext.jsx";
+import { useNotificacoes } from "../../contexts/NotificacaoContext.jsx";
 
 export default function Inicio() {
   const { sessoesReservadas}=useSessoes();
-  const navigate = useNavigate();
+  const {notificacoes, naoLidas}=useNotificacoes();
   const {userData} =useUser();
+  const navigate = useNavigate();
 
   // Pegando a primeira sessão (próxima sessão)
   const proximaSessao =  sessoesReservadas[0];
@@ -39,20 +41,7 @@ export default function Inicio() {
     navigate(path);
   };
 
-  const notificacoes = [
-    {
-      id: 1,
-      titulo: "Confirmação de Agendamento",
-      mensagem: "Sua sessão foi confirmada para amanhã às 14:30",
-      data: "Hoje, 10:30"
-    },
-    {
-      id: 2,
-      titulo: "Lembrete de Sessão",
-      mensagem: "Você tem uma sessão agendada para amanhã",
-      data: "Ontem, 15:45"
-    }
-  ];
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -84,9 +73,11 @@ export default function Inicio() {
                   onClick={() => handleNavigate('/notificacoes')}
                 >
                   <Bell className="w-6 h-6 text-gray-400 hover:text-gray-600" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                    2
-                  </span>
+                  {naoLidas > 0 && (
+            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {naoLidas > 99 ? '99+' :naoLidas}
+            </div>
+          )}
                 </div>
               </div>
             </div>
@@ -206,15 +197,15 @@ export default function Inicio() {
               <div className="p-6">
                 {notificacoes.map((notificacao) => (
                   <div 
-                    key={notificacao.id}
+                    key={notificacao._id}
                     className="mb-4 last:mb-0 p-4 hover:bg-gray-50 rounded-lg cursor-pointer"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-medium text-gray-800">{notificacao.titulo}</h3>
-                        <p className="text-gray-600 mt-1">{notificacao.mensagem}</p>
+                        <p className="text-gray-600 mt-1">{notificacao.descricao}</p>
                       </div>
-                      <span className="text-sm text-gray-500">{notificacao.data}</span>
+                      <span className="text-sm text-gray-500">{new Date(notificacao.tempo).toISOString().slice(0, 10)} </span>
                     </div>
                   </div>
                 ))}

@@ -7,9 +7,7 @@ import {
   createViewMonthAgenda,
 } from "@schedule-x/calendar";
 import "@schedule-x/theme-default/dist/index.css";
-import "@sx-premium/interactive-event-modal/index.css";
 import { useSessoes } from "../../contexts/SessoesContext.jsx";
-import "@sx-premium/drag-to-create/index.css";
 import SessionModal from "./SessionModal.jsx";
 import { v4 as uuidv4 } from "uuid";
 import "./Calendar.css";
