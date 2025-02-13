@@ -11,6 +11,7 @@ export function SessoesProvider({ children }) {
   const [sessoesReservadas, setSessoesReservadas] = useState([]);
   const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
 
+
   const token = sessionStorage.getItem("token");
   const utenteId = sessionStorage.getItem("utenteId");
 
@@ -34,21 +35,21 @@ export function SessoesProvider({ children }) {
         sessao.status === "reservada" 
       );
       setSessoesReservadas(reservadas);
+
   
       const agora = new Date();
+   
       const sessoesParaConcluir = reservadas.filter(sessao => {
         const dataInicio = new Date(sessao.dataHoraInicio);
         return dataInicio < agora;
       });
-      
-      console.log('Sessões que precisam ser concluídas:', sessoesParaConcluir);
+  
   
       if (sessoesParaConcluir.length > 0) {
         let houveErro = false;
         
         for (const sessao of sessoesParaConcluir) {
           try {
-            console.log('Concluindo sessão:', sessao._id);
             await concluirSessao(sessao._id);
           } catch (err) {
             console.error(`Erro ao concluir sessão ${sessao._id}:`, err);

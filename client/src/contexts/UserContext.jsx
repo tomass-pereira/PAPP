@@ -10,7 +10,7 @@ export function UserProvider({ children }) {
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
-
+  const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     const initializeUser = async () => {
       try {

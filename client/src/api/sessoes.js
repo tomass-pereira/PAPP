@@ -74,7 +74,7 @@ export const cancelarSessao = async (sessaoId, motivo) => {
 
 export const concluirSessao = async (sessaoId) => {
   
-  const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/realizada`, {
+  const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/concluida`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

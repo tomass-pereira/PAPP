@@ -8,10 +8,10 @@ const cancelamentoSchema = {
   dataCancelamento: Date,    // Quando foi cancelado
   dataConsultaOriginal: Date,// Data que a consulta estava marcada
   horaConsulta: String,      // Hora que estava marcada
-  motivoCancelamento: String,// Razão do cancelamento
-  canceladoPor: String,      // Quem cancelou ("paciente" ou "profissional")
-  createdAt: Date,          // Data de criação do registro
-  updatedAt: Date           // Data de atualização do registro
+  motivoCancelamento: String,
+  canceladoPor: String,     
+  createdAt: Date,          
+  updatedAt: Date           //
 }
 
 const Cancelamentos = mongoose.model('cancelamentos', cancelamentoSchema);

@@ -25,7 +25,7 @@ export function NotificacoesProvider({ children }) {
 
 
       setnaoLidas(naoLidas.length);
-      console.log(naoLidas);
+     
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar notificações:", error);

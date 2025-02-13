@@ -72,7 +72,7 @@ const SessionModal = ({
 
        {/* Informações da Sessão */}
        <div className="space-y-4 mb-6">
-         <div className={`grid grid-cols-2 gap-4 ${styles.bg}/50 p-4 rounded-lg`}>
+         <div className={`grid grid-cols-2 gap-4 ${styles.bg} p-4 rounded-lg`}>
            <div className="space-y-1">
              <span className="text-sm text-gray-600 font-medium">Início</span>
              <p className="text-gray-800 font-semibold">
@@ -121,12 +121,7 @@ const SessionModal = ({
            </p>
          </div>
 
-         <div className={`p-4 ${styles.bg} rounded-lg`}>
-           <span className="text-sm text-gray-600 font-medium">Número da sessão</span>
-           <p className="text-gray-700 font-mono text-sm">
-             {selectedEvent?.id || '-'}
-           </p>
-         </div>
+        
 
          <div className={`p-4 ${styles.bg} rounded-lg`}>
            <span className="text-sm text-gray-600 font-medium">Motivo:</span>

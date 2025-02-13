@@ -271,40 +271,46 @@ router.post('/criarSessao', async (req, res, next) => {
     }
   });
 
-  router.put('/:id/realizada', async (req, res) => {
+  router.post('/:id/concluida',async (req, res) => {
     try {
      
       const sessaoId = req.params.id;
       
-      // Busca a sessão pelo ID com os dados do utente
+      
+
+    
+
+    
+  
       const sessao = await Sessoes.findById(sessaoId);
+      
+        
   
       if (!sessao) {
-        return res.status(404).json({ 
-          error: true,
-          message: 'Sessão não encontrada' 
-        });
+        return res.status(404).json({ message: 'Sessão não encontrada' });
       }
   
+    
+
   
+      
+      
       sessao.status = 'concluida';
-  
-      await sessao.save();
-  
-      
-  
-      res.json({ 
-        message: 'Sessão concluida com sucesso',
-        sessao 
-      });
      
-      
+     
+    
+   
+
+   
+      await sessao.save();
+     
+  
+      res.json(sessao);
+    
     } catch (error) {
-      console.error('Erro ao concluir sessão:', error);
-      res.status(500).json({ 
-        error: true,
-        message: 'Erro ao concluir sessão' 
-      });
+      
+    
+     console.log(error.message);
     }
   });
 

@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./pages/LoginPage.jsx";
+import LoginPageAdmin from "./admin/LoginPageAdmin.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
 import { SessoesProvider } from "./contexts/SessoesContext.jsX";
@@ -101,6 +102,14 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/LoginPageAdmin"
+          element={
+            <AnimatedPage>
+              <LoginPageAdmin />
+            </AnimatedPage>
+          }
+        />
+        <Route
           path="/LoginPage"
           element={
             <AnimatedPage>
@@ -123,15 +132,17 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <NotificacoesProvider>
-      <SessoesProvider>
-        <UserProvider>
-          <BrowserRouter>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      <NotificacoesProvider>
+        <SessoesProvider>
+          <UserProvider>
             <AnimatedRoutes />
-          </BrowserRouter>
-        </UserProvider>
-      </SessoesProvider>
-    </NotificacoesProvider>
+          </UserProvider>
+        </SessoesProvider>
+      </NotificacoesProvider>
+    </BrowserRouter>
   );
 }
 

@@ -9,7 +9,7 @@ import {
 import "@schedule-x/theme-default/dist/index.css";
 import { useSessoes } from "../../contexts/SessoesContext.jsx";
 import SessionModal from "./SessionModal.jsx";
-import { v4 as uuidv4 } from "uuid";
+
 import "./Calendar.css";
 import { reservarSessao, cancelarSessao} from "../../api/sessoes.js";
 
@@ -76,20 +76,25 @@ function CalendarApp() {
 
   useEffect(() => {
     if (sessoes && sessoes.length > 0) {
-      // Verifica se há sessões para concluir antes de renderizar
-     
-      
       const currentEvents = eventsService.getAll();
       currentEvents.forEach((event) => eventsService.remove(event.id));
-
+  
+      const agora = new Date(); // Obtém a data/hora atual
+  
       sessoes.forEach((sessao) => {
         const sessaoCancelada = sessoesCanceladas.some(
           cancelada => 
             cancelada.utenteId === utenteId && 
             cancelada.consultaId === sessao._id
         );
-
-        if (!sessaoCancelada) {
+  
+        const dataInicio = new Date(sessao.dataHoraInicio);
+  
+        // Só adiciona a sessão se:
+        // 1. Não estiver cancelada
+        // 2. Se for disponível, precisa ser uma data futura
+        if (!sessaoCancelada && 
+            (sessao.status !== "disponivel" || dataInicio > agora)) {
           const evento = {
             id: sessao._id,
             title: sessao.status === "reservada" ? "Sessão Reservada" : 
@@ -137,9 +142,9 @@ function CalendarApp() {
     reservada: {
       colorName: "reservada",
       lightColors: {
-        main: "#6366F1",    // Indigo-500
-        container: "#EEF2FF", // Indigo-50
-        onContainer: "#4338CA", // Indigo-700
+        main: "#6366F1",   
+        container: "#EEF2FF", 
+        onContainer: "#4338CA",
       }
     }
   },
