@@ -50,7 +50,7 @@ export default function Inicio() {
   <div className="flex items-center justify-between">
     <div>
       <h1 className="text-4xl font-bold text-gray-800 mb-2">
-        Olá, {userData.nome} 👋
+        Olá, {userData.nome} 
       </h1>
       <p className="text-gray-600 text-lg">
         Bem-vindo(a) ao seu painel de fisioterapia domiciliar
@@ -124,13 +124,13 @@ export default function Inicio() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Card de Próximas Sessões */}
             <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-6 border-b">
+              <div className="p-4 border-b">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-blue-100 p-2 rounded-lg">
-                      <Calendar className="w-6 h-6 text-blue-500" />
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-100 p-1.5 rounded-lg">
+                      <Calendar className="w-5 h-5 text-blue-500" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-800">Próximas Sessões</h2>
+                    <h2 className="text-lg font-semibold text-gray-800">Próximas Sessões</h2>
                   </div>
                   <button 
                     onClick={() => handleNavigate('/MinhasSessoes')}
@@ -141,7 +141,7 @@ export default function Inicio() {
                   </button>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-4">
                 {sessoesReservadas.slice(0,2).map((sessao) => {
                   const data = new Date(sessao.dataHoraInicio);
                   const dataFormatada = data.toLocaleDateString('pt-BR', {
@@ -157,16 +157,16 @@ export default function Inicio() {
                   return (
                     <div 
                       key={sessao._id}
-                      className="flex items-start space-x-4 mb-4 last:mb-0 p-4 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="flex items-start space-x-3 mb-3 last:mb-0 p-3 hover:bg-blue-50 rounded-lg transition-colors"
                     >
-                      <div className="bg-blue-100 p-3 rounded-lg">
-                        <Calendar className="w-5 h-5 text-blue-500" />
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <Calendar className="w-4 h-4 text-blue-500" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-800">{dataFormatada}</p>
-                        <p className="text-gray-600">Fisioterapia</p>
-                        <p className="text-sm text-gray-500 flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                        <p className="text-sm text-gray-600">Fisioterapia</p>
+                        <p className="text-xs text-gray-500 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
                           {horaFormatada} - Domicílio
                         </p>
                       </div>
@@ -174,9 +174,9 @@ export default function Inicio() {
                   );
                 })}
                 {sessoesReservadas.length === 0 && (
-                  <div className="text-gray-500 text-center py-8">
-                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>Não há sessões agendadas no momento</p>
+                  <div className="text-gray-500 text-center py-6">
+                    <Calendar className="w-10 h-10 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">Não há sessões agendadas no momento</p>
                   </div>
                 )}
               </div>
@@ -184,13 +184,13 @@ export default function Inicio() {
 
             {/* Card de Notificações */}
             <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-6 border-b">
+              <div className="p-4 border-b">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-purple-100 p-2 rounded-lg">
-                      <Bell className="w-6 h-6 text-purple-500" />
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-purple-100 p-1.5 rounded-lg">
+                      <Bell className="w-5 h-5 text-purple-500" />
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-800">Notificações Recentes</h2>
+                    <h2 className="text-lg font-semibold text-gray-800">Notificações Recentes</h2>
                   </div>
                   <button 
                     onClick={() => handleNavigate('/NotificationsPage')}
@@ -201,24 +201,24 @@ export default function Inicio() {
                   </button>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-4">
                 {notificacoes.length === 0 && (
-                  <div className="text-gray-500 text-center py-8">
-                    <Bell className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p>Não há notificações no momento</p>
+                  <div className="text-gray-500 text-center py-6">
+                    <Bell className="w-10 h-10 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">Não há notificações no momento</p>
                   </div>
                 )}
                 {notificacoes.slice(0,2).map((notificacao) => (
                   <div 
                     key={notificacao._id}
-                    className="mb-4 last:mb-0 p-4 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors"
+                    className="mb-3 last:mb-0 p-3 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-medium text-gray-800">{notificacao.titulo}</h3>
-                        <p className="text-gray-600 mt-1">{notificacao.descricao}</p>
-                        <p className="text-sm text-gray-500 mt-2 flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                        <p className="text-sm text-gray-600 mt-0.5">{notificacao.descricao}</p>
+                        <p className="text-xs text-gray-500 mt-1 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
                           {new Date(notificacao.tempo).toLocaleDateString('pt-BR')}
                         </p>
                       </div>

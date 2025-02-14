@@ -32,10 +32,9 @@ export function SessoesProvider({ children }) {
   
       setSessoes(data);
       const reservadas = data.filter(sessao => 
-        sessao.status === "reservada" 
+        sessao.status === "reservada" && sessao.clienteId === utenteId
       );
       setSessoesReservadas(reservadas);
-
   
       const agora = new Date();
    
@@ -43,7 +42,6 @@ export function SessoesProvider({ children }) {
         const dataInicio = new Date(sessao.dataHoraInicio);
         return dataInicio < agora;
       });
-  
   
       if (sessoesParaConcluir.length > 0) {
         let houveErro = false;
@@ -61,22 +59,21 @@ export function SessoesProvider({ children }) {
           console.log('Houve erros ao concluir algumas sessões. Recarregando dados...');
         }
   
-        // Recarrega os dados após as conclusões
         const dadosAtualizados = await getSessoes(utenteId);
         setSessoes(dadosAtualizados);
         
         const novasReservadas = dadosAtualizados.filter(sessao => 
-          sessao.status === "reservada"
+          sessao.status === "reservada" && sessao.clienteId === utenteId
         );
         setSessoesReservadas(novasReservadas);
         
         const novasConcluidas = dadosAtualizados.filter(sessao => 
-          sessao.status === "concluida"
+          sessao.status === "concluida" && sessao.clienteId === utenteId
         );
         setSessoesConcluidas(novasConcluidas);
       } else {
         const concluidas = data.filter(sessao => 
-          sessao.status === "concluida"
+          sessao.status === "concluida" && sessao.clienteId === utenteId
         );
         setSessoesConcluidas(concluidas);
       }
@@ -92,6 +89,7 @@ export function SessoesProvider({ children }) {
     if (token && utenteId) {
       fetchSessoes();
       fetchSessoesCanceladas();
+   
     } else {
       setSessoes([]);
       setSessoesCanceladas([]);
