@@ -347,12 +347,12 @@ function CreateAccount() {
             />
           </Section>
 
-          <Section title="Informação Médica">
+          <Section title="Informação Médica (opcional)">
            
 
             <Inputs
               id="diagnosticoMedicoDesc"
-              label="Diagnóstico médico (se tiver)"
+              label="Diagnóstico médico"
               type="text"
               value={formData.diagnosticoMedicoDesc}
               onChange={handleInputChange}
@@ -363,7 +363,7 @@ function CreateAccount() {
 
             <Inputs
               id="lesoesCirurgiasDesc"
-              label="Lesões ou cirurgias anteriores (se tiver)"
+              label="Lesões ou cirurgias anteriores"
               type="text"
               value={formData.lesoesCirurgiasDesc}
               onChange={handleInputChange}
@@ -372,7 +372,7 @@ function CreateAccount() {
 
             <Inputs
               id="alergiasDesc"
-              label="Alergias a medicamentos ou tratamentos (se tiver)"
+              label="Alergias a medicamentos ou tratamentos"
               type="text"
               value={formData.alergiasDesc}
               onChange={handleInputChange}

@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import SmoothScroll from "./SmoothScroll";
 
 function NavBar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isLoginPage = location.pathname === "/LoginPage";
   const isCreatePage = location.pathname === "/Registar";
@@ -27,7 +27,6 @@ function NavBar() {
             <SmoothScroll
               targetId="inicio"
               className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
-              onClick={closeMenu}
             >
               Inicio
             </SmoothScroll>
@@ -35,7 +34,6 @@ function NavBar() {
             <SmoothScroll
               targetId="servicos"
               className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
-              onClick={closeMenu}
             >
               Serviços
             </SmoothScroll>
@@ -43,7 +41,6 @@ function NavBar() {
             <SmoothScroll
               targetId="contactos"
               className="text-gray-800 text-base hover:text-[#4F4FB9] cursor-pointer"
-              onClick={closeMenu}
             >
               Contactos
             </SmoothScroll>
@@ -51,25 +48,36 @@ function NavBar() {
         </>
       )}
 
-      {isLoginPage && (
-        <Link 
-          className="text-gray-800 no-underline" 
-          to="/Registar"
-          onClick={closeMenu}
-        >
-          Registar
-        </Link>
-      )}
-
-      {isCreatePage && (
-        <Link
-          className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
-          to="/LoginPage"
-          onClick={closeMenu}
-        >
-          Iniciar sessão
-        </Link>
-      )}
+      {/* Botões de autenticação para mobile */}
+      <div className="md:hidden flex flex-col items-center gap-4 mt-4">
+        {isFirstPage && (
+          <>
+            <Link 
+              className="text-gray-800 no-underline" 
+              to="/Registar"
+              onClick={closeMenu}
+            >
+              Registar
+            </Link>
+            <Link
+              className="py-2 px-6 bg-indigo-600 text-white rounded-md text-base transition hover:bg-indigo-700"
+              to="/LoginPage"
+              onClick={closeMenu}
+            >
+              Iniciar sessão
+            </Link>
+          </>
+        )}
+        {isLoginPage && (
+          <Link 
+            className="text-gray-800 no-underline" 
+            to="/Registar"
+            onClick={closeMenu}
+          >
+            Registar
+          </Link>
+        )}
+      </div>
     </>
   );
 
@@ -77,7 +85,7 @@ function NavBar() {
     <nav className="relative flex items-center justify-between bg-white h-20 px-4 md:px-8 border-b top-0 z-50 w-full">
       {/* Logo */}
       <div className="flex-shrink-0">
-        <Link to={'/'}>
+        <Link to="/">
           <img 
             src="/imgs/fisiohome.svg" 
             alt="FisioHome Logo" 
@@ -86,36 +94,42 @@ function NavBar() {
         </Link>
       </div>
 
-      {/* Desktop and Mobile Menu - Links centralizados */}
-      <div className={`
-        ${isMenuOpen ? 'block' : 'hidden'} 
-        absolute top-full left-0 w-full bg-white 
-        md:static md:block md:flex-1
-        shadow-lg md:shadow-none
-        p-4 md:p-0
-      `}>
+      {/* Desktop and Mobile Menu */}
+      <div className={`${
+        isMenuOpen ? 'block' : 'hidden'
+      } absolute top-full left-0 w-full bg-white md:static md:block md:flex-1 shadow-lg md:shadow-none p-4 md:p-0`}>
         <div className="flex flex-col md:flex-row items-center justify-center gap-4">
           <NavLinks />
         </div>
       </div>
 
-      {/* Botões de autenticação à direita */}
-      {isFirstPage && (
+      {/* Botões de autenticação para desktop */}
+      {(isFirstPage || isLoginPage) && (
         <div className="hidden md:flex flex-row items-center gap-4">
-          <Link 
-            className="text-gray-800 no-underline" 
-            to="Registar"
-            onClick={closeMenu}
-          >
-            Registar
-          </Link>
-          <Link
-            className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
-            to="LoginPage"
-            onClick={closeMenu}
-          >
-            Iniciar sessão
-          </Link>
+          {isFirstPage && (
+            <>
+              <Link 
+                className="text-gray-800 no-underline" 
+                to="/Registar"
+              >
+                Registar
+              </Link>
+              <Link
+                className="py-2 px-6 bg-indigo-600 text-white rounded-md text-base transition hover:bg-indigo-700"
+                to="/LoginPage"
+              >
+                Iniciar sessão
+              </Link>
+            </>
+          )}
+          {isLoginPage && (
+            <Link 
+              className="text-gray-800 no-underline" 
+              to="/Registar"
+            >
+              Registar
+            </Link>
+          )}
         </div>
       )}
 
@@ -145,12 +159,8 @@ function NavBar() {
                   <span className="badge">New</span>
                 </a>
               </li>
-              <li>
-                <a>Definições</a>
-              </li>
-              <li>
-                <a>Terminar sessão</a>
-              </li>
+              <li><a>Definições</a></li>
+              <li><a>Terminar sessão</a></li>
             </ul>
           </div>
         </div>
