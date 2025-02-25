@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../../src/contexts/UserContext';
 
-function LoginPageAdmin() {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -100,4 +100,4 @@ function LoginPageAdmin() {
   );
 }
 
-export default LoginPageAdmin;
+export default Login;

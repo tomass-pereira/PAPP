@@ -3,7 +3,7 @@ import api from "../api/api";
 
 
 
-export const loginUtente = async (credentials) => {
+export const loginAdmin = async (credentials) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {

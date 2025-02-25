@@ -8,8 +8,18 @@ import Modal from "../../components/Modal";
 import Alert from "../../components/Alert";
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
+import { useNavigate } from "react-router-dom";
 
 const Config = () => {
+  const navigate = useNavigate();
+ 
+   useEffect(() => {
+     const token = sessionStorage.getItem("token");
+     if (!token) {
+       navigate("/LoginPage");
+     }
+   }, [navigate]);
+  
   const { userData, updateUserData } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);

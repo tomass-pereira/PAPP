@@ -7,10 +7,21 @@ import { useSessoes } from "../../contexts/SessoesContext.jsx";
 import { useNotificacoes } from "../../contexts/NotificacaoContext.jsx";
 
 export default function Inicio() {
+  const navigate = useNavigate();
   const { sessoesReservadas}=useSessoes();
   const {notificacoes, naoLidas}=useNotificacoes();
   const {userData} =useUser();
-  const navigate=useNavigate();
+ 
+    useEffect(() => {
+      
+
+      console.log("Tentativa 1 - useEffect executado");
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.log("OLALJAKFAGFH");
+        navigate("/LoginPage");
+      }
+    }, []);
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -33,12 +44,7 @@ export default function Inicio() {
     });
   }
 
-  useEffect(() => {
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-      navigate('/LoginPage');
-    }
-  }, []);
+ 
 
   return (
     <div className="min-h-screen bg-gray-50">

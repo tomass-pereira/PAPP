@@ -9,6 +9,7 @@ export default function AgendarSessao() {
     const token = sessionStorage.getItem("token");
     if (!token) {
       navigate("/LoginPage");
+
     }
   }, [navigate]);
   

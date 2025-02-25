@@ -6,15 +6,15 @@ import {
   Routes,
   BrowserRouter,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./pages/LoginPage.jsx";
-import LoginPageAdmin from "./admin/LoginPageAdmin.jsx";
+import Login from "../admin/pages/LoginPage.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
 import { SessoesProvider } from "./contexts/SessoesContext.jsX";
 import { NotificacoesProvider } from "./contexts/NotificacaoContext.jsx";
-
 import RecuperarPasse from "./pages/RecuperarPasse.jsx";
 import First from "./pages/First";
 import MinhasSessoes from "./pages/PaginaInicial/MinhasSessoes.jsx";
@@ -24,6 +24,15 @@ import AgendarSessao from "./pages/PaginaInicial/AgendarSessao.jsx";
 import ErrorPage from "./pages/Error.jsx";
 import NotificationsPage from "./pages/PaginaInicial/NotificationsPage.jsx";
 import Config from "./pages/PaginaInicial/Config.jsx";
+
+// AuthWrapper component
+const AuthWrapper = ({ children }) => {
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/LoginPage" replace />;
+  }
+  return children;
+};
 
 const AnimatedPage = ({ children }) => {
   const pageVariants = {
@@ -61,19 +70,38 @@ const AnimatedPage = ({ children }) => {
   );
 };
 
-// Wrapper for routes with animations
+// Protected AnimatedPage
+const ProtectedAnimatedPage = ({ children }) => {
+  return (
+    <AnimatedPage>
+      <AuthWrapper>
+        {children}
+      </AuthWrapper>
+    </AnimatedPage>
+  );
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Rotas públicas */}
         <Route
           path="/"
           element={
             <AnimatedPage>
               <First />
             </AnimatedPage>
+          }
+        />
+         <Route
+          path="/Login"
+          element={
+            
+              <Login />
+            
           }
         />
         <Route
@@ -84,15 +112,6 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
-
-        <Route path="/AgendarSessao" element={<AgendarSessao />} />
-        <Route path="/exercicios" element={<Exercicios />} />
-
-        <Route path="/NotificationsPage" element={<NotificationsPage />} />
-        <Route path="/Config" element={<Config />} />
-        <Route path="/Inicio" element={<Inicio />} />
-        <Route path="/MinhasSessoes" element={<MinhasSessoes />} />
-
         <Route
           path="/Registar"
           element={
@@ -101,14 +120,7 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
-        <Route
-          path="/LoginPageAdmin"
-          element={
-            <AnimatedPage>
-              <LoginPageAdmin />
-            </AnimatedPage>
-          }
-        />
+       
         <Route
           path="/LoginPage"
           element={
@@ -117,6 +129,58 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
+
+        {/* Rotas protegidas */}
+        <Route 
+          path="/AgendarSessao" 
+          element={
+            <ProtectedAnimatedPage>
+              <AgendarSessao />
+            </ProtectedAnimatedPage>
+          } 
+        />
+        <Route 
+          path="/exercicios" 
+          element={
+            <ProtectedAnimatedPage>
+              <Exercicios />
+            </ProtectedAnimatedPage>
+          } 
+        />
+        <Route 
+          path="/NotificationsPage" 
+          element={
+            <ProtectedAnimatedPage>
+              <NotificationsPage />
+            </ProtectedAnimatedPage>
+          } 
+        />
+        <Route 
+          path="/Config" 
+          element={
+            <ProtectedAnimatedPage>
+              <Config />
+            </ProtectedAnimatedPage>
+          } 
+        />
+        <Route 
+          path="/Inicio" 
+          element={
+            <ProtectedAnimatedPage>
+              <Inicio />
+            </ProtectedAnimatedPage>
+          } 
+        />
+        <Route 
+          path="/MinhasSessoes" 
+          element={
+            <ProtectedAnimatedPage>
+              <MinhasSessoes />
+            </ProtectedAnimatedPage>
+          } 
+        />
+
+        {/* Rota de erro */}
         <Route
           path="*"
           element={
