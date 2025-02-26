@@ -56,7 +56,7 @@ function CalendarApp() {
 
     try {
       
-      console.log('aqui');
+     
       const sessaoReservada = await reservarSessao(event.id, utenteId, motivo);
       
       setErro('');

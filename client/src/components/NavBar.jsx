@@ -47,6 +47,24 @@ function NavBar() {
             >
               Contactos
             </SmoothScroll>
+
+            {/* Add authentication buttons for mobile view */}
+            <div className="md:hidden flex flex-col gap-4 w-full items-center">
+              <Link 
+                className="text-gray-800 no-underline" 
+                to="Registar"
+                onClick={closeMenu}
+              >
+                Registar
+              </Link>
+              <Link
+                className="py-2 px-6 bg-[#4f4fb9] text-white rounded-md text-base transition hover:bg-[#3e3e9e]"
+                to="LoginPage"
+                onClick={closeMenu}
+              >
+                Iniciar sessão
+              </Link>
+            </div>
           </div>
         </>
       )}
@@ -99,7 +117,7 @@ function NavBar() {
         </div>
       </div>
 
-      {/* Botões de autenticação à direita */}
+      {/* Botões de autenticação à direita - apenas desktop */}
       {isFirstPage && (
         <div className="hidden md:flex flex-row items-center gap-4">
           <Link 

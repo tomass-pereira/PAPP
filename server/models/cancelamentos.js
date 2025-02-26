@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 
 const cancelamentoSchema = {
-  id: String,                // ID único do registro de cancelamento
-  consultaId: String,        // ID da consulta original que foi cancelada
-  utenteId: String,        // ID do paciente que cancelou
-  dataCancelamento: Date,    // Quando foi cancelado
-  dataConsultaOriginal: Date,// Data que a consulta estava marcada
-  horaConsulta: String,      // Hora que estava marcada
+  id: String,                
+  consultaId: String,        
+  utenteId: String,        //
+  dataCancelamento: Date,    
+  dataConsultaOriginal: Date,
+  horaConsulta: String,      
   motivoCancelamento: String,
   canceladoPor: String,     
   createdAt: Date,          

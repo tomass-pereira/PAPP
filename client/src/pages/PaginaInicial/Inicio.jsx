@@ -46,30 +46,30 @@ export default function Inicio() {
         <SideBar />
         <main className="flex-1 p-8">
           {/* Cabeçalho com gradiente suave */}
-          <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">
-  <div className="flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 md:p-8 mb-8">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
     <div>
-      <h1 className="text-4xl font-bold text-gray-800 mb-2">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
         Olá, {userData.nome} 
       </h1>
-      <p className="text-gray-600 text-lg">
+      <p className="text-sm sm:text-base md:text-lg text-gray-600">
         Bem-vindo(a) ao seu painel de fisioterapia domiciliar
       </p>
     </div>
-    <div className="flex items-center gap-6">
-      <div className="text-right  p-4 rounded-xl">
-        <p className="text-sm text-gray-600 mb-1">Próxima sessão</p>
+    <div className="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+      <div className="text-left sm:text-right p-2 sm:p-4 rounded-xl">
+        <p className="text-xs sm:text-sm text-gray-600 mb-1">Próxima sessão</p>
         {proximaSessao ? (
-          <p className="font-semibold text-gray-800">{dataFormatada}, {horaFormatada}</p>
+          <p className="text-sm sm:text-base font-semibold text-gray-800">{dataFormatada}, {horaFormatada}</p>
         ) : (
-          <p className="font-medium text-gray-800">Nenhuma sessão agendada</p>
+          <p className="text-sm sm:text-base font-medium text-gray-800">Nenhuma sessão agendada</p>
         )}
       </div>
       <div 
         className="relative cursor-pointer hover:scale-110 transition-transform"
         onClick={() => handleNavigate('/NotificationsPage')}
       >
-        <Bell className="w-7 h-7 text-gray-600 hover:text-blue-500" />
+        <Bell className="w-6 h-6 sm:w-7 sm:h-7 text-gray-600 hover:text-blue-500" />
         {naoLidas > 0 && (
           <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
             {naoLidas > 99 ? '99+' : naoLidas}
