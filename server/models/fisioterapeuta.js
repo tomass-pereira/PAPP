@@ -23,6 +23,6 @@ const fisioterapeutaSchema = new mongoose.Schema({
   
 });
 
-const Fisioterapeuta = mongoose.model('Fisioterapeuta', fisioterapeutaSchema);
+const Fisioterapeuta = mongoose.model('fisioterapeutas', fisioterapeutaSchema);
 
 module.exports = Fisioterapeuta;

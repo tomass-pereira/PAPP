@@ -5,6 +5,7 @@ const router = express.Router();
 
 const jwt = require('jsonwebtoken');
 const Utente = require('../models/utente');
+const Fisioterapeuta=require('../models/fisioterapeuta');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 // Chave secreta para o JWT
@@ -53,8 +54,11 @@ router.get('/rejeitar/:id', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         // 1. Validar dados de entrada
-        const { email, senha } = req.body;
+        const { email, senha, role } = req.body;
+        console.log(email);
+        console.log(senha);
         
+        console.log(role);
         if (!email || !senha) {
             return res.status(400).json({
                 success: false,
@@ -62,60 +66,67 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // 2. Buscar utente no banco
-        const utente = await Utente.findOne({ email: email.toLowerCase() });
-       
-       
-      
+        let user;
+        // 2. Buscar usuário baseado no role
+        if (role === 'utente') {
+            user = await Utente.findOne({ email: email.toLowerCase() });
+            
+            // Verificações específicas para utentes
+            if (user && user.StatusConta !== 'aprovado') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Não tem permissão para aceder a esta aplicação'
+                });
+            }
+        } else if (role === 'fisioterapeuta') {
+            user = await Fisioterapeuta.findOne({ email: email.toLowerCase() });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Tipo de usuário inválido'
+            });
+        }
         
-        if (!utente) {
+       console.log(user);
+        if (!user) {
             return res.status(401).json({
                 success: false,
                 message: 'Conta não encontrada'
             });
         }
-        if (utente.StatusConta != 'aprovado') {
-            return res.status(401).json({
-                success: false,
-                message: 'Não tem permissão para aceder a esta aplicação'
-            });
-        }
 
-        // 3. Verificar senha
-       
-        
-        
-        if (utente.senha!==senha) {
+        // 4. Verificar senha
+        if (user.senha !== senha) {
             return res.status(401).json({
                 success: false,
                 message: 'Credenciais inválidas'
             });
         }
-        
 
-        // 4. Gerar token JWT
+        // 5. Gerar token JWT
         const token = jwt.sign(
             {
-                id: utente._id,
-                email: utente.email,
-                nome: utente.nome
+                id: user._id,
+                email: user.email,
+                nome: user.nome,
+                role: role
             },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
 
-        // 5. Enviar resposta
+        // 6. Enviar resposta
         res.status(200).json({
             success: true,
             message: 'Login realizado com sucesso',
             token,
-            utente: {
-                id: utente._id,
-                profileImage: utente.profileImage,
-                nome: utente.nome,
-                email: utente.email,
-                telefone: utente.telefone,
-                
+            user: {
+                id: user._id,
+                profileImage: user.profileImage,
+                nome: user.nome,
+                email: user.email,
+                telefone: user.telefone,
+                role: role
             }
         });
 

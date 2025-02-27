@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import NavBar from "../components/NavBar.jsx";
-import Inputs from "../components/Inputs.jsx";
-import Buttons from "../components/botoes.jsx";
-import { useUser } from "../contexts/UserContext.jsX";
+import NavBar from "../../components/NavBar.jsx";
+import Inputs from "../../components/Inputs.jsx";
+import Buttons from "../../components/botoes.jsx";
+import { useUser } from "../../contexts/UserContext.jsx";
 function LoginPage() {
   const navigate = useNavigate();
   const { login } = useUser(); // Usar o context
@@ -33,7 +33,7 @@ function LoginPage() {
       const data = await login({
         email: formData.email,
         senha: formData.senha,
-        lembrar,
+        role:'utente'
       });
 
       if (data.token) {

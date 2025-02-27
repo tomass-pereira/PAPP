@@ -9,7 +9,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import LoginPage from "./pages/LoginPage.jsx";
+import LoginPage from "./pages/auth/LoginPage.jsx";
+import FisioLoginPage from "./pages/auth/FisioLoginPage.jsx";
+
 import Login from "../admin/pages/LoginPage.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
@@ -17,13 +19,13 @@ import { SessoesProvider } from "./contexts/SessoesContext.jsX";
 import { NotificacoesProvider } from "./contexts/NotificacaoContext.jsx";
 import RecuperarPasse from "./pages/RecuperarPasse.jsx";
 import First from "./pages/First";
-import MinhasSessoes from "./pages/PaginaInicial/MinhasSessoes.jsx";
-import Inicio from "./pages/PaginaInicial/Inicio.jsx";
-import Exercicios from "./pages/PaginaInicial/Exercicios.jsx";
-import AgendarSessao from "./pages/PaginaInicial/AgendarSessao.jsx";
+import MinhasSessoes from "./pages/Main/MinhasSessoes.jsx";
+import Inicio from "./pages/Main/Inicio.jsx";
+import Exercicios from "./pages/Main/Exercicios.jsx";
+import AgendarSessao from "./pages/Main/AgendarSessao.jsx";
 import ErrorPage from "./pages/Error.jsx";
-import NotificationsPage from "./pages/PaginaInicial/NotificationsPage.jsx";
-import Config from "./pages/PaginaInicial/Config.jsx";
+import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
+import Config from "./pages/Main/Config.jsx";
 
 // AuthWrapper component
 const AuthWrapper = ({ children }) => {
@@ -73,11 +75,9 @@ const AnimatedPage = ({ children }) => {
 // Protected AnimatedPage
 const ProtectedAnimatedPage = ({ children }) => {
   return (
-    <AnimatedPage>
       <AuthWrapper>
         {children}
       </AuthWrapper>
-    </AnimatedPage>
   );
 };
 
@@ -102,6 +102,12 @@ const AnimatedRoutes = () => {
             
               <Login />
             
+          }
+        />
+         <Route
+          path="/LoginFisio"
+          element={
+              <FisioLoginPage />
           }
         />
         <Route

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import NotificationItem from "../../components/NotificationItem.jsx";
 import Sidebar from "../../components/SideBar.jsx";
 import { Bell, CheckCircle, AlertTriangle, Info, X, Inbox } from "lucide-react";
-import { useNotificacoes } from "../../contexts/NotificacaoContext";
+import { useNotificacoes } from "../../contexts/NotificacaoContext.jsx";
 import { marcarTodasComoLidas} from "../../api/notificacao.js";
 
 const NotificationsPage = () => {

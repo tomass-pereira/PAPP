@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
-            host: 'smtp-mail.outlook.com',
-            port: 587,
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
             secure: false,
             auth: {
                 user: process.env.EMAIL_USER,

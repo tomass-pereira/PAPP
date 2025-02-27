@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { loginUtente, getCurrentUser,  updateUtente } from "../api/utente";
+import { getCurrentUser,  updateUtente } from "../api/utente";
+import {loginUser} from "../api/auth.js"
 
 const UserContext = createContext();
 
@@ -40,12 +41,12 @@ export function UserProvider({ children }) {
   const login = async (credentials) => {
     try {
       setLoading(true);
-      const data = await loginUtente(credentials);
+      const data = await loginUser(credentials);
        
       if (data.token) {
         sessionStorage.setItem("token", data.token);
-       sessionStorage.setItem("utenteId", data.utente.id);
-        setUserData(data.utente);
+       sessionStorage.setItem("userId", data.user.id);
+        setUserData(data.user);
         
       }
       

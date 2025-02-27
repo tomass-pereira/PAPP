@@ -21,7 +21,7 @@ const Sidebar = () => {
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   // You should replace this with your actual unread notifications count
-  const {naoLidas}=useNotificacoes();
+  const { naoLidas } = useNotificacoes();
 
   if (!userData) {
     return null;
@@ -47,48 +47,48 @@ const Sidebar = () => {
       icon: Clock,
       path: "/MinhasSessoes",
     },
-    { 
-      id: "notifications", 
+    {
+      id: "notifications",
       label: "Notificações",
       icon: ({ size, className }) => (
         <div className="relative">
           <Bell size={size} className={className} />
           {naoLidas > 0 && (
             <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {naoLidas > 99 ? '99+' :naoLidas}
+              {naoLidas > 99 ? "99+" : naoLidas}
             </div>
           )}
         </div>
       ),
-      path: "/NotificationsPage"
+      path: "/NotificationsPage",
     },
-   
   ];
-   
+
   return (
     <>
       {/* Rest of the component remains the same */}
       <button
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md text-indigo-600 hover:bg-gray-50"
-      >
-        {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+    onClick={() => setIsMobileOpen(!isMobileOpen)}
+    className="md:hidden absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md text-indigo-600 hover:bg-gray-50"
+  >
+    {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+  </button>
 
-      <div
-        className={`
-          fixed md:relative h-screen bg-white border-r 
-          ${isCollapsed ? "w-20" : "w-64"}
-          transition-all duration-300 ease-in-out
-          ${showLogoutDialog ? "blur-sm" : ""}
-          ${
-            isMobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full md:translate-x-0"
-          }
-          z-40
-        `}
-      >
+
+<div
+  className={`
+    fixed md:relative h-screen bg-white border-r 
+    ${isCollapsed ? "w-20" : "w-64"}
+    transition-all duration-300 ease-in-out
+    ${showLogoutDialog ? "blur-sm" : ""}
+    ${
+      isMobileOpen
+        ? "translate-x-0"
+        : "-translate-x-full md:translate-x-0"
+    }
+    z-40
+  `}
+>
         {/* Toggle Button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -162,7 +162,7 @@ const Sidebar = () => {
         <div className="absolute bottom-0 w-full p-4 border-t bg-white">
           <ul className="space-y-2">
             <li>
-            <Link 
+              <Link
                 to="/Config"
                 className="flex items-center w-full p-3 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
               >
