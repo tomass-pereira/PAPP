@@ -97,9 +97,12 @@ router.post('/login', async (req, res) => {
 
         // 4. Verificar senha
         if (user.senha !== senha) {
+            console.log(user.senha);
+            console.log(senha);
             return res.status(401).json({
                 success: false,
-                message: 'Credenciais inválidas'
+                message: 'Senha inválida'
+                
             });
         }
 
@@ -109,12 +112,14 @@ router.post('/login', async (req, res) => {
                 id: user._id,
                 email: user.email,
                 nome: user.nome,
-                role: role
+                isAdmin:role==='fisioterapeuta'
             },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
 
+
+        
         // 6. Enviar resposta
         res.status(200).json({
             success: true,
@@ -126,7 +131,7 @@ router.post('/login', async (req, res) => {
                 nome: user.nome,
                 email: user.email,
                 telefone: user.telefone,
-                role: role
+                isAdmin:role ==='fisioterapeuta'
             }
         });
 

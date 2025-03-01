@@ -32,7 +32,7 @@ export const updateUtente = async (utenteId, updatedData) => {
   }
 };
 export const getCurrentUser = async () => {
-  const token = sessionStorage.getItem("token");
+  
   
  try{
   const response = await api.get('/utentes/current');

@@ -14,8 +14,8 @@ export default function Inicio() {
  
     useEffect(() => {
       
-
       console.log("Tentativa 1 - useEffect executado");
+      
       const token = sessionStorage.getItem("token");
       if (!token) {
         console.log("OLALJAKFAGFH");

@@ -31,12 +31,24 @@ const authMiddleware = (req, res, next) => {
     // Verifica e decodifica o token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Mantém consistência com os dados enviados no login
-    req.utente = {
+    // Determina o role com base no isAdmin
+    const userRole = decoded.isAdmin ? 'fisioterapeuta' : 'utente';
+    
+    // Armazena os dados do usuário, incluindo o role determinado
+    req.user = {
         id: decoded.id,
         email: decoded.email,
-        nome: decoded.nome
+        nome: decoded.nome,
+        isAdmin: decoded.isAdmin,
+        role: userRole
     };
+    
+    
+    if (userRole === 'utente') {
+        req.utente = req.user;
+    } else if (userRole === 'fisioterapeuta') {
+        req.fisioterapeuta = req.user;
+    }
 
     next();
   } catch (error) {

@@ -2,7 +2,7 @@ const codigosRecuperacao = new Map();
 const express = require('express');
 const router = express.Router();
 const { ObjectId } = require('mongodb');  
-const mongoose = require('mongoose');  // Adicione esta linha
+const mongoose = require('mongoose');  
 const Utente = require('../models/utente');
 const { validateUserData } = require('../middlewares'); 
  const emailService = require('../services/nodemailer');
@@ -234,23 +234,29 @@ router.put('/alterar-senha', async (req, res) => {
     message: 'Código inválido' 
   });
 });
+// Rota para buscar o utente atual
 router.get('/current', authMiddleware, async (req, res) => {
-
-  
   try {
-    const utente = await Utente.findById(req.utente.id);
+    // Verifica se o usuário é um utente (isAdmin = false ou undefined)
+    if (req.user.isAdmin) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Acesso não autorizado. Apenas utentes podem acessar esta rota." 
+      });
+    }
     
+    const utente = await Utente.findById(req.user.id);
     
     if (!utente) {
-      
       return res.status(404).json({ 
         success: false,
         message: "Utente não encontrado" 
       });
     }
+    
     res.json({ 
       success: true,
-      utente 
+      utente: utente 
     });
   } catch (error) {
     console.log("Erro na rota:", error);

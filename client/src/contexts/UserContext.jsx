@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { getCurrentUser,  updateUtente } from "../api/utente";
-import {loginUser} from "../api/auth.js"
+import { getCurrentUser, updateUtente } from "../api/utente";
+import { getCurrentFisio } from "../api/fisioterapeuta";
+import { loginUser } from "../api/auth.js";
 
 const UserContext = createContext();
 
@@ -11,23 +12,34 @@ export function UserProvider({ children }) {
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    // Inicializa isAdmin a partir do sessionStorage
+    return sessionStorage.getItem("isAdmin") === "true";
+  });
+  
   useEffect(() => {
     const initializeUser = async () => {
       try {
         if (!sessionStorage.getItem("token")) {
-
           setInitialized(true);
           setLoading(false);
           return;
         }
-
-        const utente = await getCurrentUser();
-        setUserData(utente);
+        
+        // Verifica se é fisioterapeuta ou utente
+        const userIsAdmin = sessionStorage.getItem("isAdmin") === "true";
+        
+        // Chama a API correta com base no isAdmin
+        if (userIsAdmin) {
+          const fisioterapeuta = await getCurrentFisio();
+          setUserData(fisioterapeuta);
+        } else {
+          const utente = await getCurrentUser();
+          setUserData(utente);
+        }
       } catch (error) {
         console.error("Error initializing user:", error);
-        window.location.href='/';
-        
+        window.location.href = '/';
         setUserData(null);
       } finally {
         setLoading(false);
@@ -44,13 +56,19 @@ export function UserProvider({ children }) {
       const data = await loginUser(credentials);
        
       if (data.token) {
+        // Armazena o token e o ID do usuário
         sessionStorage.setItem("token", data.token);
-       sessionStorage.setItem("userId", data.user.id);
-        setUserData(data.user);
+        sessionStorage.setItem("userId", data.user.id);
         
+        // Armazena e define o isAdmin
+        const userIsAdmin = !!data.user.isAdmin;
+        sessionStorage.setItem("isAdmin", userIsAdmin.toString());
+        setIsAdmin(userIsAdmin);
+        
+        // Define os dados do usuário
+        setUserData(data.user);
       }
       
-
       return data;
     } catch (error) {
       console.error("Erro no login:", error);
@@ -62,26 +80,34 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     setUserData(null);
+    setIsAdmin(false);
     sessionStorage.clear();
-
     window.location.href = "/";
   };
 
-  const updateUserData = async (utenteId, updatedData) => {
+  const updateUserData = async (userId, updatedData) => {
     try {
       setLoading(true);
-      console.log(utenteId);
       
-      // Envia os dados atualizados no corpo da requisição
-  const utenteAtualizado= await updateUtente(utenteId, updatedData);    
-      // Acessa a resposta correta
-      setUserData(utenteAtualizado); 
-      return utenteAtualizado; // Vai conter o objeto atualizado
+      let updatedUser;
+      
+      // Com base no isAdmin, chama a API de atualização correta
+      if (isAdmin) {
+        // Usuário é fisioterapeuta
+        updatedUser = await updateFisioterapeuta(userId, updatedData);
+      } else {
+        // Usuário é utente
+        updatedUser = await updateUtente(userId, updatedData);
+      }
+      
+      // Atualiza os dados do usuário no contexto
+      setUserData(updatedUser);
+      return updatedUser;
     } catch (error) {
       console.error("Erro ao atualizar dados do usuário:", error);
       
       if (error.response?.status === 404) {
-        console.error("Utente não encontrado");
+        console.error("Usuário não encontrado");
       }
       throw error;
     } finally {
@@ -99,6 +125,7 @@ export function UserProvider({ children }) {
     login,
     logout,
     loading,
+    isAdmin,
     updateUserData,
     isAuthenticated: !!userData,
   };
@@ -112,4 +139,4 @@ export function useUser() {
     throw new Error("useUser deve ser usado dentro de um UserProvider");
   }
   return context;
-} 
+}

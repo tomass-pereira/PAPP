@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import NavBar from "../../components/NavBar.jsx";
 import Inputs from "../../components/Inputs.jsx";
 import Buttons from "../../components/botoes.jsx";
-import { useUser } from "../../contexts/UserContext.jsx";
+import { useUser} from "../../contexts/UserContext.jsx";
 function FisioLoginPage() {
   const navigate = useNavigate();
   const { login } = useUser(); // Usar o context
@@ -38,7 +38,7 @@ function FisioLoginPage() {
 
       if (data.token) {
         navigate("/Inicio", { replace: true });
-        window.location.reload();
+        
       }
     } catch (err) {
       setError(err.message || "Email ou senha incorretos. Tente novamente.");

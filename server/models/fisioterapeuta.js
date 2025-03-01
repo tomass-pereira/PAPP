@@ -20,6 +20,11 @@ const fisioterapeutaSchema = new mongoose.Schema({
     unique: true,
     lowercase: true
   },
+  senha: {
+    type: String,
+    required: true,
+    lowercase: true
+  },
   
 });
 
