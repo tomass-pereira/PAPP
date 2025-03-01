@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const sessoesSchema = new mongoose.Schema({
-  clienteId: {
+  utenteId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'utentes',
     default:null

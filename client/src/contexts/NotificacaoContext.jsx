@@ -10,13 +10,14 @@ export function NotificacoesProvider({ children }) {
   const [naoLidas, setnaoLidas] = useState(0);
 
   const token = sessionStorage.getItem("token");
-  const utenteId = sessionStorage.getItem("utenteId");
+  const userId = sessionStorage.getItem("userId");
 
   const fetchNotificacoes = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getNotificacoes(utenteId);
+      const data = await getNotificacoes(userId);
+    
       
       setNotificacoes(data);
 
@@ -25,7 +26,7 @@ export function NotificacoesProvider({ children }) {
 
 
       setnaoLidas(naoLidas.length);
-     
+    
     } catch (error) {
       setError(error.message);
       console.error("Erro ao buscar notificações:", error);
@@ -35,14 +36,14 @@ export function NotificacoesProvider({ children }) {
   };
 
   useEffect(() => {
-    if (token && utenteId) {
+    if (token && userId) {
       fetchNotificacoes();
     } else {
       setNotificacoes([]);
       setnaoLidas([]);
       setError(null);
     }
-  }, [token, utenteId]);
+  }, [token,userId]);
 
   return (
     <NotificacoesContext.Provider

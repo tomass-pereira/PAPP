@@ -13,11 +13,11 @@ export function SessoesProvider({ children }) {
 
 
   const token = sessionStorage.getItem("token");
-  const utenteId = sessionStorage.getItem("utenteId");
+  const userId = sessionStorage.getItem("userId");
 
   const fetchSessoesCanceladas = async () => {
     try {
-      const data = await getSessoesCanceladas(utenteId);
+      const data = await getSessoesCanceladas(userId);
       setSessoesCanceladas(data);
     } catch (error) {
       console.error("Erro ao buscar sessões canceladas:", error);
@@ -28,11 +28,11 @@ export function SessoesProvider({ children }) {
     try {
       setLoading(true);
       setError(null);
-      const data = await getSessoes(utenteId);
+      const data = await getSessoes(userId);
   
       setSessoes(data);
       const reservadas = data.filter(sessao => 
-        sessao.status === "reservada" && sessao.clienteId === utenteId
+        sessao.status === "reservada" && sessao.utenteId === userId
       );
       setSessoesReservadas(reservadas);
   
@@ -59,21 +59,21 @@ export function SessoesProvider({ children }) {
           console.log('Houve erros ao concluir algumas sessões. Recarregando dados...');
         }
   
-        const dadosAtualizados = await getSessoes(utenteId);
+        const dadosAtualizados = await getSessoes(userId);
         setSessoes(dadosAtualizados);
         
         const novasReservadas = dadosAtualizados.filter(sessao => 
-          sessao.status === "reservada" && sessao.clienteId === utenteId
+          sessao.status === "reservada" && sessao.utenteId === userId
         );
         setSessoesReservadas(novasReservadas);
         
         const novasConcluidas = dadosAtualizados.filter(sessao => 
-          sessao.status === "concluida" && sessao.clienteId === utenteId
+          sessao.status === "concluida" && sessao.utenteId === userId
         );
         setSessoesConcluidas(novasConcluidas);
       } else {
         const concluidas = data.filter(sessao => 
-          sessao.status === "concluida" && sessao.clienteId === utenteId
+          sessao.status === "concluida" && sessao.utenteId === userId
         );
         setSessoesConcluidas(concluidas);
       }
@@ -86,7 +86,7 @@ export function SessoesProvider({ children }) {
   };
 
   useEffect(() => {
-    if (token && utenteId) {
+    if (token && userId) {
       fetchSessoes();
       fetchSessoesCanceladas();
    
@@ -95,7 +95,7 @@ export function SessoesProvider({ children }) {
       setSessoesCanceladas([]);
       setError(null);
     }
-  }, [token, utenteId]);
+  }, [token, userId]);
 
   return (
     <SessoesContext.Provider

@@ -49,46 +49,7 @@ export default function AgendarSessao() {
             <CalendarApp />
 
           {/* Cards Informativos */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-4 mb-4">
-            <div className="bg-[#EEF2FF] p-3 md:p-4 rounded-lg">
-              <div className="text-indigo-600 font-semibold mb-1 md:mb-2 text-sm md:text-base">
-                Agendamento
-              </div>
-              <p className="text-xs md:text-sm text-gray-600">
-                Sessão padrão de fisioterapia com duração de 45 minutos.
-                Necessária confirmação até 2h antes.
-              </p>
-              <p className="text-xs md:text-sm font-medium text-indigo-600 mt-2">
-                Duração: 45 min
-              </p>
-            </div>
-
-            <div className="bg-[#EEF2FF] p-3 md:p-4 rounded-lg">
-              <div className="text-indigo-600 font-semibold mb-1 md:mb-2 text-sm md:text-base">
-                Política de Cancelamento
-              </div>
-              <p className="text-xs md:text-sm text-gray-600">
-                Cancelamentos com menos de 2h de antecedência terão taxa de 50%
-                do valor para reagendamento.
-              </p>
-              <p className="text-xs md:text-sm font-medium text-indigo-600 mt-2">
-                Aviso: 2h antes
-              </p>
-            </div>
-
-            <div className="bg-[#EEF2FF] p-3 md:p-4 rounded-lg">
-              <div className="text-indigo-600 font-semibold mb-1 md:mb-2 text-sm md:text-base">
-                Cancelamentos Recorrentes
-              </div>
-              <p className="text-xs md:text-sm text-gray-600">
-                Dois cancelamentos consecutivos resultam em taxa adicional de
-                25% na próxima sessão.
-              </p>
-              <p className="text-xs md:text-sm font-medium text-indigo-600 mt-2">
-                Política de Fidelidade
-              </p>
-            </div>
-          </div>
+       
         </main>
       </div>
     </>

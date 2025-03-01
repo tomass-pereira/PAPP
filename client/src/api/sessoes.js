@@ -36,13 +36,13 @@ export const getSessoesCanceladas = async (utenteId) => {
 
 
 
-export const reservarSessao = async (sessaoId, utenteId, motivo) => {
+export const reservarSessao = async (sessaoId, userId, motivo) => {
   const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/reservar`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ utenteId, sessaoId, motivo }),
+    body: JSON.stringify({ userId, sessaoId, motivo }),
   });                                 
   
   const data = await response.json();

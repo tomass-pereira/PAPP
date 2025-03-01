@@ -11,84 +11,102 @@ import {
   X,
   Home,
   Bell,
+  Users
 } from "lucide-react";
 import { useNotificacoes } from "../contexts/NotificacaoContext";
+
 const Sidebar = () => {
-  const { userData, logout } = useUser();
+  const { userData, logout, IsFisio } = useUser();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  // You should replace this with your actual unread notifications count
   const { naoLidas } = useNotificacoes();
 
+  // Se não tiver dados do usuário, não mostra nada
   if (!userData) {
     return null;
   }
 
+  // Cria notificação com badge de não lidas
+  const NotificationIcon = ({ size, className }) => (
+    <div className="relative">
+      <Bell size={size} className={className} />
+      {naoLidas > 0 && (
+        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          {naoLidas > 99 ? "99+" : naoLidas}
+        </div>
+      )}
+    </div>
+  );
+
+  // Define os itens do menu com base no tipo de usuário
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, path: "/Inicio" },
+    { 
+      id: "dashboard", 
+      label: "Dashboard", 
+      icon: Home, 
+      path: IsFisio ? "/Admin" : "/Inicio" 
+    },
     {
       id: "calendar",
       label: "Calendário",
       icon: Calendar,
-      path: "/AgendarSessao",
+      path: IsFisio ? "/Admin/Calendario" : "/AgendarSessao",
     },
-    {
-      id: "Exercicios",
-      label: "Exercicios",
-      icon: Dumbbell,
-      path: "/exercicios",
-    },
+    // Item exclusivo para utentes
+    ...(!IsFisio ? [
+      {
+        id: "Exercicios",
+        label: "Exercicios",
+        icon: Dumbbell,
+        path: "/exercicios",
+      }
+    ] : []),
+    // Item exclusivo para administradores/fisioterapeutas
+    ...(IsFisio ? [
+      {
+        id: "patients",
+        label: "Pacientes",
+        icon: Users,
+        path: "/Admin/Pacientes",
+      }
+    ] : []),
     {
       id: "appointments",
-      label: "Sessões",
+      label: IsFisio ? "Consultas" : "Sessões",
       icon: Clock,
-      path: "/MinhasSessoes",
+      path:IsFisio ? "/Admin/Consultas" : "/MinhasSessoes",
     },
     {
       id: "notifications",
       label: "Notificações",
-      icon: ({ size, className }) => (
-        <div className="relative">
-          <Bell size={size} className={className} />
-          {naoLidas > 0 && (
-            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {naoLidas > 99 ? "99+" : naoLidas}
-            </div>
-          )}
-        </div>
-      ),
-      path: "/NotificationsPage",
+      icon: NotificationIcon,
+      path: IsFisio ? "/Admin/Notificacoes" : "/NotificationsPage",
     },
   ];
 
   return (
     <>
-      {/* Rest of the component remains the same */}
+      {/* Mobile toggle button */}
       <button
-    onClick={() => setIsMobileOpen(!isMobileOpen)}
-    className="md:hidden absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md text-indigo-600 hover:bg-gray-50"
-  >
-    {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-  </button>
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="md:hidden absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md text-indigo-600 hover:bg-gray-50"
+      >
+        {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
 
-
-<div
-  className={`
-    fixed md:relative h-screen bg-white border-r 
-    ${isCollapsed ? "w-20" : "w-64"}
-    transition-all duration-300 ease-in-out
-    ${showLogoutDialog ? "blur-sm" : ""}
-    ${
-      isMobileOpen
-        ? "translate-x-0"
-        : "-translate-x-full md:translate-x-0"
-    }
-    z-40
-  `}
->
+      <div
+        className={`
+          fixed md:relative h-screen bg-white border-r 
+          ${isCollapsed ? "w-20" : "w-64"}
+          transition-all duration-300 ease-in-out
+          ${showLogoutDialog ? "blur-sm" : ""}
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          z-40
+        `}
+      >
         {/* Toggle Button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -99,9 +117,11 @@ const Sidebar = () => {
 
         {/* Logo Area */}
         <div className="flex items-center p-4 border-b">
-          <div className="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-white font-bold">
-            F
-          </div>
+          <img 
+            src="/imgs/sss.png" 
+            alt="Logo" 
+            className="w-12 h-12 object-contain" 
+          />
           {!isCollapsed && (
             <span className="ml-3 font-semibold text-indigo-600">
               FisioHome
@@ -120,7 +140,7 @@ const Sidebar = () => {
             {!isCollapsed && (
               <div className="ml-3">
                 <p className="font-medium text-gray-800">{userData.nome}</p>
-                <p className="text-sm text-indigo-600">Utente</p>
+                <p className="text-sm text-indigo-600">{IsFisio ? "Fisioterapeuta" : "Utente"}</p>
               </div>
             )}
           </div>
@@ -163,7 +183,7 @@ const Sidebar = () => {
           <ul className="space-y-2">
             <li>
               <Link
-                to="/Config"
+                to={IsFisio ? "/Admin/Config" : "/Config"}
                 className="flex items-center w-full p-3 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
               >
                 <Settings size={20} />

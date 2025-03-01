@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const cancelamentoSchema = {
   id: String,                
-  consultaId: String,        
+  sessaoId: String,        
   utenteId: String,        //
   dataCancelamento: Date,    
   dataConsultaOriginal: Date,

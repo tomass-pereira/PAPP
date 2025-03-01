@@ -5,7 +5,7 @@ const Utente =require("../models/utente")
 const Cancelamentos=require("../models/cancelamentos")
 const VerificarSessaoMesmoDia=require('../middlewares/sessoes.middleware');
 const emailService = require('../services/nodemailer');
-const notificacoes = require('../models/Notificacoes');
+const notificacoes = require('../models/notificacoes');
 
 
 router.post('/criarSessao', async (req, res, next) => {
@@ -31,8 +31,7 @@ router.post('/criarSessao', async (req, res, next) => {
   router.get('/buscarSessoes/:utenteId', async (req, res) => {
     console.log('Rota buscarSessoes chamada');
     try {
-        const utenteId = req.params.utenteId;
-
+       
         const sessoes = await Sessoes.find();
         
         res.status(200).json(sessoes);
@@ -67,7 +66,7 @@ router.post('/criarSessao', async (req, res, next) => {
     try {
      
       const sessaoId = req.params.id;
-      const utenteId = req.body.utenteId;
+      const utenteId = req.body.userId;
       const motivo =req.body.motivo;
 
     
@@ -88,17 +87,17 @@ router.post('/criarSessao', async (req, res, next) => {
 
   
       // Atualiza os campos da sessão
-      sessao.clienteId = utenteId;
+      sessao.utenteId = utenteId;
       sessao.status = 'reservada';
       sessao.motivo=motivo;
      
-      const utente = await Utente.findById(sessao.clienteId);
+      const utente = await Utente.findById(sessao.utenteId);
    
 
-   
+     const userId=utenteId;
       await sessao.save();
       await notificacoes.create({
-        utenteId,
+      userId,
         titulo: 'Sessão Reservada',
         descricao: `A sua sessão foi reservada com sucesso para ${sessao.
           dataHoraInicio}`,
@@ -170,7 +169,7 @@ router.post('/criarSessao', async (req, res, next) => {
       console.log("motivo", motivo);
       
       // Busca a sessão pelo ID com os dados do utente
-      const sessao = await Sessoes.findById(sessaoId).populate('clienteId');
+      const sessao = await Sessoes.findById(sessaoId).populate('utenteId');
   
       if (!sessao) {
         return res.status(404).json({ 
@@ -187,9 +186,9 @@ router.post('/criarSessao', async (req, res, next) => {
       }
   
       // Guarda os dados do utente antes de limpar
-      const dadosUtente = sessao.clienteId;
+      const dadosUtente = sessao.utenteId;
       const novoCancelamento = new Cancelamentos({
-        consultaId: sessao._id,
+        sessaoId: sessao._id,
         utenteId: dadosUtente._id,
         dataCancelamento: new Date(),
         dataConsultaOriginal: sessao.dataHoraInicio,
@@ -207,7 +206,7 @@ router.post('/criarSessao', async (req, res, next) => {
      
   
       sessao.status = 'disponivel';
-      sessao.clienteId = null;
+      sessao.utenteId = null;
       sessao.motivo = null;
   
       await sessao.save();
@@ -219,7 +218,7 @@ router.post('/criarSessao', async (req, res, next) => {
         sessao 
       });
       await notificacoes.create({
-        utenteId:dadosUtente._id,
+        userId:dadosUtente._id,
         titulo: 'Sessão Cancelada',
         descricao: `A sua sessão foi cancelada`,
         tipo: 'info'

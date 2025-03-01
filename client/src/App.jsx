@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import FisioLoginPage from "./pages/auth/FisioLoginPage.jsx";
 
-import Login from "../admin/pages/LoginPage.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
 import { SessoesProvider } from "./contexts/SessoesContext.jsX";
@@ -96,14 +95,7 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
-         <Route
-          path="/Login"
-          element={
-            
-              <Login />
-            
-          }
-        />
+        
          <Route
           path="/LoginFisio"
           element={
@@ -205,13 +197,13 @@ function App() {
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
+          <UserProvider>
       <NotificacoesProvider>
         <SessoesProvider>
-          <UserProvider>
             <AnimatedRoutes />
-          </UserProvider>
         </SessoesProvider>
       </NotificacoesProvider>
+          </UserProvider>
     </BrowserRouter>
   );
 }

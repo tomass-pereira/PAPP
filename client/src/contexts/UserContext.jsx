@@ -12,9 +12,9 @@ export function UserProvider({ children }) {
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(() => {
-    // Inicializa isAdmin a partir do sessionStorage
-    return sessionStorage.getItem("isAdmin") === "true";
+  const [IsFisio, setIsFisio] = useState(() => {
+  
+    return sessionStorage.getItem("isFisio") === "true";
   });
   
   useEffect(() => {
@@ -27,10 +27,10 @@ export function UserProvider({ children }) {
         }
         
         // Verifica se é fisioterapeuta ou utente
-        const userIsAdmin = sessionStorage.getItem("isAdmin") === "true";
+        const userIsFisio = sessionStorage.getItem("isFisio") === "true";
         
         // Chama a API correta com base no isAdmin
-        if (userIsAdmin) {
+        if (userIsFisio) {
           const fisioterapeuta = await getCurrentFisio();
           setUserData(fisioterapeuta);
         } else {
@@ -61,9 +61,9 @@ export function UserProvider({ children }) {
         sessionStorage.setItem("userId", data.user.id);
         
         // Armazena e define o isAdmin
-        const userIsAdmin = !!data.user.isAdmin;
-        sessionStorage.setItem("isAdmin", userIsAdmin.toString());
-        setIsAdmin(userIsAdmin);
+        const userIsFisio = !!data.user.isAdmin;
+      
+        setIsFisio(userIsFisio);
         
         // Define os dados do usuário
         setUserData(data.user);
@@ -80,7 +80,7 @@ export function UserProvider({ children }) {
 
   const logout = () => {
     setUserData(null);
-    setIsAdmin(false);
+    setIsFisio(false);
     sessionStorage.clear();
     window.location.href = "/";
   };
@@ -92,7 +92,7 @@ export function UserProvider({ children }) {
       let updatedUser;
       
       // Com base no isAdmin, chama a API de atualização correta
-      if (isAdmin) {
+      if (IsFisio) {
         // Usuário é fisioterapeuta
         updatedUser = await updateFisioterapeuta(userId, updatedData);
       } else {
@@ -125,7 +125,7 @@ export function UserProvider({ children }) {
     login,
     logout,
     loading,
-    isAdmin,
+    IsFisio,
     updateUserData,
     isAuthenticated: !!userData,
   };

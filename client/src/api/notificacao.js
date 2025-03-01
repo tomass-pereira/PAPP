@@ -1,8 +1,8 @@
 import { BASE_URL } from './config';
 
-export const getNotificacoes = async (utenteId) => {
+export const getNotificacoes = async (userId) => {
     try {
-        const response = await fetch(`${BASE_URL}/notificacoes/${utenteId}`, {
+        const response = await fetch(`${BASE_URL}/notificacoes/${(userId)}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -21,9 +21,9 @@ export const getNotificacoes = async (utenteId) => {
         throw error;
     }
 };
-export const marcarTodasComoLidas = async (utenteId) => {
+export const marcarTodasComoLidas = async (userId) => {
     try {
-        const response = await fetch(`${BASE_URL}/notificacoes/lida/${utenteId}`, {
+        const response = await fetch(`${BASE_URL}/notificacoes/lida/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
