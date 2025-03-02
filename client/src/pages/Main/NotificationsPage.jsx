@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useNotificacoes } from "../../contexts/NotificacaoContext.jsx";
 import { marcarTodasComoLidas} from "../../api/notificacao.js";
+import { useUser } from "../../contexts/UserContext.jsx";
 
 const NotificationsPage = () => {
   const { 
@@ -42,10 +43,10 @@ const NotificationsPage = () => {
     return matchesFilter && matchesSearch;
   });
 
+  const { userId } = useUser();
   useEffect(() => {
     const marcarLidas = async () => {
       try {
-        const userId = sessionStorage.getItem("userId");
         if (userId) {
           await marcarTodasComoLidas(userId);
           fetchNotificacoes();

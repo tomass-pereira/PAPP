@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { getSessoes, getSessoesCanceladas, concluirSessao } from "../api/sessoes";
+import { useUser } from "./UserContext";
 
 const SessoesContext = createContext({});
 
@@ -13,10 +14,11 @@ export function SessoesProvider({ children }) {
 
 
   const token = sessionStorage.getItem("token");
-  const userId = sessionStorage.getItem("userId");
+  const { userId } = useUser();
 
   const fetchSessoesCanceladas = async () => {
     try {
+      console.log("aqui",userId);
       const data = await getSessoesCanceladas(userId);
       setSessoesCanceladas(data);
     } catch (error) {
@@ -87,6 +89,7 @@ export function SessoesProvider({ children }) {
 
   useEffect(() => {
     if (token && userId) {
+   
       fetchSessoes();
       fetchSessoesCanceladas();
    

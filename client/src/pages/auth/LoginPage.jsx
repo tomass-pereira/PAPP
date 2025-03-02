@@ -31,13 +31,16 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
+   
     try {
       const data = await login({
         email: formData.email,
         senha: formData.senha,
         role: 'utente'
-      });
+      },
+      lembrar
+    );
 
       if (data.token) {
         navigate("/Inicio", { replace: true });

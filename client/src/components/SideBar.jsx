@@ -16,7 +16,7 @@ import {
 import { useNotificacoes } from "../contexts/NotificacaoContext";
 
 const Sidebar = () => {
-  const { userData, logout, IsFisio } = useUser();
+  const { userData, logout, isFisio } = useUser();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
@@ -47,16 +47,16 @@ const Sidebar = () => {
       id: "dashboard", 
       label: "Dashboard", 
       icon: Home, 
-      path: IsFisio ? "/Admin" : "/Inicio" 
+      path: isFisio ? "/Admin" : "/Inicio" 
     },
     {
       id: "calendar",
       label: "Calendário",
       icon: Calendar,
-      path: IsFisio ? "/Admin/Calendario" : "/AgendarSessao",
+      path: isFisio ? "/Admin/Calendario" : "/AgendarSessao",
     },
     // Item exclusivo para utentes
-    ...(!IsFisio ? [
+    ...(!isFisio ? [
       {
         id: "Exercicios",
         label: "Exercicios",
@@ -65,7 +65,7 @@ const Sidebar = () => {
       }
     ] : []),
     // Item exclusivo para administradores/fisioterapeutas
-    ...(IsFisio ? [
+    ...(isFisio ? [
       {
         id: "patients",
         label: "Pacientes",
@@ -75,15 +75,15 @@ const Sidebar = () => {
     ] : []),
     {
       id: "appointments",
-      label: IsFisio ? "Consultas" : "Sessões",
+      label: isFisio ? "Consultas" : "Sessões",
       icon: Clock,
-      path:IsFisio ? "/Admin/Consultas" : "/MinhasSessoes",
+      path:isFisio ? "/Admin/Consultas" : "/MinhasSessoes",
     },
     {
       id: "notifications",
       label: "Notificações",
       icon: NotificationIcon,
-      path: IsFisio ? "/Admin/Notificacoes" : "/NotificationsPage",
+      path: isFisio ? "/Admin/Notificacoes" : "/NotificationsPage",
     },
   ];
 
@@ -140,7 +140,7 @@ const Sidebar = () => {
             {!isCollapsed && (
               <div className="ml-3">
                 <p className="font-medium text-gray-800">{userData.nome}</p>
-                <p className="text-sm text-indigo-600">{IsFisio ? "Fisioterapeuta" : "Utente"}</p>
+                <p className="text-sm text-indigo-600">{isFisio ? "Fisioterapeuta" : "Utente"}</p>
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ const Sidebar = () => {
           <ul className="space-y-2">
             <li>
               <Link
-                to={IsFisio ? "/Admin/Config" : "/Config"}
+                to={isFisio ? "/Admin/Config" : "/Config"}
                 className="flex items-center w-full p-3 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
               >
                 <Settings size={20} />

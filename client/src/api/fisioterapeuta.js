@@ -13,7 +13,7 @@ export const getCurrentFisio = async () => {
       throw new Error('Token não encontrado');
     }
     
-    // Usando fetch diretamente em vez de axios para maior controle
+    
     const response = await fetch(`${BASE_URL}/fisioterapeutas/current`, {
       method: 'GET',
       headers: {

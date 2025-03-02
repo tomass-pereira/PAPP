@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { getNotificacoes } from "../api/notificacao";
-
+import { useUser } from "./UserContext";
 const NotificacoesContext = createContext({});
 
 export function NotificacoesProvider({ children }) {
@@ -10,7 +10,7 @@ export function NotificacoesProvider({ children }) {
   const [naoLidas, setnaoLidas] = useState(0);
 
   const token = sessionStorage.getItem("token");
-  const userId = sessionStorage.getItem("userId");
+  const {userId} = useUser();
 
   const fetchNotificacoes = async () => {
     try {

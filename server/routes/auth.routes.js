@@ -54,7 +54,7 @@ router.get('/rejeitar/:id', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         // 1. Validar dados de entrada
-        const { email, senha, role } = req.body;
+        const { email, senha,  role } = req.body;
         console.log(email);
         console.log(senha);
         
@@ -106,7 +106,7 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // 5. Gerar token JWT
+        
         const token = jwt.sign(
             {
                 id: user._id,

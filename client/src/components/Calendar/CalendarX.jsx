@@ -12,13 +12,14 @@ import SessionModal from "./SessionModal.jsx";
 
 import "./Calendar.css";
 import { reservarSessao, cancelarSessao } from "../../api/sessoes.js";
+import {useUser} from "../../contexts/UserContext.jsx";
 
 function CalendarApp() {
   const [eventsService] = useState(() => createEventsServicePlugin());
   const { sessoes, sessoesCanceladas } = useSessoes();
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const userId = sessionStorage.getItem("userId");
+ const {userId} = useUser();
   const [erro, setErro] = useState("");
   const [motivo, setMotivo] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
