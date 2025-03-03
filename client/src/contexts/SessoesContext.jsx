@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getSessoes, getSessoesCanceladas, concluirSessao } from "../api/sessoes";
+import { getSessoes, getSessoesCanceladas, concluirSessao, feedbackSessao } from "../api/sessoes";
 import { useUser } from "./UserContext";
 
 const SessoesContext = createContext({});
@@ -13,7 +13,7 @@ export function SessoesProvider({ children }) {
   const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
   // Novo estado para rastrear sessões que precisam de feedback
   const [sessoesPendenteFeedback, setSessoesPendenteFeedback] = useState([]);
-  // Estado para armazenar feedbacks enviados (simula banco de dados)
+  
   const [feedbacks, setFeedbacks] = useState([]);
 
   const token = sessionStorage.getItem("token");
@@ -151,16 +151,15 @@ export function SessoesProvider({ children }) {
     }
   }, [token, userId, fetchSessoes, fetchSessoesCanceladas]);
 
-  // Função para enviar feedback de uma sessão
+  
   const enviarFeedback = useCallback((dadosFeedback) => {
    
     const novosFeedbacks = [...feedbacks, dadosFeedback];
     setFeedbacks(novosFeedbacks);
+    feedbackSessao(dadosFeedback);
+
     
-    // Salvar no localStorage (simulando banco de dados)
-    localStorage.setItem('feedbacks', JSON.stringify(novosFeedbacks));
-    
-    // Marcar a sessão como "já recebeu feedback"
+   
     const feedbacksConcluidos = JSON.parse(localStorage.getItem('feedbacksConcluidos') || '[]');
     feedbacksConcluidos.push(dadosFeedback.sessaoId);
     localStorage.setItem('feedbacksConcluidos', JSON.stringify(feedbacksConcluidos));

@@ -89,3 +89,57 @@ export const concluirSessao = async (sessaoId) => {
   
   return data;
 };
+
+export const getSessao = async (id) => {
+  try {
+    const response = await fetch(`/api/sessoes/${id}`);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.mensagem || 'Erro ao buscar sessão');
+    }
+    
+    const data = await response.json();
+    return data.sessao;
+  } catch (error) {
+    console.error('Erro ao buscar sessão:', error);
+    throw error;
+  }
+};
+export const feedbackSessao = async (dados) => {
+  console.log("Dados recebidos:", dados);
+  
+  // Extrair as propriedades do objeto
+  const { sessaoId, avaliacao, dor, satisfacao, comentario } = dados;
+  
+  // Verificar se os campos obrigatórios existem
+  if (!sessaoId) {
+    throw new Error("ID da sessão é obrigatório");
+  }
+  
+  if (!avaliacao && avaliacao !== 0) {
+    throw new Error("Avaliação é obrigatória");
+  }
+  
+  const response = await fetch(`${BASE_URL}/feedbacks/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sessaoId,
+      avaliacao,
+      dor: dor || '',
+      satisfacao: satisfacao || '',
+      comentario: comentario || ''
+    }),
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.mensagem || 'Erro ao enviar feedback');
+  }
+  
+  return data;
+};

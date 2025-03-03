@@ -12,8 +12,8 @@ import { MessageSquare, Star, Smile, Meh, Frown, X } from "lucide-react";
 const FeedbackModal = ({ isOpen, onClose, sessao, onSubmit }) => {
   const [avaliacao, setAvaliacao] = useState(0);
   const [comentario, setComentario] = useState("");
-  const [dor, setDor] = useState(5); // Escala de 0-10, começa no meio (5)
-  const [satisfacao, setSatisfacao] = useState(""); // "bom", "neutro", "ruim"
+  const [dor, setDor] = useState(5); 
+  const [satisfacao, setSatisfacao] = useState("");
 
   // Formatar data para exibição
   const formatarData = (dataString) => {

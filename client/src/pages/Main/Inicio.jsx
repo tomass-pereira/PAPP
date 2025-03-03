@@ -49,7 +49,7 @@ export default function Inicio() {
         }
       };
       
-      // Verificar após um pequeno delay para garantir que a página carregou completamente
+     
       const timer = setTimeout(verificarFeedbacks, 1500);
       return () => clearTimeout(timer);
     }

@@ -29,13 +29,12 @@ router.post('/criarSessao', async (req, res, next) => {
     }
   });
   router.get('/buscarSessoes/:utenteId', async (req, res) => {
-    console.log('Rota buscarSessoes chamada');
+    
     try {
        
         const sessoes = await Sessoes.find();
         
         res.status(200).json(sessoes);
-        console.log(sessoes);
         
     } catch (error) {
         res.status(500).json({ 
@@ -166,7 +165,6 @@ router.post('/criarSessao', async (req, res, next) => {
     try {
       const sessaoId = req.params.id;
       const { motivo } = req.body;
-      console.log("motivo", motivo);
       
       // Busca a sessão pelo ID com os dados do utente
       const sessao = await Sessoes.findById(sessaoId).populate('utenteId');
@@ -288,32 +286,41 @@ router.post('/criarSessao', async (req, res, next) => {
       if (!sessao) {
         return res.status(404).json({ message: 'Sessão não encontrada' });
       }
-  
-    
-
-  
-      
-      
       sessao.status = 'concluida';
-     
-     
-    
-   
-
-   
       await sessao.save();
-     
-  
       res.json(sessao);
     
     } catch (error) {
-      
-    
      console.log(error.message);
     }
   });
 
-
+  router.get('/:id', async (req, res) => {
+    try {
+      const sessaoId = req.params.id;
+      
+      const sessao = await Sessoes.findById(sessaoId);
+      
+      if (!sessao) {
+        return res.status(404).json({ 
+          sucesso: false, 
+          mensagem: 'Sessão não encontrada' 
+        });
+      }
+      
+      res.status(200).json({
+        sucesso: true,
+        sessao
+      });
+    } catch (error) {
+      console.error('Erro ao buscar sessão:', error);
+      res.status(500).json({ 
+        sucesso: false, 
+        mensagem: 'Erro ao buscar sessão',
+        erro: error.message 
+      });
+    }
+  });
 
 
 

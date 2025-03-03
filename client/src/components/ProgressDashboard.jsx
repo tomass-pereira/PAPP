@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 
 const ProgressDashboard = ({ isFisio = false }) => {
-  // Mock data - No futuro, você pode substituir por dados reais da API
+
   const sessoesPorMes = [
     { nome: 'Jan', quantidade: 4 },
     { nome: 'Fev', quantidade: 6 },
@@ -13,6 +13,8 @@ const ProgressDashboard = ({ isFisio = false }) => {
     { nome: 'Abr', quantidade: 7 },
     { nome: 'Mai', quantidade: 9 },
     { nome: 'Jun', quantidade: 5 },
+    { nome: 'Ago', quantidade: 25 }
+
   ];
   
   const dadosProgresso = [
@@ -63,7 +65,7 @@ const ProgressDashboard = ({ isFisio = false }) => {
               <LineChart data={dadosProgresso} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="semana" />
-                <YAxis />
+                <YAxis  />
                 <Tooltip />
                 <Legend />
                 <Line 
@@ -84,18 +86,6 @@ const ProgressDashboard = ({ isFisio = false }) => {
                 />
               </LineChart>
             </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="bg-red-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-600">Nível de Dor</p>
-                <p className="text-2xl font-bold text-red-500">-63%</p>
-                <p className="text-xs text-gray-500">Nas últimas 6 semanas</p>
-              </div>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-600">Mobilidade</p>
-                <p className="text-2xl font-bold text-blue-500">+167%</p>
-                <p className="text-xs text-gray-500">Nas últimas 6 semanas</p>
-              </div>
-            </div>
           </div>
         );
       

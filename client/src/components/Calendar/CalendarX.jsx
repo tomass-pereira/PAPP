@@ -87,10 +87,7 @@ function CalendarApp() {
         // Calcular a diferença de tempo em horas
         const diferencaEmHoras = (dataInicio - agora) / (1000 * 60 * 60);
 
-        // Só adiciona a sessão se:
-        // 1. Não estiver cancelada
-        // 2. Se for disponível, precisa ser uma data futura E estar a mais de 2 horas no futuro
-        // 3. Se for concluída ou reservada, precisa pertencer ao utente
+      
         if (
           !sessaoCancelada &&
           ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
@@ -166,7 +163,10 @@ function CalendarApp() {
     callbacks: {
       onEventClick(calendarEvent) {
         setSelectedEvent(calendarEvent);
-        // Usando setTimeout para garantir que o setState foi concluído
+        setTimeout(() => {
+          modalRef.current?.showModal();
+        }, 0);        
+      
       
       },
     },
