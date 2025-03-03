@@ -21,26 +21,57 @@ import { useSessoes } from "../../contexts/SessoesContext.jsx";
 import { useNotificacoes } from "../../contexts/NotificacaoContext.jsx";
 import ProgressDashboard from "../../components/ProgressDashboard.jsx";
 import StatsCards from "../../components/StatsCard.jsx";
+import FeedbackModal from "../../components/FeedBackModal.jsx";
 
 export default function Inicio() {
   const navigate = useNavigate();
-  const { sessoesReservadas, sessoesConcluidas} = useSessoes();
+  const { sessoesReservadas, sessoesConcluidas, getProximaSessaoPendenteFeedback, enviarFeedback, pularFeedback } = useSessoes();
   const { notificacoes, naoLidas } = useNotificacoes();
   const { userData, isFisio } = useUser();
   const [dashboardVisible, setDashboardVisible] = useState(true);
+  
+  // Estado para controlar o modal de feedback
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [sessaoParaFeedback, setSessaoParaFeedback] = useState(null);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
    
     if (!token) {
       navigate("/LoginPage");
-    }else{
+    } else {
+      // Verificar se há sessões que precisam de feedback
+      const verificarFeedbacks = () => {
+        const sessaoPendente = getProximaSessaoPendenteFeedback();
+        if (sessaoPendente) {
+          setSessaoParaFeedback(sessaoPendente);
+          setShowFeedbackModal(true);
+        }
+      };
       
+      // Verificar após um pequeno delay para garantir que a página carregou completamente
+      const timer = setTimeout(verificarFeedbacks, 1500);
+      return () => clearTimeout(timer);
     }
-  }, [navigate]);
+  }, [navigate, getProximaSessaoPendenteFeedback]);
 
   const handleNavigate = (path) => {
     navigate(path);
+  };
+
+ 
+  const handleSubmitFeedback = (feedbackData) => {
+    enviarFeedback(feedbackData);
+    setShowFeedbackModal(false);
+    setSessaoParaFeedback(null);
+  };
+
+  const handleCloseFeedback = () => {
+    if (sessaoParaFeedback) {
+      pularFeedback(sessaoParaFeedback._id);
+    }
+    setShowFeedbackModal(false);
+    setSessaoParaFeedback(null);
   };
 
   const proximaSessao = sessoesReservadas[0];
@@ -471,6 +502,16 @@ export default function Inicio() {
           </div>
         </main>
       </div>
+
+      {/* Modal de Feedback após Sessão */}
+      {showFeedbackModal && sessaoParaFeedback && (
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={handleCloseFeedback}
+          sessao={sessaoParaFeedback}
+          onSubmit={handleSubmitFeedback}
+        />
+      )}
     </div>
   );
 }

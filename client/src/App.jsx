@@ -20,7 +20,7 @@ import RecuperarPasse from "./pages/RecuperarPasse.jsx";
 import First from "./pages/First";
 import MinhasSessoes from "./pages/Main/MinhasSessoes.jsx";
 import Inicio from "./pages/Main/Inicio.jsx";
-import Exercicios from "./pages/Main/Exercicios.jsx";
+import PlanosTratamento from "./pages/Main/PlanosTratamento.jsx";
 import AgendarSessao from "./pages/Main/AgendarSessao.jsx";
 import ErrorPage from "./pages/Error.jsx";
 import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
@@ -138,10 +138,10 @@ const AnimatedRoutes = () => {
           } 
         />
         <Route 
-          path="/exercicios" 
+          path="/planosTratamento" 
           element={
             <ProtectedAnimatedPage>
-              <Exercicios />
+              <PlanosTratamento />
             </ProtectedAnimatedPage>
           } 
         />

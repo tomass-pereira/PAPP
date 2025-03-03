@@ -12,14 +12,14 @@ import SessionModal from "./SessionModal.jsx";
 
 import "./Calendar.css";
 import { reservarSessao, cancelarSessao } from "../../api/sessoes.js";
-import {useUser} from "../../contexts/UserContext.jsx";
+import { useUser } from "../../contexts/UserContext.jsx";
 
 function CalendarApp() {
   const [eventsService] = useState(() => createEventsServicePlugin());
   const { sessoes, sessoesCanceladas } = useSessoes();
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
- const {userId} = useUser();
+  const { userId } = useUser();
   const [erro, setErro] = useState("");
   const [motivo, setMotivo] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -50,7 +50,6 @@ function CalendarApp() {
   const handleConfirm = async (event) => {
     if (motivo != "") {
       try {
-       
         const sessaoReservada = await reservarSessao(event.id, userId, motivo);
 
         setErro("");
@@ -66,10 +65,12 @@ function CalendarApp() {
 
   useEffect(() => {
     if (sessoes && sessoes.length > 0) {
+     
       const currentEvents = eventsService.getAll();
       currentEvents.forEach((event) => eventsService.remove(event.id));
 
       const agora = new Date();
+      
 
       sessoes.forEach((sessao) => {
         // Verifica se a sessão pertence ao utente atual
@@ -82,14 +83,17 @@ function CalendarApp() {
         );
 
         const dataInicio = new Date(sessao.dataHoraInicio);
+        
+        // Calcular a diferença de tempo em horas
+        const diferencaEmHoras = (dataInicio - agora) / (1000 * 60 * 60);
 
         // Só adiciona a sessão se:
         // 1. Não estiver cancelada
-        // 2. Se for disponível, precisa ser uma data futura
+        // 2. Se for disponível, precisa ser uma data futura E estar a mais de 2 horas no futuro
         // 3. Se for concluída ou reservada, precisa pertencer ao utente
         if (
           !sessaoCancelada &&
-          ((sessao.status === "disponivel" && dataInicio > agora) ||
+          ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
             ((sessao.status === "concluida" || sessao.status === "reservada") &&
               sessaoPertenceAoUtente))
         ) {
@@ -163,9 +167,7 @@ function CalendarApp() {
       onEventClick(calendarEvent) {
         setSelectedEvent(calendarEvent);
         // Usando setTimeout para garantir que o setState foi concluído
-        setTimeout(() => {
-          modalRef.current?.showModal();
-        }, 0);
+      
       },
     },
     locale: "pt-BR",

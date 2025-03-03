@@ -3,7 +3,7 @@ import { useUser } from "../contexts/UserContext.jsX";
 import { Link, useLocation } from "react-router-dom";
 import {
   Calendar,
-  Dumbbell,
+  BookOpen,
   Clock,
   Settings,
   LogOut,
@@ -58,10 +58,10 @@ const Sidebar = () => {
     // Item exclusivo para utentes
     ...(!isFisio ? [
       {
-        id: "Exercicios",
-        label: "Exercicios",
-        icon: Dumbbell,
-        path: "/exercicios",
+        id: "Planos",
+        label: "Planos de Tratamento",
+        icon: BookOpen,
+        path: "/planosTratamento",
       }
     ] : []),
     // Item exclusivo para administradores/fisioterapeutas
