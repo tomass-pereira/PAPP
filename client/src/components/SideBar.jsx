@@ -47,13 +47,13 @@ const Sidebar = () => {
       id: "dashboard", 
       label: "Dashboard", 
       icon: Home, 
-      path: isFisio ? "/Admin" : "/Inicio" 
+      path:  "/Inicio" 
     },
     {
       id: "calendar",
       label: "Calendário",
       icon: Calendar,
-      path: isFisio ? "/Admin/Calendario" : "/AgendarSessao",
+      path: isFisio ? "/Fisio/Calendario" : "/AgendarSessao",
     },
     // Item exclusivo para utentes
     ...(!isFisio ? [

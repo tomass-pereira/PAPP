@@ -296,17 +296,14 @@ router.put('/:id', authMiddleware, async (req, res) => {
       },
       updatedAt: new Date()
     };
-
     const result = await Utente.findByIdAndUpdate(
       id,
       updateFields,
       { new: true }  // retorna o documento atualizado
     );
-
     if (!result) {
       return res.status(404).json({ message: 'Utente não encontrado' });
     }
-
     res.json(result);
 
   } catch (error) {

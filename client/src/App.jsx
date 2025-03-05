@@ -16,6 +16,7 @@ import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
 import { SessoesProvider } from "./contexts/SessoesContext.jsX";
 import { NotificacoesProvider } from "./contexts/NotificacaoContext.jsx";
+import { PlanoProvider } from "./contexts/PlanoContext.jsx";
 import RecuperarPasse from "./pages/RecuperarPasse.jsx";
 import First from "./pages/First";
 import MinhasSessoes from "./pages/Main/MinhasSessoes.jsx";
@@ -24,6 +25,7 @@ import PlanosTratamento from "./pages/Main/PlanosTratamento.jsx";
 import AgendarSessao from "./pages/Main/AgendarSessao.jsx";
 import ErrorPage from "./pages/Error.jsx";
 import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
+import CalendarioFisio from "./pages/admin/CalendarioFisio.jsx";
 import Config from "./pages/Main/Config.jsx";
 
 // AuthWrapper component
@@ -73,11 +75,7 @@ const AnimatedPage = ({ children }) => {
 
 // Protected AnimatedPage
 const ProtectedAnimatedPage = ({ children }) => {
-  return (
-      <AuthWrapper>
-        {children}
-      </AuthWrapper>
-  );
+  return <AuthWrapper>{children}</AuthWrapper>;
 };
 
 const AnimatedRoutes = () => {
@@ -95,13 +93,8 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
-        
-         <Route
-          path="/LoginFisio"
-          element={
-              <FisioLoginPage />
-          }
-        />
+
+        <Route path="/LoginFisio" element={<FisioLoginPage />} />
         <Route
           path="/RecuperarPasse"
           element={
@@ -118,7 +111,7 @@ const AnimatedRoutes = () => {
             </AnimatedPage>
           }
         />
-       
+
         <Route
           path="/LoginPage"
           element={
@@ -129,53 +122,62 @@ const AnimatedRoutes = () => {
         />
 
         {/* Rotas protegidas */}
-        <Route 
-          path="/AgendarSessao" 
+        <Route
+          path="/AgendarSessao"
           element={
             <ProtectedAnimatedPage>
               <AgendarSessao />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/planosTratamento" 
+        <Route
+          path="/planosTratamento"
           element={
             <ProtectedAnimatedPage>
               <PlanosTratamento />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/NotificationsPage" 
+        <Route
+          path="/Fisio/Calendario"
+          element={
+            <ProtectedAnimatedPage>
+              <CalendarioFisio />
+            </ProtectedAnimatedPage>
+          }
+         
+        />
+        <Route
+          path="/NotificationsPage"
           element={
             <ProtectedAnimatedPage>
               <NotificationsPage />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/Config" 
+        <Route
+          path="/Config"
           element={
             <ProtectedAnimatedPage>
               <Config />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/Inicio" 
+        <Route
+          path="/Inicio"
           element={
             <ProtectedAnimatedPage>
               <Inicio />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
-        <Route 
-          path="/MinhasSessoes" 
+        <Route
+          path="/MinhasSessoes"
           element={
             <ProtectedAnimatedPage>
               <MinhasSessoes />
             </ProtectedAnimatedPage>
-          } 
+          }
         />
 
         {/* Rota de erro */}
@@ -197,13 +199,15 @@ function App() {
     <BrowserRouter
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
-          <UserProvider>
-      <NotificacoesProvider>
-        <SessoesProvider>
-            <AnimatedRoutes />
-        </SessoesProvider>
-      </NotificacoesProvider>
-          </UserProvider>
+      <UserProvider>
+        <PlanoProvider>
+          <NotificacoesProvider>
+            <SessoesProvider>
+              <AnimatedRoutes />
+            </SessoesProvider>
+          </NotificacoesProvider>
+        </PlanoProvider>
+      </UserProvider>
     </BrowserRouter>
   );
 }

@@ -10,15 +10,14 @@ const notificacoes = require('../models/notificacoes');
 
 router.post('/criarSessao', async (req, res, next) => {
     try {
-      const { dataHoraInicio, dataHoraFim, duracao, observacoes } = req.body;
+      const { dataHoraInicio, dataHoraFim, duracao, observacoes } = req.body; 
   
       const novaSessao = new Sessoes({
         dataHoraInicio,
         dataHoraFim,
         duracao,
         observacoes,
-        // clienteId começa como null por padrão
-        // status começa como 'disponivel' por padrão
+       
       });
   
       const sessaoSalva = await novaSessao.save();

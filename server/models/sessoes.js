@@ -37,6 +37,15 @@ const sessoesSchema = new mongoose.Schema({
   descricao: {
     type: String,
     default: ''
+  },
+  plano:{
+    type:Boolean,
+    default:false
+  },
+    planoId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'planos',
+      default:null
   }
 }, {
   timestamps: true,

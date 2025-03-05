@@ -1,4 +1,5 @@
 import { BASE_URL } from './config';
+import api from './api';
 
 
 export const getSessoes = async (utenteId) => {
@@ -71,7 +72,36 @@ export const cancelarSessao = async (sessaoId, motivo) => {
   return data;
 };
 
+export const createSessao = async (sessaoData) => {
+  try {
+    // Calcular dataHoraFim com base na dataHoraInicio e duração
+    const dataInicio = new Date(sessaoData.dataHoraInicio);
+    const dataFim = new Date(dataInicio.getTime() + sessaoData.duracao * 60000);
+    
+    // Preparar o payload conforme esperado pela API
+    const payload = {
+      dataHoraInicio: sessaoData.dataHoraInicio,
+      dataHoraFim: dataFim.toISOString().split('.')[0],
+      duracao: sessaoData.duracao,
+      status: sessaoData.status,
+      motivo: sessaoData.motivo || "",
+      descricao: sessaoData.descricao || ""
+    };
+    
+    console.log(payload);
+    if (sessaoData.status === 'reservada' && sessaoData.utenteId) {
+      payload.utenteId = sessaoData.utenteId;
+    }
 
+    const response = await api.post('/sessoes/criarSessao', payload);
+    return response.data.sessao;
+  } catch (error) {
+    console.error('Erro ao criar sessão:', error);
+    throw error.response?.data?.mensagem 
+      ? new Error(error.response.data.mensagem) 
+      : error;
+  }
+};
 export const concluirSessao = async (sessaoId) => {
   
   const response = await fetch(`${BASE_URL}/sessoes/${sessaoId}/concluida`, {
