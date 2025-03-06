@@ -27,6 +27,7 @@ import ErrorPage from "./pages/Error.jsx";
 import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
 import CalendarioFisio from "./pages/admin/CalendarioFisio.jsx";
 import Config from "./pages/Main/Config.jsx";
+import Utentes from "./pages/admin/Utentes.jsx";
 
 // AuthWrapper component
 const AuthWrapper = ({ children }) => {
@@ -143,6 +144,15 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedAnimatedPage>
               <CalendarioFisio />
+            </ProtectedAnimatedPage>
+          }
+         
+        />
+         <Route
+          path="/Fisio/Utentes"
+          element={
+            <ProtectedAnimatedPage>
+              <Utentes />
             </ProtectedAnimatedPage>
           }
          

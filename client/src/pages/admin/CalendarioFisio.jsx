@@ -12,7 +12,6 @@ export default function CalendarioFisio() {
   const [utentes, setUtentes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [filter, setFilter] = useState("todos");
   const [selectUtente, setSelectUtente] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   
@@ -168,13 +167,7 @@ export default function CalendarioFisio() {
             <div className="flex items-center space-x-2 md:space-x-4">
               {/* Filtro */}
               <div className="relative">
-                <button 
-                  onClick={() => setShowFilterMenu(!showFilterMenu)}
-                  className="flex items-center px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
-                >
-                  <FilterIcon className="h-5 w-5 mr-2 text-gray-500" />
-                  Filtrar
-                </button>
+               
                 
                 {showFilterMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-20 border">

@@ -1,26 +1,33 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getSessoes, getSessoesCanceladas, concluirSessao, feedbackSessao, getAllSessoes } from "../api/sessoes";
+import { 
+  getSessoes, 
+  getSessoesCanceladas, 
+  concluirSessao, 
+  feedbackSessao, 
+  getAllSessoes 
+} from "../api/sessoes";
 import { useUser } from "./UserContext";
 
 const SessoesContext = createContext({});
 
 export function SessoesProvider({ children }) {
+  const { userId } = useUser();
+  const token = sessionStorage.getItem("token");
+  
+  // Core state
   const [sessoes, setSessoes] = useState([]);
+  const [allSessoes, setAllSessoes] = useState([]);
   const [sessoesCanceladas, setSessoesCanceladas] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [sessoesReservadas, setSessoesReservadas] = useState([]);
   const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
-  const [allSessoes, setAllSessoes] = useState([]);
-
-  // Novo estado para rastrear sessões que precisam de feedback
   const [sessoesPendenteFeedback, setSessoesPendenteFeedback] = useState([]);
-  
   const [feedbacks, setFeedbacks] = useState([]);
+  
+  // Status state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const token = sessionStorage.getItem("token");
-  const { userId } = useUser();
-
+  // Fetch cancelled sessions for current user
   const fetchSessoesCanceladas = useCallback(async () => {
     if (!userId) return;
 
@@ -43,7 +50,6 @@ export function SessoesProvider({ children }) {
 
     let houveErro = false;
     
-    // Concluir as sessões passadas
     await Promise.all(
       sessoesParaConcluir.map(async (sessao) => {
         try {
@@ -58,69 +64,14 @@ export function SessoesProvider({ children }) {
     return houveErro || sessoesParaConcluir.length > 0;
   }, []);
 
-  const fetchSessoes = useCallback(async () => {
-    if (!userId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Buscar todas as sessões
-      const data = await getSessoes(userId);
-      setSessoes(data);
-      
-      // Filtrar sessões reservadas pelo usuário
-      const reservadas = data.filter(sessao => 
-        sessao.status === "reservada" && sessao.utenteId === userId
-      );
-      setSessoesReservadas(reservadas);
-      const todasSessoes=await getAllSessoes();
-      setAllSessoes(todasSessoes);
-
-      // Concluir sessões passadas se necessário
-      const necessitaRecarregar = await concluirSessoesPassadas(reservadas);
-      
-      // Recarregar dados se necessário
-      if (necessitaRecarregar) {
-        const dadosAtualizados = await getSessoes(userId);
-        setSessoes(dadosAtualizados);
-        
-        // Atualizar listas filtradas
-        setSessoesReservadas(
-          dadosAtualizados.filter(s => s.status === "reservada" && s.utenteId === userId)
-        );
-        
-        const concluidas = dadosAtualizados.filter(s => 
-          s.status === "concluida" && s.utenteId === userId
-        );
-        setSessoesConcluidas(concluidas);
-        
-        // Verificar sessões que precisam de feedback
-        atualizarSessoesPendenteFeedback(concluidas);
-      } else {
-        // Se não recarregou, apenas atualizar a lista de concluídas
-        const concluidas = data.filter(s => 
-          s.status === "concluida" && s.utenteId === userId
-        );
-        setSessoesConcluidas(concluidas);
-        
-        // Verificar sessões que precisam de feedback
-        atualizarSessoesPendenteFeedback(concluidas);
-      }
-    } catch (error) {
-      setError(error.message);
-      console.error("Erro ao buscar sessões:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, concluirSessoesPassadas]);
-
-  // Identifica sessões concluídas que ainda não receberam feedback
+  // Update sessions that need feedback
   const atualizarSessoesPendenteFeedback = useCallback((sessoesConcluidas) => {
-    // Recuperar IDs de sessões que já receberam feedback do localStorage
-    const feedbacksConcluidos = JSON.parse(localStorage.getItem('feedbacksConcluidos') || '[]');
+    // Get IDs of sessions that already received feedback from localStorage
+    const feedbacksConcluidos = JSON.parse(
+      localStorage.getItem('feedbacksConcluidos') || '[]'
+    );
     
-    // Filtrar sessões concluídas recentemente (últimos 2 dias) que ainda não têm feedback
+    // Filter recently completed sessions (last 2 days) without feedback
     const agora = new Date();
     const doisDiasAtras = new Date(agora);
     doisDiasAtras.setDate(agora.getDate() - 2);
@@ -135,41 +86,84 @@ export function SessoesProvider({ children }) {
     setSessoesPendenteFeedback(pendentes);
   }, []);
 
-  // Efeito para carregar dados quando o usuário estiver autenticado
-  useEffect(() => {
-    if (token && userId) {
-      fetchSessoes();
-      fetchSessoesCanceladas();
-      console.log("aaaa", allSessoes);
-      
-      // Carregar feedbacks salvos do localStorage
-      const feedbacksSalvos = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-      setFeedbacks(feedbacksSalvos);
-    } else {
-      // Limpar dados quando não autenticado
-      setSessoes([]);
-      setSessoesCanceladas([]);
-      setSessoesReservadas([]);
-      setSessoesConcluidas([]);
-      setSessoesPendenteFeedback([]);
-      setError(null);
-    }
-  }, [token, userId, fetchSessoes, fetchSessoesCanceladas]);
+  // Main session fetch and processing
+  const fetchSessoes = useCallback(async () => {
+    if (!userId) return;
 
-  
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch user sessions
+      const data = await getSessoes(userId);
+      setSessoes(data);
+      
+      // Fetch all sessions (for physio role)
+      const todasSessoes = await getAllSessoes();
+      setAllSessoes(todasSessoes);
+      
+      // Filter sessions reserved by current user
+      const reservadas = data.filter(sessao => 
+        sessao.status === "reservada" && sessao.utenteId === userId
+      );
+      setSessoesReservadas(reservadas);
+      
+      // Complete past sessions if needed and refresh data
+      const necessitaRecarregar = await concluirSessoesPassadas(reservadas);
+      
+      if (necessitaRecarregar) {
+        // Reload data if sessions were completed
+        const dadosAtualizados = await getSessoes(userId);
+        setSessoes(dadosAtualizados);
+        
+        // Update filtered lists
+        const novasReservadas = dadosAtualizados.filter(s => 
+          s.status === "reservada" && s.utenteId === userId
+        );
+        setSessoesReservadas(novasReservadas);
+        
+        const novasConcluidas = dadosAtualizados.filter(s => 
+          s.status === "concluida" && s.utenteId === userId
+        );
+        setSessoesConcluidas(novasConcluidas);
+        
+        // Update sessions needing feedback
+        atualizarSessoesPendenteFeedback(novasConcluidas);
+      } else {
+        // If no reload needed, just update completed list
+        const concluidas = data.filter(s => 
+          s.status === "concluida" && s.utenteId === userId
+        );
+        setSessoesConcluidas(concluidas);
+        
+        // Update sessions needing feedback
+        atualizarSessoesPendenteFeedback(concluidas);
+      }
+    } catch (error) {
+      setError(error.message);
+      console.error("Erro ao buscar sessões:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, concluirSessoesPassadas, atualizarSessoesPendenteFeedback]);
+
+  // Submit feedback for a session
   const enviarFeedback = useCallback((dadosFeedback) => {
-   
+    // Add to feedbacks list
     const novosFeedbacks = [...feedbacks, dadosFeedback];
     setFeedbacks(novosFeedbacks);
-    feedbackSessao(dadosFeedback);
-
     
-   
-    const feedbacksConcluidos = JSON.parse(localStorage.getItem('feedbacksConcluidos') || '[]');
+    // Send to API
+    feedbackSessao(dadosFeedback);
+    
+    // Update localStorage to mark session as having received feedback
+    const feedbacksConcluidos = JSON.parse(
+      localStorage.getItem('feedbacksConcluidos') || '[]'
+    );
     feedbacksConcluidos.push(dadosFeedback.sessaoId);
     localStorage.setItem('feedbacksConcluidos', JSON.stringify(feedbacksConcluidos));
     
-  
+    // Remove from pending feedback list
     setSessoesPendenteFeedback(prev => 
       prev.filter(sessao => sessao._id !== dadosFeedback.sessaoId)
     );
@@ -177,23 +171,48 @@ export function SessoesProvider({ children }) {
     return true;
   }, [feedbacks]);
 
-  // Função para pular o feedback de uma sessão
+  // Skip feedback for a session
   const pularFeedback = useCallback((sessaoId) => {
-    // Marcar a sessão como "já recebeu feedback" mesmo que tenha sido pulada
-    const feedbacksConcluidos = JSON.parse(localStorage.getItem('feedbacksConcluidos') || '[]');
+    // Mark session as having "received feedback" even though it was skipped
+    const feedbacksConcluidos = JSON.parse(
+      localStorage.getItem('feedbacksConcluidos') || '[]'
+    );
     feedbacksConcluidos.push(sessaoId);
     localStorage.setItem('feedbacksConcluidos', JSON.stringify(feedbacksConcluidos));
     
-    // Atualizar a lista de sessões pendentes
+    // Update pending feedback list
     setSessoesPendenteFeedback(prev => 
       prev.filter(sessao => sessao._id !== sessaoId)
     );
   }, []);
 
+  // Get next session needing feedback
   const getProximaSessaoPendenteFeedback = useCallback(() => {
     return sessoesPendenteFeedback.length > 0 ? sessoesPendenteFeedback[0] : null;
   }, [sessoesPendenteFeedback]);
 
+  // Load data when user is authenticated
+  useEffect(() => {
+    if (token && userId) {
+      fetchSessoes();
+      fetchSessoesCanceladas();
+      
+      // Load saved feedbacks from localStorage
+      const feedbacksSalvos = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+      setFeedbacks(feedbacksSalvos);
+    } else {
+      // Clear data when not authenticated
+      setSessoes([]);
+      setSessoesCanceladas([]);
+      setSessoesReservadas([]);
+      setSessoesConcluidas([]);
+      setSessoesPendenteFeedback([]);
+      setAllSessoes([]);
+      setError(null);
+    }
+  }, [token, userId, fetchSessoes, fetchSessoesCanceladas]);
+
+  // Prepare context value
   const contextValue = {
     sessoes,
     sessoesCanceladas,

@@ -2,7 +2,7 @@ import { BASE_URL } from './config';
 import api from './api';
 
 
-export const getAllSessoes = async (utenteId) => {
+export const getAllSessoes = async () => {
 
   const response = await fetch(`${BASE_URL}/sessoes/`, {
     method: 'GET',
@@ -20,7 +20,20 @@ export const getAllSessoes = async (utenteId) => {
 
   return data;
 };
-
+export const DeleteSessao = async (sessaoId) => {
+  try {
+    const response = await api.delete(`/sessoes/eliminar/${sessaoId}`);
+    
+    // Com Axios, os dados já vêm parseados em response.data
+    return response.data;
+  } catch (error) {
+    // Tratamento de erro com Axios
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message || "Erro ao eliminar sessão");
+    }
+    throw new Error("Erro ao eliminar sessão");
+  }
+};
 
 export const getSessoes = async (utenteId) => {
 

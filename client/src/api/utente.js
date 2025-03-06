@@ -1,6 +1,11 @@
 import { BASE_URL } from './config';
 import api from "../api/api";
+export const getAllUtentes = async () => {
 
+  const response = await api.get(`${BASE_URL}/utentes/`);
+  return response.data;
+  
+}
 export const registarUtente = async (payload) => {
   const response = await fetch(`${BASE_URL}/utentes/register`, {
     method: 'POST',
@@ -31,6 +36,19 @@ export const updateUtente = async (utenteId, updatedData) => {
     throw error;
   }
 };
+export const BloquearUtente = async (utenteId) => {
+  try {
+    
+    const response = await api.get(`/auth/rejeitar/${utenteId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      throw new Error("Utente não encontrado");
+    }
+    throw error;
+  }
+};
+
 export const getCurrentUser = async () => {
   
   

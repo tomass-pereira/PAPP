@@ -1,14 +1,10 @@
 require('dotenv').config();
-
 const express = require('express');
 const router = express.Router();
-
 const jwt = require('jsonwebtoken');
 const Utente = require('../models/utente');
 const Fisioterapeuta=require('../models/fisioterapeuta');
 const authMiddleware = require('../middlewares/auth.middleware');
-
-// Chave secreta para o JWT
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.get('/aprovar/:id', async (req, res) => {

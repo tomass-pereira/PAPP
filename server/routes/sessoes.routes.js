@@ -4,6 +4,8 @@ const Sessoes = require('../models/sessoes');
 const Utente =require("../models/utente")
 const Cancelamentos=require("../models/cancelamentos")
 const VerificarSessaoMesmoDia=require('../middlewares/sessoes.middleware');
+const authMiddleware = require('../middlewares/auth.middleware');
+
 const emailService = require('../services/nodemailer');
 const notificacoes = require('../models/notificacoes');
 
@@ -27,7 +29,33 @@ router.post('/criarSessao', async (req, res, next) => {
       res.status(400).json({ message: error.message });
     }
   });
+  router.delete('/eliminar/:id',authMiddleware, async (req, res) => {
+    try {
+      const sessaoId = req.params.id;
+      if(req.user.isAdmin){
 
+        
+        
+        const sessaoEliminada = await Sessoes.findByIdAndDelete(sessaoId);
+        
+        // If session was not found
+        if (!sessaoEliminada) {
+          return res.status(404).json({ message: 'Sessão não encontrada' });
+        }
+        
+        
+        // Return success response
+        res.status(200).json({ message: 'Sessão eliminada com sucesso', sessao: sessaoEliminada });
+      }
+      else{
+        return res.status(401).json({ message: 'Acesso não autorizado' });
+      }
+        
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+  
   router.get('/', async (req, res) => {
     try {
         // Buscar todas as sessões e fazer populate do utenteId

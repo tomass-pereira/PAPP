@@ -5,14 +5,13 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { getCurrentUser, updateUtente } from "../api/utente";
+import { getCurrentUser, updateUtente} from "../api/utente";
 import { getCurrentFisio } from "../api/fisioterapeuta";
 import { loginUser } from "../api/auth.js";
 
 const UserContext = createContext();
 
 const decodeToken = () => {
-  
   const token = sessionStorage.getItem("token");
 
   // Se não houver token, retornar valores padrão
@@ -55,29 +54,25 @@ const decodeToken = () => {
 };
 
 export function UserProvider({ children }) {
-  // Extrair informações do token para inicialização
   const tokenInfo = decodeToken();
 
-  // Inicializa loading como true e verifica token imediatamente
   const [loading, setLoading] = useState(() => {
     return !!sessionStorage.getItem("token");
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
 
-  // Extrair e armazenar userId e isAdmin diretamente do token
   const [userId, setUserId] = useState(tokenInfo.userId);
 
-  // Renomeado para seguir convenção camelCase
   const [isFisio, setIsFisio] = useState(tokenInfo.isAdmin);
 
-  // Função para atualizar as informações do token nos estados
   const updateTokenInfo = useCallback(() => {
     const { userId, isAdmin } = decodeToken();
     setUserId(userId);
 
     setIsFisio(isAdmin);
   }, []);
+  
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -85,13 +80,13 @@ export function UserProvider({ children }) {
         if (!sessionStorage.getItem("token")) {
           setInitialized(true);
           setLoading(false);
+
           return;
         }
 
         // Atualiza informações do token
         updateTokenInfo();
 
-        // Verifica se o token contém um ID válido
         if (!userId) {
           console.error("Token inválido ou sem ID de usuário");
           logout();
@@ -105,6 +100,9 @@ export function UserProvider({ children }) {
         } else {
           const utente = await getCurrentUser();
           setUserData(utente);
+          
+        
+          
         }
       } catch (error) {
         console.error("Error initializing user:", error);
@@ -126,10 +124,8 @@ export function UserProvider({ children }) {
       if (data.token) {
         console.log(lembrar);
         if (lembrar) {
-          
           localStorage.setItem("token", data.token);
           sessionStorage.setItem("token", data.token);
-
         } else {
           sessionStorage.setItem("token", data.token);
         }
@@ -166,13 +162,9 @@ export function UserProvider({ children }) {
       let updatedUser;
 
       // Com base no isAdmin, chama a API de atualização correta
-      if (isFisio) {
         // Usuário é fisioterapeuta
-        updatedUser = await updateFisioterapeuta(userId, updatedData);
-      } else {
         // Usuário é utente
         updatedUser = await updateUtente(userId, updatedData);
-      }
 
       // Atualiza os dados do usuário no contexto
       setUserData(updatedUser);
@@ -201,7 +193,7 @@ export function UserProvider({ children }) {
     loading,
     isFisio,
     userId,
-
+   
     updateUserData,
     isAuthenticated: !!userData,
   };

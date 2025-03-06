@@ -9,150 +9,163 @@ import {
 import "@schedule-x/theme-default/dist/index.css";
 import { useSessoes } from "../../contexts/SessoesContext.jsx";
 import SessionModal from "./SessionModal.jsx";
-
 import "./Calendar.css";
-import { reservarSessao, cancelarSessao } from "../../api/sessoes.js";
+import { reservarSessao, cancelarSessao, DeleteSessao } from "../../api/sessoes.js";
 import { useUser } from "../../contexts/UserContext.jsx";
 
 function CalendarApp() {
+  // Core state
   const [eventsService] = useState(() => createEventsServicePlugin());
-  const { sessoes, sessoesCanceladas, allsessoes } = useSessoes();
+  const { sessoes, sessoesCanceladas, allSessoes, fetchSessoes } = useSessoes();
+  const { userId, isFisio } = useUser();
+  
+  // Modal state
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const { userId, isFisio } = useUser();
-  const [erro, setErro] = useState("");
   const [motivo, setMotivo] = useState("");
+  const [erro, setErro] = useState("");
+  
+  // Cancelation dialog state
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [sessaoParaCancelar, setSessaoParaCancelar] = useState(null);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [erroCancelamento, setErroCancelamento] = useState("");
 
-  // Log para diagnóstico
-  useEffect(() => {
-    console.log("isFisio:", isFisio);
-    console.log("allsessoes:", allsessoes);
-    console.log("sessoes:", sessoes);
-  }, [isFisio, allsessoes, sessoes]);
+  // Handle deleting a session (for physio only)
+  const handleDelete = async () => {
+    try {
+      await DeleteSessao(selectedEvent?.id);
+      window.location.reload();
+     
+      
+      // Close modal and refresh
+      modalRef.current?.close();
+      handleClose();
+      fetchSessoes();
+    } catch (error) {
+      setErro(error.message);
+    }
+  };
 
-  const handleCancelar = async (event) => {
+  // Handle reserving a session
+  const handleConfirm = async (event) => {
+    if (!motivo) {
+      setErro("Digite o motivo da sessão");
+      return;
+    }
+    
+    try {
+      await reservarSessao(event.id, userId, motivo);
+      setErro("");
+      window.location.reload();
+    } catch (error) {
+      setErro(error.message);
+    }
+  };
+
+  // Handle cancellation flow
+  const handleCancelar = (event) => {
     setSessaoParaCancelar(event);
     setShowCancelDialog(true);
   };
 
   const confirmarCancelamento = async () => {
-    if (motivoCancelamento != "") {
-      try {
-        await cancelarSessao(sessaoParaCancelar.id, motivoCancelamento);
-        setShowCancelDialog(false);
-        window.location.reload();
-      } catch (error) {
-        setErro(error.message);
-      }
-    } else {
+    if (!motivoCancelamento) {
       setErroCancelamento("Digite o motivo do cancelamento");
+      return;
+    }
+    
+    try {
+      await cancelarSessao(sessaoParaCancelar.id, motivoCancelamento);
+      setShowCancelDialog(false);
+      window.location.reload();
+    } catch (error) {
+      setErro(error.message);
     }
   };
 
-  const handleConfirm = async (event) => {
-    if (motivo != "") {
-      try {
-        const sessaoReservada = await reservarSessao(event.id, userId, motivo);
-        setErro("");
-        window.location.reload();
-      } catch (error) {
-        setErro(error.message);
-      }
-    } else {
-      setErro("Digite o motivo da sessão");
-    }
-  };
-
-  useEffect(() => {
-    // Seleção de sessões com tratamento para evitar erros
-    const sessoesParaExibir = isFisio && allsessoes?.length > 0 ? allsessoes : sessoes;
-    
-    // Log para diagnóstico
-    console.log("Sessões a exibir:", sessoesParaExibir?.length || 0);
-    
-    if (sessoesParaExibir && sessoesParaExibir.length > 0) {
-      // Limpar eventos existentes
-      const currentEvents = eventsService.getAll();
-      currentEvents.forEach((event) => eventsService.remove(event.id));
-
-      const agora = new Date();
-      
-      // Contador para verificar quantas sessões passam no filtro
-      let sessoesExibidas = 0;
-      
-      sessoesParaExibir.forEach((sessao) => {
-        // Pegue o ID do utente de forma segura
-        const utenteId = sessao.utenteId?._id || sessao.utenteId;
-        const utenteNome = sessao.utenteId?.nome || sessao.utenteNome || "Utente";
-        
-        // Verifica se a sessão pertence ao utente atual
-        const sessaoPertenceAoUtente = utenteId === userId;
-
-        // Verifica se está cancelada
-        const sessaoCancelada = sessoesCanceladas.some(
-          (cancelada) =>
-            cancelada.utenteId === userId && 
-            cancelada.sessaoId === (sessao._id || sessao.id)
-        );
-
-        const dataInicio = new Date(sessao.dataHoraInicio);
-        
-        // Calcular a diferença de tempo em horas
-        const diferencaEmHoras = (dataInicio - agora) / (1000 * 60 * 60);
-
-        // Lógica de filtro diferente para fisio e utente normal
-        let deveExibir = false;
-        
-        if (isFisio) {
-          // Fisioterapeuta vê todas as sessões não canceladas
-          deveExibir = !sessaoCancelada;
-        } else {
-          // Utente normal só vê sessões disponíveis ou próprias
-          deveExibir = !sessaoCancelada &&
-            ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
-            ((sessao.status === "concluida" || sessao.status === "reservada") &&
-              sessaoPertenceAoUtente));
-        }
-        
-        if (deveExibir) {
-          sessoesExibidas++;
-          const evento = {
-            id: sessao._id || sessao.id,
-            title:
-              sessao.status === "reservada"
-                ? `Reservada ${isFisio ? '- ' + utenteNome : ''}`
-                : sessao.status === "concluida"
-                ? `Concluída ${isFisio ? '- ' + utenteNome : ''}`
-                : "Sessão Disponível",
-            start: sessao.dataHoraInicio,
-            end: sessao.dataHoraFim,
-            description: sessao.motivo || "",
-            calendarId:
-              sessao.status === "disponivel"
-                ? "disponivel"
-                : sessao.status === "concluida"
-                ? "concluida"
-                : "reservada",
-            sessaoCompleta: sessao,
-          };
-          eventsService.add(evento);
-        }
-      });
-      
-      console.log("Sessões que passaram no filtro:", sessoesExibidas);
-    }
-  }, [sessoes, allsessoes, sessoesCanceladas, userId, isFisio, eventsService]);
-
+  // Modal handling
   const handleClose = () => {
     setSelectedEvent(null);
     setMotivo("");
     setErro("");
   };
 
+  // Process sessions and create calendar events
+  useEffect(() => {
+    const sessoesParaExibir = isFisio && allSessoes?.length > 0 ? allSessoes : sessoes;
+    if (!sessoesParaExibir || sessoesParaExibir.length === 0) return;
+    
+    // Clear existing events
+    const currentEvents = eventsService.getAll();
+    currentEvents.forEach((event) => eventsService.remove(event.id));
+    
+    const agora = new Date();
+    
+    // Create events from sessions
+    sessoesParaExibir.forEach((sessao) => {
+      // Determine if session is canceled
+      const sessaoCancelada = sessoesCanceladas.some(
+        (cancelada) => 
+          cancelada.utenteId === userId && 
+          cancelada.sessaoId === (sessao._id || sessao.id)
+      );
+      
+      // Determine if session belongs to current user
+      const sessaoPertenceAoUtente = sessao.utenteId === userId;
+      
+      // Calculate time difference in hours
+      const dataInicio = new Date(sessao.dataHoraInicio);
+      const diferencaEmHoras = (dataInicio - agora) / (1000 * 60 * 60);
+      
+      // Determine if session should be displayed based on user role
+      let deveExibir = false;
+      
+      if (isFisio) {
+        // Physiotherapist sees all non-canceled sessions
+        deveExibir = !sessaoCancelada;
+      } else {
+        // Normal user sees available sessions or their own
+        deveExibir = !sessaoCancelada &&
+          ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
+          ((sessao.status === "concluida" || sessao.status === "reservada") &&
+            sessaoPertenceAoUtente));
+      }
+      
+      // If session should be displayed, create event
+      if (deveExibir) {
+        // Get user name for display
+        const utenteNome = sessao.utenteId?.nome || '';
+        
+        // Create event object
+        const evento = {
+          id: sessao._id || sessao.id,
+          title: getEventTitle(sessao, isFisio, utenteNome),
+          start: sessao.dataHoraInicio,
+          end: sessao.dataHoraFim,
+          description: sessao.motivo || "",
+          calendarId: sessao.status,
+          sessaoCompleta: sessao,
+        };
+        
+        eventsService.add(evento);
+      }
+    });
+  }, [sessoes, allSessoes, sessoesCanceladas, userId, isFisio, eventsService]);
+
+  // Helper function to get event title
+  function getEventTitle(sessao, isFisio, utenteNome) {
+    switch (sessao.status) {
+      case "reservada":
+        return `Reservada ${isFisio ? '- ' + utenteNome : ''}`;
+      case "concluida":
+        return `Concluída ${isFisio ? '- ' + utenteNome : ''}`;
+      default:
+        return "Sessão Disponível";
+    }
+  }
+
+  // Calendar configuration
   const calendar = useCalendarApp({
     views: [createViewMonthGrid(), createViewWeek(), createViewMonthAgenda()],
     calendars: {
@@ -200,7 +213,7 @@ function CalendarApp() {
 
   return (
     <div>
-      {isFisio && !allsessoes?.length && (
+      {isFisio && !allSessoes?.length && (
         <div className="text-center p-4 mb-4 bg-yellow-100 text-yellow-800 rounded">
           Nenhuma sessão disponível para visualização.
         </div>
@@ -224,6 +237,8 @@ function CalendarApp() {
           motivo={motivo}
           setMotivo={setMotivo}
           confirmarCancelamento={confirmarCancelamento}
+          isFisio={isFisio}
+          handleDelete={handleDelete}
         />
       )}
     </div>

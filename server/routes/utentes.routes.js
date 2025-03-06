@@ -17,7 +17,21 @@ const { validateUserData } = require('../middlewares');
   return codigo.toString().padStart(4, '0');
 }
 
-
+router.get('/', async (req, res) => {
+  try {
+   
+      const utentes = await Utente.find()
+         
+      
+      res.status(200).json(utentes);
+      
+  } catch (error) {
+      res.status(500).json({ 
+          message: "Erro ao buscar utentes",
+          error: error.message 
+      });
+  }
+});
 router.post('/register',validateUserData, async (req, res, next) => {
   try {
     const {

@@ -11,7 +11,8 @@ import {
   X,
   Home,
   Bell,
-  Users
+  Users,
+  
 } from "lucide-react";
 import { useNotificacoes } from "../contexts/NotificacaoContext";
 
@@ -70,7 +71,7 @@ const Sidebar = () => {
         id: "patients",
         label: "Pacientes",
         icon: Users,
-        path: "/Admin/Pacientes",
+        path: "/Fisio/Utentes",
       }
     ] : []),
     {

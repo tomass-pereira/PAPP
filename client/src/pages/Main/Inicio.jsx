@@ -25,7 +25,7 @@ import FeedbackModal from "../../components/FeedBackModal.jsx";
 
 export default function Inicio() {
   const navigate = useNavigate();
-  const { sessoesReservadas, sessoesConcluidas, getProximaSessaoPendenteFeedback, enviarFeedback, pularFeedback } = useSessoes();
+  const { allSessoes, sessoesReservadas, sessoesConcluidas, getProximaSessaoPendenteFeedback, enviarFeedback, pularFeedback } = useSessoes();
   const { notificacoes, naoLidas } = useNotificacoes();
   const { userData, isFisio } = useUser();
   const [dashboardVisible, setDashboardVisible] = useState(true);
@@ -33,6 +33,15 @@ export default function Inicio() {
   // Estado para controlar o modal de feedback
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [sessaoParaFeedback, setSessaoParaFeedback] = useState(null);
+
+  // Filtrar sessões reservadas para o fisioterapeuta
+  const sessoesReservadasFisio = allSessoes
+    ? allSessoes.filter(sessao => sessao.status === "reservada")
+        .sort((a, b) => new Date(a.dataHoraInicio) - new Date(b.dataHoraInicio))
+    : [];
+
+  // Determinar quais sessões mostrar com base no tipo de usuário
+  const sessoesParaMostrar = isFisio ? sessoesReservadasFisio : sessoesReservadas;
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -74,7 +83,11 @@ export default function Inicio() {
     setSessaoParaFeedback(null);
   };
 
-  const proximaSessao = sessoesReservadas[0];
+  // Próxima sessão (já está adaptada para fisio/utente)
+  const proximaSessao = isFisio ? 
+    (sessoesReservadasFisio.length > 0 ? sessoesReservadasFisio[0] : null) : 
+    (sessoesReservadas.length > 0 ? sessoesReservadas[0] : null);
+    
   let dataFormatada = "";
   let horaFormatada = "";
 
@@ -94,7 +107,7 @@ export default function Inicio() {
   // Resumo de estatísticas simplificadas
   const statsData = {
     sessõesRealizadas: 12,
-    sessoesAgendadas: sessoesReservadas.length,
+    sessoesAgendadas: isFisio ? sessoesReservadasFisio.length : sessoesReservadas.length,
     progressoGeral: 65,
     tendencia: "positiva",
   };
@@ -182,7 +195,7 @@ export default function Inicio() {
             {/* Card 2: Sessões Agendadas */}
             <StatsCards
               title="Sessões Agendadas"
-              value={sessoesReservadas.length}
+              value={statsData.sessoesAgendadas}
               icon="calendar"
               trendText="Próximos 30 dias"
               borderColor={isFisio ? "border-indigo-400" : "border-green-400"}
@@ -296,7 +309,7 @@ export default function Inicio() {
                 </div>
               </div>
               <div className="p-4">
-                {sessoesReservadas.slice(0, 2).map((sessao) => {
+                {sessoesParaMostrar.slice(0, 2).map((sessao) => {
                   const data = new Date(sessao.dataHoraInicio);
                   const dataFormatada = data.toLocaleDateString("pt-BR", {
                     day: "numeric",
@@ -314,6 +327,10 @@ export default function Inicio() {
                     data.getDate() === hoje.getDate() &&
                     data.getMonth() === hoje.getMonth() &&
                     data.getFullYear() === hoje.getFullYear();
+
+                  // Obter o nome do utente se for fisioterapeuta
+                  const nomeUtente = isFisio && sessao.utenteId ? 
+                    (typeof sessao.utenteId === 'object' ? sessao.utenteId.nome : 'Utente') : '';
 
                   return (
                     <div
@@ -356,6 +373,11 @@ export default function Inicio() {
                             </span>
                           )}
                         </div>
+                        {isFisio && (
+                          <p className="text-sm font-medium text-indigo-600">
+                            {nomeUtente}
+                          </p>
+                        )}
                         <p className="text-sm text-gray-600">
                           {isFisio ? "Atendimento Domiciliar" : "Fisioterapia"}
                         </p>
@@ -368,7 +390,7 @@ export default function Inicio() {
                     </div>
                   );
                 })}
-                {sessoesReservadas.length === 0 && (
+                {sessoesParaMostrar.length === 0 && (
                   <div className="text-gray-500 text-center py-6">
                     <Calendar className="w-10 h-10 mx-auto mb-2 text-gray-400" />
                     <p className="text-sm">
