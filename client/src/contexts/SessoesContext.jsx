@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { getSessoes, getSessoesCanceladas, concluirSessao, feedbackSessao } from "../api/sessoes";
+import { getSessoes, getSessoesCanceladas, concluirSessao, feedbackSessao, getAllSessoes } from "../api/sessoes";
 import { useUser } from "./UserContext";
 
 const SessoesContext = createContext({});
@@ -11,6 +11,8 @@ export function SessoesProvider({ children }) {
   const [error, setError] = useState(null);
   const [sessoesReservadas, setSessoesReservadas] = useState([]);
   const [sessoesConcluidas, setSessoesConcluidas] = useState([]);
+  const [allSessoes, setAllSessoes] = useState([]);
+
   // Novo estado para rastrear sessões que precisam de feedback
   const [sessoesPendenteFeedback, setSessoesPendenteFeedback] = useState([]);
   
@@ -72,7 +74,9 @@ export function SessoesProvider({ children }) {
         sessao.status === "reservada" && sessao.utenteId === userId
       );
       setSessoesReservadas(reservadas);
-      
+      const todasSessoes=await getAllSessoes();
+      setAllSessoes(todasSessoes);
+
       // Concluir sessões passadas se necessário
       const necessitaRecarregar = await concluirSessoesPassadas(reservadas);
       
@@ -136,6 +140,7 @@ export function SessoesProvider({ children }) {
     if (token && userId) {
       fetchSessoes();
       fetchSessoesCanceladas();
+      console.log("aaaa", allSessoes);
       
       // Carregar feedbacks salvos do localStorage
       const feedbacksSalvos = JSON.parse(localStorage.getItem('feedbacks') || '[]');
@@ -198,6 +203,7 @@ export function SessoesProvider({ children }) {
     loading,
     error,
     fetchSessoes,
+    allSessoes,
     fetchSessoesCanceladas,
     enviarFeedback,
     pularFeedback,

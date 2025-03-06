@@ -16,16 +16,23 @@ import { useUser } from "../../contexts/UserContext.jsx";
 
 function CalendarApp() {
   const [eventsService] = useState(() => createEventsServicePlugin());
-  const { sessoes, sessoesCanceladas } = useSessoes();
+  const { sessoes, sessoesCanceladas, allsessoes } = useSessoes();
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const { userId } = useUser();
+  const { userId, isFisio } = useUser();
   const [erro, setErro] = useState("");
   const [motivo, setMotivo] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [sessaoParaCancelar, setSessaoParaCancelar] = useState(null);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [erroCancelamento, setErroCancelamento] = useState("");
+
+  // Log para diagnóstico
+  useEffect(() => {
+    console.log("isFisio:", isFisio);
+    console.log("allsessoes:", allsessoes);
+    console.log("sessoes:", sessoes);
+  }, [isFisio, allsessoes, sessoes]);
 
   const handleCancelar = async (event) => {
     setSessaoParaCancelar(event);
@@ -38,7 +45,6 @@ function CalendarApp() {
         await cancelarSessao(sessaoParaCancelar.id, motivoCancelamento);
         setShowCancelDialog(false);
         window.location.reload();
-        console.log(motivoCancelamento);
       } catch (error) {
         setErro(error.message);
       }
@@ -51,10 +57,8 @@ function CalendarApp() {
     if (motivo != "") {
       try {
         const sessaoReservada = await reservarSessao(event.id, userId, motivo);
-
         setErro("");
         window.location.reload();
-        // Aqui você pode atualizar a UI, mostrar uma mensagem de sucesso, etc.
       } catch (error) {
         setErro(error.message);
       }
@@ -64,22 +68,35 @@ function CalendarApp() {
   };
 
   useEffect(() => {
-    if (sessoes && sessoes.length > 0) {
-     
+    // Seleção de sessões com tratamento para evitar erros
+    const sessoesParaExibir = isFisio && allsessoes?.length > 0 ? allsessoes : sessoes;
+    
+    // Log para diagnóstico
+    console.log("Sessões a exibir:", sessoesParaExibir?.length || 0);
+    
+    if (sessoesParaExibir && sessoesParaExibir.length > 0) {
+      // Limpar eventos existentes
       const currentEvents = eventsService.getAll();
       currentEvents.forEach((event) => eventsService.remove(event.id));
 
       const agora = new Date();
       
-
-      sessoes.forEach((sessao) => {
+      // Contador para verificar quantas sessões passam no filtro
+      let sessoesExibidas = 0;
+      
+      sessoesParaExibir.forEach((sessao) => {
+        // Pegue o ID do utente de forma segura
+        const utenteId = sessao.utenteId?._id || sessao.utenteId;
+        const utenteNome = sessao.utenteId?.nome || sessao.utenteNome || "Utente";
+        
         // Verifica se a sessão pertence ao utente atual
-        const sessaoPertenceAoUtente = sessao.utenteId === userId;
+        const sessaoPertenceAoUtente = utenteId === userId;
 
         // Verifica se está cancelada
         const sessaoCancelada = sessoesCanceladas.some(
           (cancelada) =>
-            cancelada.utenteId === userId && cancelada.sessaoId === sessao._id
+            cancelada.utenteId === userId && 
+            cancelada.sessaoId === (sessao._id || sessao.id)
         );
 
         const dataInicio = new Date(sessao.dataHoraInicio);
@@ -87,24 +104,33 @@ function CalendarApp() {
         // Calcular a diferença de tempo em horas
         const diferencaEmHoras = (dataInicio - agora) / (1000 * 60 * 60);
 
-      
-        if (
-          !sessaoCancelada &&
-          ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
+        // Lógica de filtro diferente para fisio e utente normal
+        let deveExibir = false;
+        
+        if (isFisio) {
+          // Fisioterapeuta vê todas as sessões não canceladas
+          deveExibir = !sessaoCancelada;
+        } else {
+          // Utente normal só vê sessões disponíveis ou próprias
+          deveExibir = !sessaoCancelada &&
+            ((sessao.status === "disponivel" && dataInicio > agora && diferencaEmHoras > 2) ||
             ((sessao.status === "concluida" || sessao.status === "reservada") &&
-              sessaoPertenceAoUtente))
-        ) {
+              sessaoPertenceAoUtente));
+        }
+        
+        if (deveExibir) {
+          sessoesExibidas++;
           const evento = {
-            id: sessao._id,
+            id: sessao._id || sessao.id,
             title:
               sessao.status === "reservada"
-                ? "Sessão Reservada"
+                ? `Reservada ${isFisio ? '- ' + utenteNome : ''}`
                 : sessao.status === "concluida"
-                ? "Sessão Concluída"
+                ? `Concluída ${isFisio ? '- ' + utenteNome : ''}`
                 : "Sessão Disponível",
             start: sessao.dataHoraInicio,
             end: sessao.dataHoraFim,
-            description: sessao.motivo,
+            description: sessao.motivo || "",
             calendarId:
               sessao.status === "disponivel"
                 ? "disponivel"
@@ -116,8 +142,10 @@ function CalendarApp() {
           eventsService.add(evento);
         }
       });
+      
+      console.log("Sessões que passaram no filtro:", sessoesExibidas);
     }
-  }, [sessoes, sessoesCanceladas, userId]);
+  }, [sessoes, allsessoes, sessoesCanceladas, userId, isFisio, eventsService]);
 
   const handleClose = () => {
     setSelectedEvent(null);
@@ -153,7 +181,6 @@ function CalendarApp() {
         },
       },
     },
-
     defaultView: "month",
     dayBoundaries: {
       start: "10:00",
@@ -165,9 +192,7 @@ function CalendarApp() {
         setSelectedEvent(calendarEvent);
         setTimeout(() => {
           modalRef.current?.showModal();
-        }, 0);        
-      
-      
+        }, 0);
       },
     },
     locale: "pt-BR",
@@ -175,6 +200,12 @@ function CalendarApp() {
 
   return (
     <div>
+      {isFisio && !allsessoes?.length && (
+        <div className="text-center p-4 mb-4 bg-yellow-100 text-yellow-800 rounded">
+          Nenhuma sessão disponível para visualização.
+        </div>
+      )}
+      
       <ScheduleXCalendar calendarApp={calendar} />
 
       {selectedEvent && (

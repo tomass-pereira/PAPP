@@ -27,6 +27,23 @@ router.post('/criarSessao', async (req, res, next) => {
       res.status(400).json({ message: error.message });
     }
   });
+
+  router.get('/', async (req, res) => {
+    try {
+        // Buscar todas as sessões e fazer populate do utenteId
+        const sessoes = await Sessoes.find()
+            .populate('utenteId')
+            .exec();
+        
+        res.status(200).json(sessoes);
+        
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Erro ao buscar sessões",
+            error: error.message 
+        });
+    }
+});
   router.get('/buscarSessoes/:utenteId', async (req, res) => {
     
     try {

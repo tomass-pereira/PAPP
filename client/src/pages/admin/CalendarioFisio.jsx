@@ -34,7 +34,7 @@ export default function CalendarioFisio() {
       navigate("/LoginPage");
     } else {
       // Carregar lista de utentes
-      fetchUtentes();
+    
     }
   }, [navigate]);
 
@@ -47,21 +47,9 @@ export default function CalendarioFisio() {
     }
   }, [formData.status]);
 
-  const fetchUtentes = async () => {
-    try {
-      const token = sessionStorage.getItem("token");
-      const response = await axios.get("/api/utentes", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUtentes(response.data.data || []);
-    } catch (error) {
-      console.error("Erro ao carregar utentes:", error);
-    }
-  };
-
+ 
   const refreshCalendar = () => {
-    setIsRefreshing(true);
-    
+   window.location.reload();    
     setTimeout(() => {
       setIsRefreshing(false);
       // Exibir toast de sucesso

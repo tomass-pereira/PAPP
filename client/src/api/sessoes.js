@@ -2,6 +2,26 @@ import { BASE_URL } from './config';
 import api from './api';
 
 
+export const getAllSessoes = async (utenteId) => {
+
+  const response = await fetch(`${BASE_URL}/sessoes/`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  
+  });
+
+  const data = await response.json();
+ 
+  if (!response.ok) {
+    throw new Error(data.message || "Erro ao buscar sessões");
+  }
+
+  return data;
+};
+
+
 export const getSessoes = async (utenteId) => {
 
     const response = await fetch(`${BASE_URL}/sessoes/buscarSessoes/${utenteId}`, {
