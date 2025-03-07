@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SideBar";
-import { Search, UserPlus, Filter, Eye, Lock } from 'lucide-react';
+import { Search, Filter, Eye, Lock } from 'lucide-react';
 import { getAllUtentes, BloquearUtente } from "../../api/utente";
 
 export default function Utentes() {
@@ -21,12 +21,12 @@ export default function Utentes() {
       setLoading(true);
       console.log(utenteId);
       await BloquearUtente(utenteId);
+
       
-      // Recarregar a lista após o bloqueio
       const response = await getAllUtentes();
       setUtentes(response);
+      window.location.reload();
       
-      // Mostrar notificação de sucesso
       alert('Utente bloqueado com sucesso!');
     } catch (error) {
       console.error('Falha ao bloquear utente:', error);

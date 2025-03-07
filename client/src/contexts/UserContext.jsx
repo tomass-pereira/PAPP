@@ -8,60 +8,40 @@ import {
 import { getCurrentUser, updateUtente} from "../api/utente";
 import { getCurrentFisio } from "../api/fisioterapeuta";
 import { loginUser } from "../api/auth.js";
-
 const UserContext = createContext();
-
 const decodeToken = () => {
   const token = sessionStorage.getItem("token");
-
-  // Se não houver token, retornar valores padrão
   if (!token) {
     return { userId: null, isAdmin: false };
   }
-
   try {
-    // Dividir o token em suas partes (header, payload, signature)
     const tokenParts = token.split(".");
 
-    // Verificar se o token tem o formato esperado
     if (tokenParts.length !== 3) {
       throw new Error("Formato de token inválido");
     }
-
-    // Decodificar a parte do payload (segunda parte do token)
     const payload = tokenParts[1];
-
     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-
     // Decodificar Base64 para string
     const decodedPayload = atob(base64);
-
-    // Converter string JSON para objeto
     const payloadObj = JSON.parse(decodedPayload);
-
-    // Extrair dados do payload
     const userId = payloadObj.id;
     const isAdmin = payloadObj.isAdmin;
     const email = payloadObj.email;
     const nome = payloadObj.nome;
-
-    // Retornar os valores extraídos
     return { userId, isAdmin, email, nome };
   } catch (error) {
     console.error("Erro ao decodificar token:", error);
     return { userId: null, isAdmin: false, email: null, nome: null };
   }
 };
-
 export function UserProvider({ children }) {
   const tokenInfo = decodeToken();
-
-  const [loading, setLoading] = useState(() => {
+      const [loading, setLoading] = useState(() => {
     return !!sessionStorage.getItem("token");
   });
   const [userData, setUserData] = useState(null);
   const [initialized, setInitialized] = useState(false);
-
   const [userId, setUserId] = useState(tokenInfo.userId);
 
   const [isFisio, setIsFisio] = useState(tokenInfo.isAdmin);
@@ -99,6 +79,9 @@ export function UserProvider({ children }) {
           setUserData(fisioterapeuta);
         } else {
           const utente = await getCurrentUser();
+          if(utente.StatusConta=='rejeitado'){
+            logout();
+          }
           setUserData(utente);
           
         

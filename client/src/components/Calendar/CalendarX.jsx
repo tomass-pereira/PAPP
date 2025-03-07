@@ -14,24 +14,20 @@ import { reservarSessao, cancelarSessao, DeleteSessao } from "../../api/sessoes.
 import { useUser } from "../../contexts/UserContext.jsx";
 
 function CalendarApp() {
-  // Core state
   const [eventsService] = useState(() => createEventsServicePlugin());
   const { sessoes, sessoesCanceladas, allSessoes, fetchSessoes } = useSessoes();
   const { userId, isFisio } = useUser();
   
-  // Modal state
   const modalRef = useRef(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [motivo, setMotivo] = useState("");
   const [erro, setErro] = useState("");
   
-  // Cancelation dialog state
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [sessaoParaCancelar, setSessaoParaCancelar] = useState(null);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [erroCancelamento, setErroCancelamento] = useState("");
 
-  // Handle deleting a session (for physio only)
   const handleDelete = async () => {
     try {
       await DeleteSessao(selectedEvent?.id);

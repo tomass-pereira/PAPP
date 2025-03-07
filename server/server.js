@@ -10,7 +10,7 @@ const app = express();
 connectDB();
 
 app.use(cors({
-  origin: ['http://192.168.1.100:5173/', 'http://localhost:5173'], 
+  origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type','Authorization']
 }));
@@ -19,6 +19,6 @@ app.use('/', routes);
 
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
