@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import { getPlanos } from '../api/planos';
+import { getPlanos, PostPlano } from '../api/planos';
 
 // Criar o contexto
 const PlanoContext = createContext();
@@ -31,26 +31,31 @@ export const PlanoProvider = ({ children }) => {
     }
   };
 
-  // Função para selecionar um plano específico
-  const selectPlano = (planoId) => {
-    const plano = planos.find(p => p._id === planoId);
-    setCurrentPlano(plano || null);
-    return plano;
+    const criarPlano = async (dadosplano) => {
+      setLoading(true);
+    setError(null);
+    
+    try {
+      console.log("API:", dadosplano);
+      const response = await PostPlano(dadosplano);
+      setPlanos(response.data);
+      return response.data;
+    } catch (err) {
+      setError(err.message || 'Erro ao criar plano');
+      return [];
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Função para atualizar o estado depois de criar um plano
-  const addPlano = (plano) => {
-    setPlanos(prevPlanos => [...prevPlanos, plano]);
-    return plano;
-  };
+  
+ 
 
-  // Função para atualizar o estado depois de modificar um plano
   const updatePlanoState = (planoAtualizado) => {
     setPlanos(prevPlanos => 
       prevPlanos.map(p => p._id === planoAtualizado._id ? planoAtualizado : p)
     );
     
-    // Atualizar o plano atual se for o mesmo
     if (currentPlano && currentPlano._id === planoAtualizado._id) {
       setCurrentPlano(planoAtualizado);
     }
@@ -94,15 +99,13 @@ export const PlanoProvider = ({ children }) => {
     };
   };
 
-  // Valores e funções disponibilizados pelo contexto
   const value = {
     planos,
     loading,
     error,
     currentPlano,
     fetchPlanos,
-    selectPlano,
-    addPlano,
+    criarPlano,
     updatePlanoState,
     removePlano,
     calcularProgressoPlano,

@@ -28,6 +28,7 @@ import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
 import CalendarioFisio from "./pages/admin/CalendarioFisio.jsx";
 import Config from "./pages/Main/Config.jsx";
 import Utentes from "./pages/admin/Utentes.jsx";
+import GerirPlanos from "./pages/admin/GerirPlanos.jsx";
 
 // AuthWrapper component
 const AuthWrapper = ({ children }) => {
@@ -186,6 +187,14 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedAnimatedPage>
               <MinhasSessoes />
+            </ProtectedAnimatedPage>
+          }
+        />
+        <Route
+          path="/Fisio/GerirPlanos"
+          element={
+            <ProtectedAnimatedPage>
+              <GerirPlanos />
             </ProtectedAnimatedPage>
           }
         />

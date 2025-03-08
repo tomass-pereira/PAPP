@@ -107,11 +107,9 @@ export const cancelarSessao = async (sessaoId, motivo) => {
 
 export const createSessao = async (sessaoData) => {
   try {
-    // Calcular dataHoraFim com base na dataHoraInicio e duração
     const dataInicio = new Date(sessaoData.dataHoraInicio);
     const dataFim = new Date(dataInicio.getTime() + sessaoData.duracao * 60000);
     
-    // Preparar o payload conforme esperado pela API
     const payload = {
       dataHoraInicio: sessaoData.dataHoraInicio,
       dataHoraFim: dataFim.toISOString().split('.')[0],

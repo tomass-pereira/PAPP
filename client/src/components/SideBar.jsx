@@ -62,7 +62,7 @@ const Sidebar = () => {
         id: "Planos",
         label: "Planos de Tratamento",
         icon: BookOpen,
-        path: "/planosTratamento",
+        path: isFisio ? "/Fisio/GerirPlanos" :"/planosTratamento",
       }
     ] : []),
     // Item exclusivo para administradores/fisioterapeutas
