@@ -46,7 +46,12 @@ const sessoesSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'planos',
       default:null
-  }
+  },
+  feedbackId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'feedbacks',
+    default:null
+  },
 }, {
   timestamps: true,
   toJSON: { getters: true }

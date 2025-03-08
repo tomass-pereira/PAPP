@@ -17,6 +17,25 @@ export const getPlanos = async (utenteId) => {
   
     return data;
 };
+
+
+export const concluirPlano = async (planoId) => {
+  
+  const response = await fetch(`${BASE_URL}/planos/concluir/${planoId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });                                 
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message);
+  }
+  
+  return data;
+};
 export const PostPlano = async (dadosPlano) => {
   try {
     const response = await fetch(`${BASE_URL}/planos`, {

@@ -24,10 +24,8 @@ export const DeleteSessao = async (sessaoId) => {
   try {
     const response = await api.delete(`/sessoes/eliminar/${sessaoId}`);
     
-    // Com Axios, os dados já vêm parseados em response.data
     return response.data;
   } catch (error) {
-    // Tratamento de erro com Axios
     if (error.response && error.response.data) {
       throw new Error(error.response.data.message || "Erro ao eliminar sessão");
     }

@@ -61,6 +61,7 @@ router.post('/criarSessao', async (req, res, next) => {
         // Buscar todas as sessões e fazer populate do utenteId
         const sessoes = await Sessoes.find()
             .populate('utenteId')
+            .populate('feedbackId')
             .exec();
         
         res.status(200).json(sessoes);
@@ -76,8 +77,9 @@ router.post('/criarSessao', async (req, res, next) => {
     
     try {
        
-        const sessoes = await Sessoes.find();
-        
+        const sessoes = await Sessoes.find()
+        .populate('feedbackId', 'avaliacao dor satisfacao comentario')
+        .exec();
         res.status(200).json(sessoes);
         
     } catch (error) {

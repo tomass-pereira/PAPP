@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import { getPlanos, PostPlano } from '../api/planos';
+import { getPlanos, PostPlano, concluirPlano } from '../api/planos';
 
 // Criar o contexto
 const PlanoContext = createContext();
@@ -87,11 +87,14 @@ export const PlanoProvider = ({ children }) => {
 
     const sessoesTotais = plano.sessoes.length;
     const sessoesRealizadas = plano.sessoes.filter(
-      sessao => sessao.status === 'Realizada'
+      sessao => sessao.status === 'concluida'
     ).length;
 
     const percentualConcluido = Math.round((sessoesRealizadas / sessoesTotais) * 100);
-
+      if (percentualConcluido === 100) {
+      concluirPlano(plano._id);
+      
+      }
     return {
       sessoesRealizadas,
       sessoesTotais,

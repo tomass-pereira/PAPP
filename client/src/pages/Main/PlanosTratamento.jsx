@@ -156,26 +156,7 @@ export default function PlanosTratamento() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex h-screen bg-[#f8fafc]">
-        <SideBar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="bg-red-50 p-6 rounded-lg border border-red-200 max-w-md text-center">
-            <X className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-red-700 mb-2">Erro ao carregar planos</h2>
-            <p className="text-red-600 mb-4">{error}</p>
-            <button 
-              onClick={() => fetchPlanos(userId)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Tentar novamente
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+ 
 
   return (
     <div className="flex h-screen bg-[#f8fafc]">
@@ -254,7 +235,7 @@ export default function PlanosTratamento() {
                             <div>
                               <p className="text-xs text-indigo-600 mb-1">Fisioterapeuta</p>
                               <p className="font-medium text-gray-800">
-                                {planoSelecionado.fisioterapeuta?.nome || 'Não definido'}
+                                Mariana Tavares
                               </p>
                             </div>
                             <div>
@@ -304,14 +285,14 @@ export default function PlanosTratamento() {
                                 <div className="flex justify-between text-sm mb-1">
                                   <span className="text-gray-600">Sessões realizadas</span>
                                   <span className="font-medium">
-                                    {planoSelecionado.sessoes.filter(s => s.status === 'Realizada').length} de {planoSelecionado.sessoes.length}
+                                    {planoSelecionado.sessoes.filter(s => s.status === 'concluida').length} de {planoSelecionado.sessoes.length}
                                   </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                   <div
                                     className="bg-indigo-600 h-2 rounded-full"
                                     style={{ 
-                                      width: `${(planoSelecionado.sessoes.filter(s => s.status === 'Realizada').length / planoSelecionado.sessoes.length) * 100}%` 
+                                      width: `${(planoSelecionado.sessoes.filter(s => s.status === 'concluida').length / planoSelecionado.sessoes.length) * 100}%` 
                                     }}
                                   ></div>
                                 </div>
@@ -489,8 +470,9 @@ export default function PlanosTratamento() {
                 <div className="space-y-6 mb-8">
                   {planosFiltrados.length > 0 ? (
                     planosFiltrados.map((plano) => {
-                      // Calcular progresso para este plano
                       const progresso = calcularProgressoPlano(plano);
+                      console.log("olha aqui o plano", plano);
+                      console.log("Progresso do plano", progresso);
                       
                       return (
                         <div 
@@ -595,35 +577,12 @@ export default function PlanosTratamento() {
                             </div>
 
                             {/* Footer do Card */}
-                            <div className="mt-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t border-gray-100">
-                              {plano.proximaSessao ? (
-                                <div className={`px-3 py-2 rounded-lg ${
-                                  isHoje(plano.proximaSessao)
-                                    ? "bg-amber-50 border border-amber-100"
-                                    : "bg-gray-50 border border-gray-100"
-                                } text-sm`}>
-                                  <p className="font-medium text-gray-700 flex items-center">
-                                    <Clock className="w-4 h-4 mr-1.5" />
-                                    Próxima Sessão: {formatarData(plano.proximaSessao)} às {formatarHora(plano.proximaSessao)}
-                                  </p>
-                                  {isHoje(plano.proximaSessao) && (
-                                    <span className="mt-1 inline-block px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full">
-                                      Hoje!
-                                    </span>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="text-gray-500 text-sm flex items-center">
-                                  <Info className="w-4 h-4 mr-1.5" />
-                                  {plano.status === "Concluído" 
-                                    ? "Tratamento concluído" 
-                                    : "Nenhuma sessão agendada"}
-                                </div>
-                              )}
+                            <div className="mt-5 flex flex-col float-right mb-3 sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t border-gray-100">
+                              
                               
                               <button
                                 onClick={() => abrirDetalhesTratamento(plano._id)}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center transition-colors"
+                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg flex  transition-colors"
                               >
                                 Ver detalhes
                                 <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -639,9 +598,7 @@ export default function PlanosTratamento() {
                       <h3 className="text-xl font-medium text-gray-700 mb-2">
                         Nenhum plano de tratamento encontrado
                       </h3>
-                      <p className="text-gray-500 max-w-md mx-auto">
-                        Não encontramos planos de tratamento que correspondam aos seus critérios de busca ou filtros.
-                      </p>
+                    
                       {(filtroStatus !== "todos" || pesquisa !== "") && (
                         <button
                           onClick={() => {

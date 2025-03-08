@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Planos = require('../models/planos'); 
 const Sessao = require('../models/sessoes');
-
+const notificacoes = require('../models/notificacoes');
 
 // Rota para criar um novo plano de tratamento
 router.post('/', async (req, res) => {
@@ -44,6 +44,7 @@ router.post('/', async (req, res) => {
   
       // Salvar o plano para obter seu ID
       const planoSalvo = await novoPlano.save();
+
       
       // Array para armazenar os IDs das sessões criadas
       const sessoesIds = [];
@@ -97,7 +98,12 @@ router.post('/', async (req, res) => {
         planoSalvo.sessoes = sessoesIds;
         await planoSalvo.save();
       }
-  
+  await notificacoes.create({
+      utenteId: utenteId,
+        titulo: 'Plano de tratamento',
+        descricao:  `Você foi adicionado a um novo plano de tratamento com ${sessoesIds.length} sessões`,
+        tipo: 'info'
+    });
       // Responder com o plano criado
       res.status(201).json({
         success: true,
@@ -113,6 +119,22 @@ router.post('/', async (req, res) => {
         error: error.message
       });
     }
+});
+router.post('/concluir/:id',async (req, res) => {
+  try {
+   
+    const planoId = req.params.id;
+    const plano = await Planos.findById(planoId);
+    if (!plano) {
+      return res.status(404).json({ message: 'Sessão não encontrada' });
+    }
+    plano.status = 'concluido';
+    await plano.save();
+    res.json(plano);
+  
+  } catch (error) {
+   console.log(error.message);
+  }
 });
 
 router.get('/:id', async (req, res) => {

@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../../components/SideBar";
 import { useSessoes } from "../../contexts/SessoesContext";
+import { useUser } from "../../contexts/UserContext";
 import {
   Calendar,
   Clock,
   MapPin,
   FileText,
   Filter,
-  XCircle,
+  Star,
+  XCircle
 } from "lucide-react";
 
 export default function HistoricoConsultas() {
   const { sessoesReservadas, sessoesConcluidas, sessoesCanceladas, loading } =
     useSessoes();
 
-  // Definir qual tipo de sessões mostrar
   const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas" ou "canceladas"
-  
+
   // Estado para filtro de mês
   const [mesSelecionado, setMesSelecionado] = useState("");
 
@@ -33,8 +34,8 @@ export default function HistoricoConsultas() {
       : sessoesCanceladas;
 
   // Filtrar por mês se um mês estiver selecionado
-  const sessoesFiltradas = mesSelecionado 
-    ? sessoesPorTipo.filter(sessao => {
+  const sessoesFiltradas = mesSelecionado
+    ? sessoesPorTipo.filter((sessao) => {
         const dataSessao = new Date(
           tipoHistorico === "canceladas"
             ? sessao.dataConsultaOriginal
@@ -196,7 +197,7 @@ export default function HistoricoConsultas() {
                       </select>
                     </div>
                   </div>
-                  
+
                   <div className="w-full md:w-64">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Filtrar por Mês
@@ -220,13 +221,13 @@ export default function HistoricoConsultas() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Mostrar filtros ativos */}
                 {mesSelecionado && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
-                      Mês: {meses.find(m => m.valor === mesSelecionado)?.nome}
-                      <button 
+                      Mês: {meses.find((m) => m.valor === mesSelecionado)?.nome}
+                      <button
                         onClick={() => setMesSelecionado("")}
                         className="ml-2 text-indigo-500 hover:text-indigo-700"
                       >
@@ -247,7 +248,7 @@ export default function HistoricoConsultas() {
                     {sessoesFiltradas.length} sessões encontradas
                   </span>
                 </div>
-                
+
                 {/* Lista de Sessões */}
                 <div className="space-y-6 mb-8">
                   {getCurrentItems().length > 0 ? (
@@ -269,7 +270,10 @@ export default function HistoricoConsultas() {
                                 {tipoHistorico === "canceladas" ? (
                                   <XCircle size={24} className="text-red-600" />
                                 ) : (
-                                  <Calendar size={24} className="text-indigo-600" />
+                                  <Calendar
+                                    size={24}
+                                    className="text-indigo-600"
+                                  />
                                 )}
                               </div>
                             </div>
@@ -347,19 +351,105 @@ export default function HistoricoConsultas() {
                               )}
                           </div>
                         )}
+                        {tipoHistorico !== "canceladas" && sessao.feedbackId && (
+                          <div className="border-t border-gray-100 pt-6 mt-6">
+                            <h4 className="text-sm font-medium text-gray-700 mb-4">
+                              O seu Feedback 
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Nível de Dor
+                                </h5>
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-red-600 h-2.5 rounded-full"
+                                      style={{
+                                        width: `${sessao.feedbackId.dor * 10}%`,
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-gray-900 font-medium">
+                                    {sessao.feedbackId.dor}/10
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Satisfação
+                                </h5>
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-green-600 h-2.5 rounded-full"
+                                      style={{
+                                        width: `${
+                                          sessao.feedbackId.satisfacao * 10
+                                        }%`,
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-gray-900 font-medium">
+                                    {sessao.feedbackId.satisfacao}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="md:col-span-2">
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Avaliação Geral
+                                </h5>
+                                <div className="flex items-center text-yellow-400">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      size={20}
+                                      className={
+                                        star <= sessao.feedbackId.avaliacao
+                                          ? "fill-current"
+                                          : ""
+                                      }
+                                    />
+                                  ))}
+                                  <span className="ml-2 text-gray-900">
+                                    {sessao.feedbackId.avaliacao}/5
+                                  </span>
+                                </div>
+                              </div>
+
+                              {sessao.feedbackId.comentario && (
+                                <div className="md:col-span-2">
+                                  <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                    Comentário
+                                  </h5>
+                                  <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
+                                    "{sessao.feedbackIdId.comentario}"
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (
                     <div className="text-center py-8">
-                      <Calendar size={48} className="mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">Nenhuma sessão encontrada</h3>
+                      <Calendar
+                        size={48}
+                        className="mx-auto text-gray-300 mb-4"
+                      />
+                      <h3 className="text-lg font-medium text-gray-700 mb-2">
+                        Nenhuma sessão encontrada
+                      </h3>
                       <p className="text-gray-500">
                         Tente ajustar seus filtros para ver mais resultados
                       </p>
                     </div>
                   )}
                 </div>
-                
+
                 {/* Paginação */}
                 {totalPages > 1 && (
                   <div className="flex justify-center">
@@ -368,7 +458,9 @@ export default function HistoricoConsultas() {
                         onClick={prevPage}
                         disabled={currentPage === 1}
                         className={`px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium ${
-                          currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                          currentPage === 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                         }`}
                       >
                         Anterior

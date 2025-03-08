@@ -28,7 +28,9 @@ import NotificationsPage from "./pages/Main/NotificationsPage.jsx";
 import CalendarioFisio from "./pages/admin/CalendarioFisio.jsx";
 import Config from "./pages/Main/Config.jsx";
 import Utentes from "./pages/admin/Utentes.jsx";
-import GerirPlanos from "./pages/admin/GerirPlanos.jsx";
+import Historico from "./pages/admin/HistoricoSessoes.jsx";
+
+import GerirPlanos from "./pages/admin/AdicionarPlano.jsx";
 
 // AuthWrapper component
 const AuthWrapper = ({ children }) => {
@@ -191,10 +193,18 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
-          path="/Fisio/GerirPlanos"
+          path="/Fisio/AdicionarPlano"
           element={
             <ProtectedAnimatedPage>
               <GerirPlanos />
+            </ProtectedAnimatedPage>
+          }
+        />
+        <Route
+          path="/Fisio/Historico"
+          element={
+            <ProtectedAnimatedPage>
+              <Historico />
             </ProtectedAnimatedPage>
           }
         />

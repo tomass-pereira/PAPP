@@ -123,7 +123,7 @@ const FeedbackModal = ({ isOpen, onClose, sessao, onSubmit }) => {
               <div className="flex gap-4 justify-center">
                 <button
                   type="button"
-                  onClick={() => setSatisfacao("bom")}
+                  onClick={() => setSatisfacao("Boa")}
                   className={`flex flex-col items-center p-3 rounded-lg ${
                     satisfacao === "bom"
                       ? "bg-green-100 text-green-700 border border-green-200"
@@ -137,7 +137,7 @@ const FeedbackModal = ({ isOpen, onClose, sessao, onSubmit }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSatisfacao("neutro")}
+                  onClick={() => setSatisfacao("Normal")}
                   className={`flex flex-col items-center p-3 rounded-lg ${
                     satisfacao === "neutro"
                       ? "bg-blue-100 text-blue-700 border border-blue-200"
@@ -151,7 +151,7 @@ const FeedbackModal = ({ isOpen, onClose, sessao, onSubmit }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSatisfacao("ruim")}
+                  onClick={() => setSatisfacao("Má")}
                   className={`flex flex-col items-center p-3 rounded-lg ${
                     satisfacao === "ruim"
                       ? "bg-red-100 text-red-700 border border-red-200"

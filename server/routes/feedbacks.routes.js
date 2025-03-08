@@ -2,10 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const Feedbacks = require('../models/feedbacks'); 
+const Sessoes = require('../models/sessoes');
+
 router.post('/', async (req, res) => {
     try {
       const { sessaoId, avaliacao, dor, satisfacao, comentario } = req.body;
-   console.log("avaliaçaoo",avaliacao);
       // Validação básica
       console.log(req.body);
       if (!sessaoId) {
@@ -26,8 +27,11 @@ router.post('/', async (req, res) => {
         comentario: comentario || ''
       });
   
-      // Salvar no banco de dados
       const feedbackSalvo = await novoFeedback.save();
+    
+      const sessao = await Sessoes.findById(sessaoId);
+      sessao.feedbackId = feedbackSalvo._id;
+      await sessao.save();
   
       res.status(201).json({
         sucesso: true,

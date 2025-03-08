@@ -14,11 +14,11 @@ import {
   AlertCircle,
   Save,
   ArrowLeft,
+  Clock, // Adicione este ícone
 } from "lucide-react";
 import { getAllUtentes } from "../../api/utente";
 export default function CriarPlanoTratamento() {
   const navigate = useNavigate();
-  const { userId } = useUser();
 const { criarPlano } = usePlanos();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
@@ -26,6 +26,10 @@ const { criarPlano } = usePlanos();
   const [utentes, setUtentes] = useState([]);
   const [utenteSelected, setUtenteSelected] = useState("");
   const [loading, setLoading] = useState(false);
+  const [defaultSessionTime, setDefaultSessionTime] = useState({
+    hours: "09",
+    minutes: "00"
+  });
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -33,7 +37,7 @@ const { criarPlano } = usePlanos();
     utenteId: "",
     detalhes: "",
     objetivos: [""],
-    tipotratamento: "",
+    tipotratamento: "Reabilitação",
     dataInicio: "",
     dataFim: "",
     duracao: { valor: 8, unidade: "semanas" },
@@ -100,7 +104,7 @@ const calcularDatasSessoes = () => {
       const diasSelecionados = sessoesConfig.diasDaSemana.map(Number);
   
       // Se nenhum dia da semana estiver selecionado, usamos o dia inicial
-      if (diasSelecionados.length === 0) {
+      if (diasSelecionados.length === 1) {
         diasSelecionados.push(dataInicio.getDay());
       }
   
@@ -116,10 +120,13 @@ const calcularDatasSessoes = () => {
           break;
         }
         
-        // Verificamos se o dia atual é um dos dias selecionados da semana
         if (diasSelecionados.includes(currentDate.getDay())) {
           const dataHoraInicio = new Date(currentDate);
-          dataHoraInicio.setHours(9, 0, 0); // Padrão às 9h
+          dataHoraInicio.setHours(
+            parseInt(defaultSessionTime.hours, 10), 
+            parseInt(defaultSessionTime.minutes, 10), 
+            0
+          );
   
           const dataHoraFim = new Date(dataHoraInicio);
           dataHoraFim.setMinutes(
@@ -156,7 +163,7 @@ const calcularDatasSessoes = () => {
         sessoes: novasSessoes,
       }));
     }
-  }, [sessoesConfig, formData.dataInicio, formData.dataFim]);
+  }, [sessoesConfig, formData.dataInicio, formData.dataFim, defaultSessionTime]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -723,7 +730,7 @@ const calcularDatasSessoes = () => {
                   {/* Configuração de Sessões */}
                   <div className="mt-8">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Configuração das Sessões
+                      Configuração das Sessões 
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -733,7 +740,7 @@ const calcularDatasSessoes = () => {
                           htmlFor="quantidade"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Quantidade de Sessões
+                          Quantidade de Sessões (no total)
                         </label>
                         <input
                           type="number"
@@ -788,8 +795,41 @@ const calcularDatasSessoes = () => {
                         />
                       </div>
 
-                      {/* Dias da Semana */}
+                      {/* Horário das Sessões */}
                       <div>
+                        <label
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Horário das Sessões
+                        </label>
+                        <div className="flex space-x-2">
+                          <select
+                            value={setDefaultSessionTime.hours}
+                            onChange={(e) => setDefaultSessionTime(prev => ({...prev, hours: e.target.value}))}
+                            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            {Array.from({length: 13}, (_, i) => i + 8).map(hour => (
+                              <option key={`hour-${hour}`} value={hour.toString().padStart(2, '0')}>
+                                {hour.toString().padStart(2, '0')}h
+                              </option>
+                            ))}
+                          </select>
+                          <span className="self-center">:</span>
+                          <select
+                            value={defaultSessionTime.minutes}
+                            onChange={(e) => setDefaultSessionTime(prev => ({...prev, minutes: e.target.value}))}
+                            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            <option value="00">00min</option>
+                            <option value="15">15min</option>
+                            <option value="30">30min</option>
+                            <option value="45">45min</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Dias da Semana */}
+                      <div className="lg:col-span-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Dias da Semana
                         </label>
@@ -813,7 +853,48 @@ const calcularDatasSessoes = () => {
                     </div>
 
                     {/* Pré-visualização das Sessões */}
-                    
+                    <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center">
+                        <CalendarPlus className="w-4 h-4 mr-1" />
+                        Pré-visualização das Sessões ({formData.sessoes.length})
+                      </h4>
+                      
+                      {formData.sessoes.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {formData.sessoes.slice(0, 6).map((sessao, index) => (
+                            <div key={index} className="bg-white p-3 rounded border border-gray-200">
+                              <div className="font-medium text-indigo-600 mb-1">
+                                {sessao.descricao}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                <div className="flex items-center">
+                                  <Calendar className="w-4 h-4 mr-1 text-gray-400" />
+                                  {formatarData(sessao.dataHoraInicio)}
+                                </div>
+                                <div className="flex items-center mt-1">
+                                  <Clock className="w-4 h-4 mr-1 text-gray-400" />
+                                  {formatarHora(sessao.dataHoraInicio)} - {formatarHora(sessao.dataHoraFim)}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          <Info className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                          <p>Configure as sessões acima para visualizá-las aqui.</p>
+                          <p className="text-sm mt-1">
+                            Selecione dias da semana, quantidade e horário para gerar sessões.
+                          </p>
+                        </div>
+                      )}
+                      
+                      {formData.sessoes.length > 6 && (
+                        <div className="mt-2 text-sm text-gray-500 text-center">
+                          + {formData.sessoes.length - 6} outras sessões
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Botões de Ação */}

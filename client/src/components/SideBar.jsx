@@ -78,7 +78,7 @@ const Sidebar = () => {
       id: "appointments",
       label: isFisio ? "Consultas" : "Sessões",
       icon: Clock,
-      path:isFisio ? "/Admin/Consultas" : "/MinhasSessoes",
+      path:"/MinhasSessoes",
     },
     {
       id: "notifications",
