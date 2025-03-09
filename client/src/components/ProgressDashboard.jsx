@@ -228,7 +228,7 @@ const ProgressDashboard = ({ isFisio = false }) => {
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow mb-8">
       <div className="p-4 border-b">
         <h2 className="text-xl font-semibold text-gray-800">
-          {isFisio ? 'Métricas & Analytics' : 'Meu Progresso'}
+          {isFisio ? 'Monitorização' : 'O meu Progresso'}
         </h2>
         <p className="text-sm text-gray-500">
           {isFisio 
