@@ -4,8 +4,7 @@ import SideBar from "../../components/SideBar";
 import CalendarApp from "../../components/Calendar/CalendarX";
 import { PlusIcon, XIcon, RefreshIcon, FilterIcon, SearchIcon, CalendarIcon } from "@heroicons/react/solid";
 import { createSessao } from "../../api/sessoes";
-import axios from "axios";
-
+import { getAllUtentes } from "../../api/utente";
 export default function CalendarioFisio() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -27,18 +26,34 @@ export default function CalendarioFisio() {
   const [success, setSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      navigate("/LoginPage");
-    } else {
-      // Carregar lista de utentes
-    
-    }
-  }, [navigate]);
+
 
   // Efeito para mostrar seleção de utente quando status for "reservada"
   useEffect(() => {
+   
+        // Function to fetch utentes
+        const fetchUtentes = async () => {
+          try {
+            setLoading(true);
+    
+            const response = await getAllUtentes();
+    
+            setUtentes(response);
+            setError(null);
+          } catch (err) {
+            console.error("Error fetching utentes - full error:", err);
+            setError(
+              "Ocorreu um erro ao carregar os utentes. Por favor, tente novamente."
+            );
+            setUtentes([]);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        // Call the fetch function
+        fetchUtentes();
+      console.log(utentes);
     if (formData.status === "reservada") {
       setSelectUtente(true);
     } else {
@@ -85,18 +100,15 @@ export default function CalendarioFisio() {
     setError(null);
 
     try {
-      // Calcular dataHoraFim com base na dataHoraInicio e duração
       const dataInicio = new Date(formData.dataHoraInicio);
       const dataFim = new Date(dataInicio.getTime() + formData.duracao * 60000);
       
-      // Criar objeto com a estrutura exata esperada pela API
       const sessaoData = {
         dataHoraInicio: formData.dataHoraInicio,
         dataHoraFim: dataFim.toISOString().split('.')[0],
         duracao: formData.duracao,
         status: formData.status,
         motivo: formData.motivo,
-        descricao: formData.descricao
       };
       
       // Adicionar utenteId apenas se status for "reservada"
@@ -104,7 +116,7 @@ export default function CalendarioFisio() {
         sessaoData.utenteId = formData.utenteId;
       }
 
-      await createSessao(sessaoData);
+      await createSessao(sessaoData, );
       
       setSuccess(true);
       setFormData({
