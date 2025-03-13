@@ -9,41 +9,109 @@ import {
   FileText,
   Filter,
   Star,
-  XCircle
+  XCircle,
+  User
 } from "lucide-react";
 
 export default function HistoricoConsultas() {
-  const { sessoesReservadas, sessoesConcluidas, sessoesCanceladas, loading } =
-    useSessoes();
-
-  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas" ou "canceladas"
+  const { allSessoes, sessoesReservadas, sessoesConcluidas, sessoesCanceladas } = useSessoes();
+  const { isFisio } = useUser(); // Get user to check if they're a fisio
+  
+  const [loading, setLoading] = useState(true);
+  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas", "concluidas" ou "canceladas"
 
   // Estado para filtro de mês
   const [mesSelecionado, setMesSelecionado] = useState("");
+  
+  // Estado para filtro de utente (apenas para fisioterapeutas)
+  const [utenteSelecionado, setUtenteSelecionado] = useState("");
 
   // Estados para filtros e paginação
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
+  // Processando os dados das sessões
+  useEffect(() => {
+    // For fisio, check allSessoes; for patients check the individual arrays
+    if ((isFisio && allSessoes) || (!isFisio && sessoesReservadas !== undefined)) {
+      setLoading(false);
+    }
+  }, [allSessoes, sessoesReservadas, isFisio]);
+
+  // Sessões logic based on user type
+  let sessoesReservadasData = [];
+  let sessoesConcludasData = [];
+  let sessoesCanceladasData = [];
+
+  if (isFisio && allSessoes) {
+    // Fisio view: filter from allSessoes
+    sessoesReservadasData = allSessoes.filter(sessao => 
+      sessao.status === "reservada" || sessao.status === "confirmada"
+    );
+    
+    sessoesConcludasData = allSessoes.filter(sessao => 
+      sessao.status === "realizada" || sessao.status === "concluida"
+    );
+    
+    sessoesCanceladasData = allSessoes.filter(sessao => 
+      sessao.status === "cancelada"
+    );
+  } else {
+    // Patient view: use the provided arrays
+    sessoesReservadasData = sessoesReservadas || [];
+    sessoesConcludasData = sessoesConcluidas || [];
+    sessoesCanceladasData = sessoesCanceladas || [];
+  }
+
+  // Obter lista de utentes únicos para o filtro (apenas para fisioterapeutas)
+  const utentesList = [];
+  if (isFisio && allSessoes) {
+    const utentesUnicos = [...new Set(allSessoes
+      .filter(sessao => sessao.utenteId?._id)
+      .map(sessao => sessao.utenteId._id)
+    )];
+
+    utentesUnicos.forEach(utenteId => {
+      const sessao = allSessoes.find(s => s.utenteId?._id === utenteId);
+      if (sessao?.utenteId?.nome) {
+        utentesList.push({
+          id: utenteId,
+          nome: sessao.utenteId.nome
+        });
+      }
+    });
+  }
+
   // Definir qual array usar baseado no tipo selecionado
   const sessoesPorTipo =
     tipoHistorico === "reservadas"
-      ? sessoesReservadas
+      ? sessoesReservadasData
       : tipoHistorico === "concluidas"
-      ? sessoesConcluidas
-      : sessoesCanceladas;
+      ? sessoesConcludasData
+      : sessoesCanceladasData;
 
-  // Filtrar por mês se um mês estiver selecionado
-  const sessoesFiltradas = mesSelecionado
-    ? sessoesPorTipo.filter((sessao) => {
+  // Aplicar filtros
+  const sessoesFiltradas = sessoesPorTipo
+    .filter(sessao => {
+      // Filtro por mês
+      if (mesSelecionado) {
         const dataSessao = new Date(
           tipoHistorico === "canceladas"
-            ? sessao.dataConsultaOriginal
+            ? sessao.dataCancelamento || sessao.dataConsultaOriginal || sessao.dataHoraInicio
             : sessao.dataHoraInicio
         );
-        return dataSessao.getMonth() === parseInt(mesSelecionado);
-      })
-    : sessoesPorTipo;
+        if (dataSessao.getMonth() !== parseInt(mesSelecionado)) {
+          return false;
+        }
+      }
+      
+      // Filtro por utente (apenas para fisioterapeutas)
+      if (isFisio && utenteSelecionado && sessao.utenteId?._id !== utenteSelecionado) {
+        return false;
+      }
+      
+      return true;
+    });
 
   // Lógica de paginação
   const totalPages = Math.ceil(sessoesFiltradas.length / itemsPerPage);
@@ -57,7 +125,7 @@ export default function HistoricoConsultas() {
   // Reset para página 1 quando mudar o filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [mesSelecionado]);
+  }, [mesSelecionado, utenteSelecionado, tipoHistorico]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -128,7 +196,9 @@ export default function HistoricoConsultas() {
                   Histórico de Sessões
                 </h1>
                 <p className="text-gray-500 max-w-xl">
-                  Acompanhe todas as suas sessões
+                  {isFisio 
+                    ? "Acompanhe todas as sessões com seus utentes" 
+                    : "Acompanhe todas as suas sessões"}
                 </p>
               </div>
             </div>
@@ -141,9 +211,9 @@ export default function HistoricoConsultas() {
                     Total de Sessões
                   </h3>
                   <p className="text-3xl font-bold text-gray-900">
-                    {sessoesReservadas.length +
-                      sessoesCanceladas.length +
-                      sessoesConcluidas.length}
+                    {sessoesReservadasData.length +
+                      sessoesCanceladasData.length +
+                      sessoesConcludasData.length}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -151,12 +221,7 @@ export default function HistoricoConsultas() {
                     Realizadas/Concluídas
                   </h3>
                   <p className="text-3xl font-bold text-indigo-600">
-                    {
-                      sessoesConcluidas.filter(
-                        (s) =>
-                          s.status === "realizada" || s.status === "concluida"
-                      ).length
-                    }
+                    {sessoesConcludasData.length}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -164,7 +229,7 @@ export default function HistoricoConsultas() {
                     Canceladas
                   </h3>
                   <p className="text-3xl font-bold text-red-600">
-                    {sessoesCanceladas.length}
+                    {sessoesCanceladasData.length}
                   </p>
                 </div>
               </div>
@@ -177,8 +242,8 @@ export default function HistoricoConsultas() {
                     Filtros
                   </h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="w-full md:w-64">
+                <div className={`grid grid-cols-1 ${isFisio ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
+                  <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Tipo de Sessão
                     </label>
@@ -198,7 +263,7 @@ export default function HistoricoConsultas() {
                     </div>
                   </div>
 
-                  <div className="w-full md:w-64">
+                  <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Filtrar por Mês
                     </label>
@@ -220,11 +285,37 @@ export default function HistoricoConsultas() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Filtro de utente (apenas para fisioterapeutas) */}
+                  {isFisio && (
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Filtrar por Utente
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={utenteSelecionado}
+                          onChange={(e) => setUtenteSelecionado(e.target.value)}
+                          className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
+                        >
+                          <option value="">Todos os utentes</option>
+                          {utentesList.map((utente) => (
+                            <option key={utente.id} value={utente.id}>
+                              {utente.nome}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          <User size={16} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Mostrar filtros ativos */}
-                {mesSelecionado && (
-                  <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {mesSelecionado && (
                     <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
                       Mês: {meses.find((m) => m.valor === mesSelecionado)?.nome}
                       <button
@@ -234,8 +325,20 @@ export default function HistoricoConsultas() {
                         <XCircle size={16} />
                       </button>
                     </div>
-                  </div>
-                )}
+                  )}
+                  
+                  {isFisio && utenteSelecionado && (
+                    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                      Utente: {utentesList.find((u) => u.id === utenteSelecionado)?.nome}
+                      <button
+                        onClick={() => setUtenteSelecionado("")}
+                        className="ml-2 text-indigo-500 hover:text-indigo-700"
+                      >
+                        <XCircle size={16} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Resultados */}
@@ -285,20 +388,31 @@ export default function HistoricoConsultas() {
                                 <span className="flex items-center gap-1">
                                   <Clock size={16} />
                                   {new Date(
-                                    tipoHistorico === "canceladas"
-                                      ? sessao.dataConsultaOriginal
+                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                      ? sessao.dataCancelamento
+                                      : tipoHistorico === "canceladas" && sessao.dataConsultaOriginal
+                                      ? sessao.dataConsultaOriginal 
                                       : sessao.dataHoraInicio
                                   ).toLocaleDateString()}{" "}
                                   às{" "}
                                   {new Date(
-                                    tipoHistorico === "canceladas"
-                                      ? sessao.dataConsultaOriginal
+                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                      ? sessao.dataCancelamento
+                                      : tipoHistorico === "canceladas" && sessao.dataConsultaOriginal
+                                      ? sessao.dataConsultaOriginal 
                                       : sessao.dataHoraInicio
                                   ).toLocaleTimeString("pt-PT", {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })}
                                 </span>
+                                {/* Só mostra o nome do utente para fisioterapeutas */}
+                                {isFisio && (
+                                  <span className="flex items-center gap-1">
+                                    <User size={16} />
+                                    {sessao.utenteId?.nome || "Utente não identificado"}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -320,6 +434,46 @@ export default function HistoricoConsultas() {
                             </span>
                           </div>
                         </div>
+
+                        {/* Informação do Utente (apenas para fisioterapeutas) */}
+                        {isFisio && (
+                          <div className="border-t border-gray-100 pt-6 mt-6">
+                            <h4 className="text-sm font-medium text-gray-500 mb-4">
+                              Informações do Utente
+                            </h4>
+                            <div className="flex items-center mb-6">
+                              {sessao.utenteId?.profileImage ? (
+                                <div className="relative">
+                                  <img 
+                                    src={sessao.utenteId.profileImage} 
+                                    alt={`Foto de ${sessao.utenteId.nome}`} 
+                                    className="w-11 h-11 rounded-full object-cover border-4 border-white"
+                                  />
+                                  
+                                </div>
+                              ) : null
+                              }
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Contacto
+                                </h5>
+                                <p className="text-gray-900">
+                                  {sessao.utenteId?.telefone || "Não disponível"}
+                                </p>
+                              </div>
+                              <div>
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Email
+                                </h5>
+                                <p className="text-gray-900">
+                                  {sessao.utenteId?.email || "Não disponível"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Motivo */}
                         {(sessao.motivo || sessao.motivoCancelamento) && (
@@ -351,10 +505,12 @@ export default function HistoricoConsultas() {
                               )}
                           </div>
                         )}
+
+                        {/* Feedback */}
                         {tipoHistorico !== "canceladas" && sessao.feedbackId && (
                           <div className="border-t border-gray-100 pt-6 mt-6">
                             <h4 className="text-sm font-medium text-gray-700 mb-4">
-                              O seu Feedback 
+                              {isFisio ? "Feedback do Utente" : "O seu Feedback"}
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
@@ -425,7 +581,7 @@ export default function HistoricoConsultas() {
                                     Comentário
                                   </h5>
                                   <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
-                                    "{sessao.feedbackIdId.comentario}"
+                                    "{sessao.feedbackId.comentario}"
                                   </p>
                                 </div>
                               )}

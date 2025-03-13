@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../../components/SideBar";
-import { getAllUtentes } from "../../api/utente";
 import { useSessoes } from "../../contexts/SessoesContext";
 import {
   Calendar,
@@ -10,45 +9,57 @@ import {
   Filter,
   Star,
   XCircle,
-  Users
+  User
 } from "lucide-react";
 
 export default function HistoricoConsultas() {
-  const { sessoesReservadas, sessoesConcluidas, sessoesCanceladas, loading, allSessoes } =
-    useSessoes();
+  const { allSessoes } = useSessoes();
+  const [loading, setLoading] = useState(true);
 
-  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas" ou "canceladas"
+  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas", "concluidas" ou "canceladas"
+
   // Estado para filtro de mês
   const [mesSelecionado, setMesSelecionado] = useState("");
   
   // Estado para filtro de utente
   const [utenteSelecionado, setUtenteSelecionado] = useState("");
-  
-  // Estado para utentes
-  const [utentes, setUtentes] = useState([]);
-  const [loadingUtentes, setLoadingUtentes] = useState(false);
 
   // Estados para filtros e paginação
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
-  // Buscar todos os utentes
+  // Processando os dados das sessões
   useEffect(() => {
-    const fetchUtentes = async () => {
-      try {
-        setLoadingUtentes(true);
-        const response = await getAllUtentes();
-        setUtentes(response);
-        console.log("Utentes:", response);
-      } catch (error) {
-        console.error("Erro ao buscar utentes:", error);
-      } finally {
-        setLoadingUtentes(false);
-      }
-    };
+    if (allSessoes) {
+      setLoading(false);
+    }
+  }, [allSessoes]);
 
-    fetchUtentes();
-  }, []);
+  // Separar sessões por tipo
+  const sessoesReservadas = allSessoes ? allSessoes.filter(sessao => 
+    sessao.status === "reservada" || sessao.status === "confirmada"
+  ) : [];
+  
+  const sessoesConcluidas = allSessoes ? allSessoes.filter(sessao => 
+    sessao.status === "realizada" || sessao.status === "concluida"
+  ) : [];
+  
+  const sessoesCanceladas = allSessoes ? allSessoes.filter(sessao => 
+    sessao.status === "cancelada"
+  ) : [];
+
+  // Obter lista de utentes únicos para o filtro
+  const utentesUnicos = allSessoes ? [...new Set(allSessoes.map(sessao => 
+    sessao.utenteId?._id
+  ))].filter(id => id) : [];
+
+  const utentesList = utentesUnicos.map(utenteId => {
+    const sessao = allSessoes.find(s => s.utenteId?._id === utenteId);
+    return {
+      id: utenteId,
+      nome: sessao?.utenteId?.nome || "Utente desconhecido"
+    };
+  });
 
   // Definir qual array usar baseado no tipo selecionado
   const sessoesPorTipo =
@@ -58,28 +69,28 @@ export default function HistoricoConsultas() {
       ? sessoesConcluidas
       : sessoesCanceladas;
 
-  // Filtrar por mês e utente
-  const sessoesFiltradas = sessoesPorTipo.filter((sessao) => {
-    let passaFiltroMes = true;
-    let passaFiltroUtente = true;
-
-    // Filtro por mês
-    if (mesSelecionado) {
-      const dataSessao = new Date(
-        tipoHistorico === "canceladas"
-          ? sessao.dataConsultaOriginal
-          : sessao.dataHoraInicio
-      );
-      passaFiltroMes = dataSessao.getMonth() === parseInt(mesSelecionado);
-    }
-
-    // Filtro por utente
-    if (utenteSelecionado) {
-      passaFiltroUtente = sessao.utenteId === utenteSelecionado;
-    }
-
-    return passaFiltroMes && passaFiltroUtente;
-  });
+  // Aplicar filtros
+  const sessoesFiltradas = sessoesPorTipo
+    .filter(sessao => {
+      // Filtro por mês
+      if (mesSelecionado) {
+        const dataSessao = new Date(
+          tipoHistorico === "canceladas"
+            ? sessao.dataCancelamento || sessao.dataHoraInicio
+            : sessao.dataHoraInicio
+        );
+        if (dataSessao.getMonth() !== parseInt(mesSelecionado)) {
+          return false;
+        }
+      }
+      
+      // Filtro por utente
+      if (utenteSelecionado && sessao.utenteId?._id !== utenteSelecionado) {
+        return false;
+      }
+      
+      return true;
+    });
 
   // Lógica de paginação
   const totalPages = Math.ceil(sessoesFiltradas.length / itemsPerPage);
@@ -93,43 +104,30 @@ export default function HistoricoConsultas() {
   // Reset para página 1 quando mudar o filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [mesSelecionado, utenteSelecionado]);
+  }, [mesSelecionado, utenteSelecionado, tipoHistorico]);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  
 
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
-      scrollToTop();
     }
   };
 
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
-      scrollToTop();
     }
   };
 
   const goToPage = (pageNumber) => {
     setCurrentPage(pageNumber);
-    scrollToTop();
   };
 
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
-
-  // Função para obter o utente pelo ID
-  const getUtente = (utenteId) => {
-    return utentes.find(u => u._id === utenteId) || null;
-  };
 
   // Lista de meses para o dropdown
   const meses = [
@@ -152,7 +150,7 @@ export default function HistoricoConsultas() {
       <SideBar />
 
       <div className="flex-1 overflow-auto">
-        {loading || loadingUtentes ? (
+        {loading ? (
           <div className="flex items-center justify-center h-full">
             <span className="loading loading-spinner loading-lg text-indigo-600"></span>
           </div>
@@ -169,7 +167,7 @@ export default function HistoricoConsultas() {
                   Histórico de Sessões
                 </h1>
                 <p className="text-gray-500 max-w-xl">
-                  Acompanhe todas as suas sessões
+                  Acompanhe todas as sessões com seus utentes
                 </p>
               </div>
             </div>
@@ -261,7 +259,7 @@ export default function HistoricoConsultas() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Filtrar por Utente
@@ -273,14 +271,14 @@ export default function HistoricoConsultas() {
                         className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
                       >
                         <option value="">Todos os utentes</option>
-                        {utentes.map((utente) => (
-                          <option key={utente._id} value={utente._id}>
+                        {utentesList.map((utente) => (
+                          <option key={utente.id} value={utente.id}>
                             {utente.nome}
                           </option>
                         ))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <Users size={16} />
+                        <User size={16} />
                       </div>
                     </div>
                   </div>
@@ -302,7 +300,7 @@ export default function HistoricoConsultas() {
                   
                   {utenteSelecionado && (
                     <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
-                      Utente: {utentes.find(u => u._id === utenteSelecionado)?.nome}
+                      Utente: {utentesList.find((u) => u.id === utenteSelecionado)?.nome}
                       <button
                         onClick={() => setUtenteSelecionado("")}
                         className="ml-2 text-indigo-500 hover:text-indigo-700"
@@ -327,219 +325,238 @@ export default function HistoricoConsultas() {
 
                 {/* Lista de Sessões */}
                 <div className="space-y-6 mb-8">
-                  {allSessoes.length > 0 ? (
-                    allSessoes.map((sessao) => {
-                     const utente=sessao.utenteId;
-                      return (
-                        <div
-                          key={sessao._id}
-                          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                            <div className="flex items-start gap-4">
-                              <div className="flex-shrink-0">
-                                <div
-                                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                    tipoHistorico === "canceladas"
-                                      ? "bg-red-100"
-                                      : "bg-indigo-100"
-                                  }`}
-                                >
-                                  {tipoHistorico === "canceladas" ? (
-                                    <XCircle size={24} className="text-red-600" />
-                                  ) : (
-                                    <Calendar
-                                      size={24}
-                                      className="text-indigo-600"
-                                    />
-                                  )}
-                                </div>
+                  {getCurrentItems().length > 0 ? (
+                    getCurrentItems().map((sessao) => (
+                      <div
+                        key={sessao._id}
+                        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                          <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0">
+                              <div
+                                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                  tipoHistorico === "canceladas"
+                                    ? "bg-red-100"
+                                    : "bg-indigo-100"
+                                }`}
+                              >
+                                {tipoHistorico === "canceladas" ? (
+                                  <XCircle size={24} className="text-red-600" />
+                                ) : (
+                                  <Calendar
+                                    size={24}
+                                    className="text-indigo-600"
+                                  />
+                                )}
                               </div>
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                Sessão de Fisioterapia
+                              </h3>
+                              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                                <span className="flex items-center gap-1">
+                                  <Clock size={16} />
+                                  {new Date(
+                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                      ? sessao.dataCancelamento
+                                      : sessao.dataHoraInicio
+                                  ).toLocaleDateString()}{" "}
+                                  às{" "}
+                                  {new Date(
+                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                      ? sessao.dataCancelamento
+                                      : sessao.dataHoraInicio
+                                  ).toLocaleTimeString("pt-PT", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <User size={16} />
+                                  {sessao.utenteId?.nome || "Utente não identificado"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-4 md:mt-0">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                tipoHistorico === "canceladas"
+                                  ? "bg-red-100 text-red-700"
+                                  : sessao.status === "realizada" ||
+                                    sessao.status === "concluida"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-indigo-100 text-indigo-700"
+                              }`}
+                            >
+                              {tipoHistorico === "canceladas"
+                                ? "Cancelada"
+                                : sessao.status.charAt(0).toUpperCase() +
+                                  sessao.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Informação do Utente */}
+                        <div className="border-t border-gray-100 pt-6 mt-6">
+                          <h4 className="text-sm font-medium text-gray-500 mb-4">
+                            Informações do Utente
+                          </h4>
+                          {sessao.utenteId?.profileImage ? (
+                                <div className="relative">
+                                  <img 
+                                    src={sessao.utenteId.profileImage} 
+                                    alt={`Foto de ${sessao.utenteId.nome}`} 
+                                    className="w-11 h-11 rounded-full object-cover  border-4 border-white"
+                                  />
+                                  <div className="absolute -bottom-1 -right-1 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-md">
+                                    <User size={16} />
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center shadow-md border-4 border-white">
+                                  <User size={36} className="text-indigo-500" />
+                                </div>
+                              )}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                Contacto
+                              </h5>
+                              <p className="text-gray-900">
+                                {sessao.utenteId?.telefone || "Não disponível"}
+                              </p>
+                            </div>
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                Email
+                              </h5>
+                              <p className="text-gray-900">
+                                {sessao.utenteId?.email || "Não disponível"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Motivo */}
+                        {(sessao.motivo || sessao.motivoCancelamento) && (
+                          <div className="border-t border-gray-100 pt-6 mt-6">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-500 mb-2">
+                                {tipoHistorico === "canceladas"
+                                  ? "Motivo do Cancelamento"
+                                  : "Motivo"}
+                              </h4>
+                              <p className="text-gray-900">
+                                {tipoHistorico === "canceladas"
+                                  ? sessao.motivoCancelamento
+                                  : sessao.motivo}
+                              </p>
+                            </div>
+                            {tipoHistorico === "canceladas" &&
+                              sessao.dataCancelamento && (
+                                <div className="mt-4">
+                                  <h4 className="text-sm font-medium text-gray-500 mb-2">
+                                    Data do Cancelamento
+                                  </h4>
+                                  <p className="text-gray-900">
+                                    {new Date(
+                                      sessao.dataCancelamento
+                                    ).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              )}
+                          </div>
+                        )}
+
+                        {/* Feedback */}
+                        {tipoHistorico !== "canceladas" && sessao.feedbackId && (
+                          <div className="border-t border-gray-100 pt-6 mt-6">
+                            <h4 className="text-sm font-medium text-gray-700 mb-4">
+                              Feedback do Utente
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                  Sessão de Fisioterapia
-                                </h3>
-                                <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                  <span className="flex items-center gap-1">
-                                    <Clock size={16} />
-                                    {new Date(
-                                      tipoHistorico === "canceladas"
-                                        ? sessao.dataConsultaOriginal
-                                        : sessao.dataHoraInicio
-                                    ).toLocaleDateString()}{" "}
-                                    às{" "}
-                                    {new Date(
-                                      tipoHistorico === "canceladas"
-                                        ? sessao.dataConsultaOriginal
-                                        : sessao.dataHoraInicio
-                                    ).toLocaleTimeString("pt-PT", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Nível de Dor
+                                </h5>
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-red-600 h-2.5 rounded-full"
+                                      style={{
+                                        width: `${sessao.feedbackId.dor * 10}%`,
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-gray-900 font-medium">
+                                    {sessao.feedbackId.dor}/10
                                   </span>
                                 </div>
                               </div>
-                            </div>
-                            <div className="mt-4 md:mt-0">
-                              <span
-                                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                                  tipoHistorico === "canceladas"
-                                    ? "bg-red-100 text-red-700"
-                                    : sessao.status === "realizada" ||
-                                      sessao.status === "concluida"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-indigo-100 text-indigo-700"
-                                }`}
-                              >
-                                {tipoHistorico === "canceladas"
-                                  ? "Cancelada"
-                                  : sessao.status.charAt(0).toUpperCase() +
-                                    sessao.status.slice(1)}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          {/* Informações do Utente */}
-                          {utente && (
-                            <div className="border-t border-gray-100 pt-4 mt-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-                                  {utente.profileImage ? (
-                                    <img 
-                                      src={utente.profileImage} 
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-medium">
-                                      {utente.nome.substring(0, 2).toUpperCase()}
-                                    </div>
-                                  )}
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-medium text-gray-700">
-                                    Utente
-                                  </h4>
-                                  <p className="text-sm text-gray-900">
-                                    {utente.nome}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
 
-                          {/* Motivo */}
-                          {(sessao.motivo || sessao.motivoCancelamento) && (
-                            <div className="border-t border-gray-100 pt-6 mt-6">
                               <div>
-                                <h4 className="text-sm font-medium text-gray-500 mb-2">
-                                  {tipoHistorico === "canceladas"
-                                    ? "Motivo do Cancelamento"
-                                    : "Motivo"}
-                                </h4>
-                                <p className="text-gray-900">
-                                  {tipoHistorico === "canceladas"
-                                    ? sessao.motivoCancelamento
-                                    : sessao.motivo}
-                                </p>
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Satisfação
+                                </h5>
+                                <div className="flex items-center">
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-green-600 h-2.5 rounded-full"
+                                      style={{
+                                        width: `${
+                                          sessao.feedbackId.satisfacao * 10
+                                        }%`,
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span className="ml-2 text-gray-900 font-medium">
+                                    {sessao.feedbackId.satisfacao}
+                                  </span>
+                                </div>
                               </div>
-                              {tipoHistorico === "canceladas" &&
-                                sessao.dataCancelamento && (
-                                  <div className="mt-4">
-                                    <h4 className="text-sm font-medium text-gray-500 mb-2">
-                                      Data do Cancelamento
-                                    </h4>
-                                    <p className="text-gray-900">
-                                      {new Date(
-                                        sessao.dataCancelamento
-                                      ).toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                )}
-                            </div>
-                          )}
-                          {tipoHistorico !== "canceladas" && sessao.feedbackId && (
-                            <div className="border-t border-gray-100 pt-6 mt-6">
-                              <h4 className="text-sm font-medium text-gray-700 mb-4">
-                                O seu Feedback 
-                              </h4>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                  <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                    Nível de Dor
-                                  </h5>
-                                  <div className="flex items-center">
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                      <div
-                                        className="bg-red-600 h-2.5 rounded-full"
-                                        style={{
-                                          width: `${sessao.feedbackId.dor * 10}%`,
-                                        }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-gray-900 font-medium">
-                                      {sessao.feedbackId.dor}/10
-                                    </span>
-                                  </div>
-                                </div>
 
-                                <div>
-                                  <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                    Satisfação
-                                  </h5>
-                                  <div className="flex items-center">
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                      <div
-                                        className="bg-green-600 h-2.5 rounded-full"
-                                        style={{
-                                          width: `${
-                                            sessao.feedbackId.satisfacao * 10
-                                          }%`,
-                                        }}
-                                      ></div>
-                                    </div>
-                                    <span className="ml-2 text-gray-900 font-medium">
-                                      {sessao.feedbackId.satisfacao}
-                                    </span>
-                                  </div>
+                              <div className="md:col-span-2">
+                                <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                  Avaliação Geral
+                                </h5>
+                                <div className="flex items-center text-yellow-400">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      size={20}
+                                      className={
+                                        star <= sessao.feedbackId.avaliacao
+                                          ? "fill-current"
+                                          : ""
+                                      }
+                                    />
+                                  ))}
+                                  <span className="ml-2 text-gray-900">
+                                    {sessao.feedbackId.avaliacao}/5
+                                  </span>
                                 </div>
+                              </div>
 
+                              {sessao.feedbackId.comentario && (
                                 <div className="md:col-span-2">
                                   <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                    Avaliação Geral
+                                    Comentário
                                   </h5>
-                                  <div className="flex items-center text-yellow-400">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                      <Star
-                                        key={star}
-                                        size={20}
-                                        className={
-                                          star <= sessao.feedbackId.avaliacao
-                                            ? "fill-current"
-                                            : ""
-                                        }
-                                      />
-                                    ))}
-                                    <span className="ml-2 text-gray-900">
-                                      {sessao.feedbackId.avaliacao}/5
-                                    </span>
-                                  </div>
+                                  <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
+                                    "{sessao.feedbackId.comentario}"
+                                  </p>
                                 </div>
-
-                                {sessao.feedbackId.comentario && (
-                                  <div className="md:col-span-2">
-                                    <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                      Comentário
-                                    </h5>
-                                    <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
-                                      "{sessao.feedbackId.comentario}"
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })
+                          </div>
+                        )}
+
+                       
+                      </div>
+                    ))
                   ) : (
                     <div className="text-center py-8">
                       <Calendar

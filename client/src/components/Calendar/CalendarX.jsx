@@ -209,11 +209,7 @@ function CalendarApp() {
 
   return (
     <div>
-      {isFisio && !allSessoes?.length && (
-        <div className="text-center p-4 mb-4 bg-yellow-100 text-yellow-800 rounded">
-          Nenhuma sessão disponível para visualização.
-        </div>
-      )}
+     
       
       <ScheduleXCalendar calendarApp={calendar} />
 

@@ -80,6 +80,7 @@ export const reservarSessao = async (sessaoId, userId, motivo) => {
   const data = await response.json();
   
   if (!response.ok) {
+    
     throw new Error(data.message);
   }
   
@@ -117,13 +118,12 @@ export const createSessao = async (sessaoData) => {
       descricao: sessaoData.descricao || ""
     };
     
-    console.log(payload);
     if (sessaoData.status === 'reservada' && sessaoData.utenteId) {
       payload.utenteId = sessaoData.utenteId;
     }
 
     const response = await api.post('/sessoes/criarSessao', payload);
-    return response.data.sessao;
+    return response;
   } catch (error) {
     console.error('Erro ao criar sessão:', error);
     throw error.response?.data?.mensagem 

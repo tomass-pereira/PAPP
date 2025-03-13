@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../../components/SideBar";
 import CalendarApp from "../../components/Calendar/CalendarX";
-import { PlusIcon, XIcon, RefreshIcon, FilterIcon, SearchIcon, CalendarIcon } from "@heroicons/react/solid";
-import { createSessao } from "../../api/sessoes";
+import { PlusIcon, XIcon, RefreshIcon, FilterIcon, CalendarIcon } from "@heroicons/react/solid";
+import { createSessao, reservarSessao } from "../../api/sessoes";
 import { getAllUtentes } from "../../api/utente";
+
 export default function CalendarioFisio() {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
   const [utentes, setUtentes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -24,46 +24,48 @@ export default function CalendarioFisio() {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-
-
-
-  // Efeito para mostrar seleção de utente quando status for "reservada"
+  
+  // Efeito para carregar utentes e configurar seleção quando status for "reservada"
   useEffect(() => {
-   
-        // Function to fetch utentes
-        const fetchUtentes = async () => {
-          try {
-            setLoading(true);
+    // Function to fetch utentes
+    const fetchUtentes = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllUtentes();
+        setUtentes(response);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching utentes - full error:", err);
+        setError(
+          "Ocorreu um erro ao carregar os utentes. Por favor, tente novamente."
+        );
+        setUtentes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Call the fetch function
+    fetchUtentes();
     
-            const response = await getAllUtentes();
-    
-            setUtentes(response);
-            setError(null);
-          } catch (err) {
-            console.error("Error fetching utentes - full error:", err);
-            setError(
-              "Ocorreu um erro ao carregar os utentes. Por favor, tente novamente."
-            );
-            setUtentes([]);
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        // Call the fetch function
-        fetchUtentes();
-      console.log(utentes);
+    // Set utenteId selection when status is "reservada"
     if (formData.status === "reservada") {
       setSelectUtente(true);
+      
+      // If there are utentes and no utenteId is selected, select the first one automatically
+      if (utentes.length > 0 && !formData.utenteId) {
+        setFormData(prev => ({
+          ...prev,
+          utenteId: utentes[0]._id
+        }));
+      }
     } else {
       setSelectUtente(false);
     }
-  }, [formData.status]);
+  }, [formData.status, utentes.length]);
 
- 
   const refreshCalendar = () => {
-   window.location.reload();    
+    window.location.reload();    
     setTimeout(() => {
       setIsRefreshing(false);
       // Exibir toast de sucesso
@@ -94,20 +96,40 @@ export default function CalendarioFisio() {
     }));
   };
 
+  const handleStatusChange = (status) => {
+    setFormData(prev => ({
+      ...prev,
+      status: status
+    }));
+    
+    // If status is "reservada" and there are utentes, automatically set the first utente
+    if (status === "reservada" && utentes.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        status: status,
+        utenteId: utentes[0]._id
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+      if(formData.dataHoraInicio<new Date().toISOString().split('.')[0]){
+        setError("Data e hora de início inválida");
+        setLoading(false);
+        return;
+      }
     try {
       const dataInicio = new Date(formData.dataHoraInicio);
       const dataFim = new Date(dataInicio.getTime() + formData.duracao * 60000);
-      
       const sessaoData = {
         dataHoraInicio: formData.dataHoraInicio,
         dataHoraFim: dataFim.toISOString().split('.')[0],
         duracao: formData.duracao,
         status: formData.status,
+        utenteId: formData.utenteId,
         motivo: formData.motivo,
       };
       
@@ -116,7 +138,11 @@ export default function CalendarioFisio() {
         sessaoData.utenteId = formData.utenteId;
       }
 
-      await createSessao(sessaoData, );
+      const novasessaoId =await createSessao(sessaoData);
+      if(sessaoData.utenteId){
+
+        await reservarSessao(novasessaoId.data.id, sessaoData.utenteId, sessaoData.motivo);
+      }
       
       setSuccess(true);
       setFormData({
@@ -162,61 +188,7 @@ export default function CalendarioFisio() {
 
           {/* Barra de ferramentas */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            {/* Barra de pesquisa */}
-            <div className="relative w-full md:w-80">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <SearchIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Pesquisar por utente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2 md:space-x-4">
-              {/* Filtro */}
-              <div className="relative">
-               
-                
-                {showFilterMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-20 border">
-                    <button 
-                      onClick={() => {setFilter("todos"); setShowFilterMenu(false);}}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${filter === "todos" ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-700"}`}
-                    >
-                      Todos
-                    </button>
-                    <button 
-                      onClick={() => {setFilter("disponivel"); setShowFilterMenu(false);}}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${filter === "disponivel" ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-700"}`}
-                    >
-                      Disponível
-                    </button>
-                    <button 
-                      onClick={() => {setFilter("reservada"); setShowFilterMenu(false);}}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${filter === "reservada" ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-700"}`}
-                    >
-                      Reservada
-                    </button>
-                    <button 
-                      onClick={() => {setFilter("andamento"); setShowFilterMenu(false);}}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${filter === "andamento" ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-700"}`}
-                    >
-                      Em andamento
-                    </button>
-                    <button 
-                      onClick={() => {setFilter("cancelada"); setShowFilterMenu(false);}}
-                      className={`block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 ${filter === "cancelada" ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-700"}`}
-                    >
-                      Cancelada
-                    </button>
-                  </div>
-                )}
-              </div>
-              
+            <div className="flex items-center space-x-2 md:space-x-4 ml-auto">
               {/* Botão de atualizar */}
               <button 
                 onClick={refreshCalendar}
@@ -360,7 +332,7 @@ export default function CalendarioFisio() {
                     name="status"
                     value="disponivel"
                     checked={formData.status === "disponivel"}
-                    onChange={handleChange}
+                    onChange={() => handleStatusChange("disponivel")}
                     className="radio radio-primary"
                   />
                   <span className={`${formData.status === "disponivel" ? "text-primary font-medium" : ""}`}>Disponível</span>
@@ -371,7 +343,7 @@ export default function CalendarioFisio() {
                     name="status"
                     value="reservada"
                     checked={formData.status === "reservada"}
-                    onChange={handleChange}
+                    onChange={() => handleStatusChange("reservada")}
                     className="radio radio-primary"
                   />
                   <span className={`${formData.status === "reservada" ? "text-primary font-medium" : ""}`}>Reservada</span>
@@ -435,7 +407,6 @@ export default function CalendarioFisio() {
             
             <div className="modal-action">
               <form method="dialog">
-                <button type="button" className="btn btn-outline mr-2">Cancelar</button>
               </form>
               <button
                 type="submit"
@@ -454,41 +425,10 @@ export default function CalendarioFisio() {
             </div>
           </form>
         </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
+       
       </dialog>
 
-      {/* Estilos para animações */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(1rem);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeOut {
-          from {
-            opacity: 1;
-          }
-          to {
-            opacity: 0;
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fadeInUp 0.3s ease-out forwards;
-        }
-        
-        .animate-fade-out {
-          animation: fadeOut 0.3s ease-out forwards;
-        }
-      `}</style>
+    
     </>
   );
 }

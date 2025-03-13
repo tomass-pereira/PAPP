@@ -11,6 +11,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import FisioLoginPage from "./pages/auth/FisioLoginPage.jsx";
+import GerirPlanos from "./pages/admin/GerirPlanos.jsx";
+import HistoricoSessoes from "./pages/admin/HistoricoSessoes.jsx";
+
 
 import CreateAccount from "./pages/CreateAccount.jsx";
 import { UserProvider } from "./contexts/UserContext.jsX";
@@ -30,7 +33,7 @@ import Config from "./pages/Main/Config.jsx";
 import Utentes from "./pages/admin/Utentes.jsx";
 import Historico from "./pages/admin/HistoricoSessoes.jsx";
 
-import GerirPlanos from "./pages/admin/AdicionarPlano.jsx";
+import AdicionarPlanos from "./pages/admin/AdicionarPlano.jsx";
 
 // AuthWrapper component
 const AuthWrapper = ({ children }) => {
@@ -177,6 +180,22 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/Fisio/GerirPlanos"
+          element={
+            <ProtectedAnimatedPage>
+              <GerirPlanos />
+            </ProtectedAnimatedPage>
+          }
+        />
+         <Route
+          path="/Fisio/HistoricoSessoes"
+          element={
+            <ProtectedAnimatedPage>
+              <HistoricoSessoes />
+            </ProtectedAnimatedPage>
+          }
+        />
+        <Route
           path="/Inicio"
           element={
             <ProtectedAnimatedPage>
@@ -196,7 +215,7 @@ const AnimatedRoutes = () => {
           path="/Fisio/AdicionarPlano"
           element={
             <ProtectedAnimatedPage>
-              <GerirPlanos />
+              <AdicionarPlanos />
             </ProtectedAnimatedPage>
           }
         />

@@ -57,15 +57,14 @@ const Sidebar = () => {
       path: isFisio ? "/Fisio/Calendario" : "/AgendarSessao",
     },
     // Item exclusivo para utentes
-    ...(!isFisio ? [
+   
       {
         id: "Planos",
         label: "Planos de Tratamento",
         icon: BookOpen,
         path: isFisio ? "/Fisio/GerirPlanos" :"/planosTratamento",
-      }
-    ] : []),
-    // Item exclusivo para administradores/fisioterapeutas
+      },
+    
     ...(isFisio ? [
       {
         id: "patients",
@@ -76,15 +75,15 @@ const Sidebar = () => {
     ] : []),
     {
       id: "appointments",
-      label: isFisio ? "Consultas" : "Sessões",
+      label: "Sessões",
       icon: Clock,
-      path:"/MinhasSessoes",
+      path: "/MinhasSessoes",
     },
     {
       id: "notifications",
       label: "Notificações",
       icon: NotificationIcon,
-      path: isFisio ? "/Admin/Notificacoes" : "/NotificationsPage",
+      path: "/NotificationsPage",
     },
   ];
 
