@@ -407,12 +407,7 @@ export default function HistoricoConsultas() {
                                   })}
                                 </span>
                                 {/* Só mostra o nome do utente para fisioterapeutas */}
-                                {isFisio && (
-                                  <span className="flex items-center gap-1">
-                                    <User size={16} />
-                                    {sessao.utenteId?.nome || "Utente não identificado"}
-                                  </span>
-                                )}
+                                
                               </div>
                             </div>
                           </div>

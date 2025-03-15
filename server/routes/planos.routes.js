@@ -166,7 +166,20 @@ router.get('/:id', async (req, res) => {
       });
     }
   });
-  
+  router.get('/', async (req, res) => {
+    try {
+        // Buscar todas as sessões e fazer populate do utenteId
+        const planos = await Planos.find()
+          
+        res.status(200).json(planos);
+        
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Erro ao buscar planos",
+            error: error.message 
+        });
+    }
+});
  // Rota para buscar todos os planos de um utente específico
 router.get('/buscarPlanos/:utenteId', async (req, res) => {
     try {

@@ -19,7 +19,7 @@ import {
 import { getAllUtentes } from "../../api/utente";
 export default function CriarPlanoTratamento() {
   const navigate = useNavigate();
-const { criarPlano } = usePlanos();
+  const { criarPlano } = usePlanos();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -28,7 +28,7 @@ const { criarPlano } = usePlanos();
   const [loading, setLoading] = useState(false);
   const [defaultSessionTime, setDefaultSessionTime] = useState({
     hours: "09",
-    minutes: "00"
+    minutes: "00",
   });
 
   // Estado do formulário
@@ -37,7 +37,6 @@ const { criarPlano } = usePlanos();
     utenteId: "",
     detalhes: "",
     objetivos: [""],
-    tipotratamento: "Reabilitação",
     dataInicio: "",
     dataFim: "",
     duracao: { valor: 8, unidade: "semanas" },
@@ -79,80 +78,82 @@ const { criarPlano } = usePlanos();
   // Carregar utentes para selecionar
 
   // Função para calcular datas de sessão com base na frequência
- // Função segura para calcular datas de sessão com base na frequência
-const calcularDatasSessoes = () => {
+  // Função segura para calcular datas de sessão com base na frequência
+  const calcularDatasSessoes = () => {
     if (!formData.dataInicio) return [];
-  
+
     try {
       const dataInicio = new Date(formData.dataInicio);
-      
+
       // Verificação de data válida
       if (isNaN(dataInicio.getTime())) {
         console.error("Data de início inválida");
         return [];
       }
-      
+
       const dataFim = formData.dataFim ? new Date(formData.dataFim) : null;
-      
+
       // Verificação de data fim válida
       if (dataFim && isNaN(dataFim.getTime())) {
         console.error("Data de fim inválida");
         return [];
       }
-      
+
       const sessoes = [];
       const diasSelecionados = sessoesConfig.diasDaSemana.map(Number);
-  
+
       // Se nenhum dia da semana estiver selecionado, usamos o dia inicial
       if (diasSelecionados.length === 1) {
         diasSelecionados.push(dataInicio.getDay());
       }
-  
+
       // Definir um limite de segurança para evitar loops infinitos
       // (máximo de 100 sessões ou 365 dias para evitar loops infinitos)
       let maxIterations = 365;
       let currentDate = new Date(dataInicio);
       const maxSessoes = parseInt(sessoesConfig.quantidade, 10) || 10;
-      
+
       while (maxIterations > 0 && sessoes.length < maxSessoes) {
         // Verificar se ultrapassamos a data fim
         if (dataFim && currentDate > dataFim) {
           break;
         }
-        
+
         if (diasSelecionados.includes(currentDate.getDay())) {
           const dataHoraInicio = new Date(currentDate);
           dataHoraInicio.setHours(
-            parseInt(defaultSessionTime.hours, 10), 
-            parseInt(defaultSessionTime.minutes, 10), 
+            parseInt(defaultSessionTime.hours, 10),
+            parseInt(defaultSessionTime.minutes, 10),
             0
           );
-  
+
           const dataHoraFim = new Date(dataHoraInicio);
           dataHoraFim.setMinutes(
             dataHoraFim.getMinutes() + parseInt(sessoesConfig.duracao, 10)
           );
-  
+
           sessoes.push({
             dataHoraInicio: dataHoraInicio.toISOString().split(".")[0],
             dataHoraFim: dataHoraFim.toISOString().split(".")[0],
             duracao: parseInt(sessoesConfig.duracao, 10),
-            descricao: `Sessão ${sessoes.length + 1} - ${formData.titulo || 'Tratamento'}`,
+            descricao: `Sessão ${sessoes.length + 1} - ${
+              formData.titulo || "Tratamento"
+            }`,
             status: "reservada",
           });
         }
-  
+
         // Avançamos para o próximo dia
         currentDate.setDate(currentDate.getDate() + 1);
         maxIterations--;
       }
-  
+
       return sessoes;
     } catch (error) {
       console.error("Erro ao calcular sessões:", error);
       return []; // Retorna array vazio em caso de erro
     }
-  }
+  };
 
   // Atualizar sessões quando a configuração mudar
   useEffect(() => {
@@ -163,14 +164,19 @@ const calcularDatasSessoes = () => {
         sessoes: novasSessoes,
       }));
     }
-  }, [sessoesConfig, formData.dataInicio, formData.dataFim, defaultSessionTime]);
+  }, [
+    sessoesConfig,
+    formData.dataInicio,
+    formData.dataFim,
+    defaultSessionTime,
+  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "utenteId") {
       setUtenteSelected(value);
-      console.log(value);   
+      console.log(value);
     }
 
     setFormData((prev) => ({
@@ -300,21 +306,21 @@ const calcularDatasSessoes = () => {
       // Filtrar objetivos vazios
       // Dados a enviar
       const dadosPlano = {
-          ...formData,
-          objetivos: formData.objetivos,
-          sessoes: formData.sessoes.map((sessao) => ({
-              dataHoraInicio: sessao.dataHoraInicio,
-              dataHoraFim: sessao.dataHoraFim,
-              duracao: sessao.duracao,
-              descricao: sessao.descricao,
-              status: sessao.status,
-            })),
-        };
-        console.log(formData);
+        ...formData,
+        objetivos: formData.objetivos,
+        sessoes: formData.sessoes.map((sessao) => ({
+          dataHoraInicio: sessao.dataHoraInicio,
+          dataHoraFim: sessao.dataHoraFim,
+          duracao: sessao.duracao,
+          descricao: sessao.descricao,
+          status: sessao.status,
+        })),
+      };
+      console.log(formData);
 
       const data = await criarPlano(dadosPlano);
 
-     console.log(data);
+      console.log(data);
 
       // Adicionar ao state do context
 
@@ -328,7 +334,6 @@ const calcularDatasSessoes = () => {
           utenteId: "",
           detalhes: "",
           objetivos: [""],
-          tipotratamento: "",
           dataInicio: "",
           dataFim: "",
           duracao: { valor: 8, unidade: "semanas" },
@@ -513,32 +518,6 @@ const calcularDatasSessoes = () => {
                           placeholder="Ex: Reabilitação do Joelho"
                           required
                         />
-                      </div>
-
-                      {/* Tipo de Tratamento */}
-                      <div className="mb-4">
-                        <label
-                          htmlFor="tipotratamento"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Tipo de Tratamento
-                        </label>
-                        <select
-                          id="tipotratamento"
-                          name="tipotratamento"
-                          value={formData.tipotratamento}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                          <option value="">Selecione um tipo</option>
-                          <option value="Ortopédico">Ortopédico</option>
-                          <option value="Neurológico">Neurológico</option>
-                          <option value="Respiratório">Respiratório</option>
-                          <option value="Pediátrico">Pediátrico</option>
-                          <option value="Geriátrico">Geriátrico</option>
-                          <option value="Desportivo">Desportivo</option>
-                          <option value="Outro">Outro</option>
-                        </select>
                       </div>
 
                       {/* Detalhes */}
@@ -730,7 +709,7 @@ const calcularDatasSessoes = () => {
                   {/* Configuração de Sessões */}
                   <div className="mt-8">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Configuração das Sessões 
+                      Configuração das Sessões
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -797,27 +776,40 @@ const calcularDatasSessoes = () => {
 
                       {/* Horário das Sessões */}
                       <div>
-                        <label
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                           Horário das Sessões
                         </label>
                         <div className="flex space-x-2">
                           <select
                             value={setDefaultSessionTime.hours}
-                            onChange={(e) => setDefaultSessionTime(prev => ({...prev, hours: e.target.value}))}
+                            onChange={(e) =>
+                              setDefaultSessionTime((prev) => ({
+                                ...prev,
+                                hours: e.target.value,
+                              }))
+                            }
                             className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                           >
-                            {Array.from({length: 13}, (_, i) => i + 8).map(hour => (
-                              <option key={`hour-${hour}`} value={hour.toString().padStart(2, '0')}>
-                                {hour.toString().padStart(2, '0')}h
-                              </option>
-                            ))}
+                            {Array.from({ length: 13 }, (_, i) => i + 8).map(
+                              (hour) => (
+                                <option
+                                  key={`hour-${hour}`}
+                                  value={hour.toString().padStart(2, "0")}
+                                >
+                                  {hour.toString().padStart(2, "0")}h
+                                </option>
+                              )
+                            )}
                           </select>
                           <span className="self-center">:</span>
                           <select
                             value={defaultSessionTime.minutes}
-                            onChange={(e) => setDefaultSessionTime(prev => ({...prev, minutes: e.target.value}))}
+                            onChange={(e) =>
+                              setDefaultSessionTime((prev) => ({
+                                ...prev,
+                                minutes: e.target.value,
+                              }))
+                            }
                             className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                           >
                             <option value="00">00min</option>
@@ -858,11 +850,14 @@ const calcularDatasSessoes = () => {
                         <CalendarPlus className="w-4 h-4 mr-1" />
                         Pré-visualização das Sessões ({formData.sessoes.length})
                       </h4>
-                      
+
                       {formData.sessoes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {formData.sessoes.slice(0, 6).map((sessao, index) => (
-                            <div key={index} className="bg-white p-3 rounded border border-gray-200">
+                            <div
+                              key={index}
+                              className="bg-white p-3 rounded border border-gray-200"
+                            >
                               <div className="font-medium text-indigo-600 mb-1">
                                 {sessao.descricao}
                               </div>
@@ -873,7 +868,8 @@ const calcularDatasSessoes = () => {
                                 </div>
                                 <div className="flex items-center mt-1">
                                   <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                                  {formatarHora(sessao.dataHoraInicio)} - {formatarHora(sessao.dataHoraFim)}
+                                  {formatarHora(sessao.dataHoraInicio)} -{" "}
+                                  {formatarHora(sessao.dataHoraFim)}
                                 </div>
                               </div>
                             </div>
@@ -882,13 +878,16 @@ const calcularDatasSessoes = () => {
                       ) : (
                         <div className="text-center py-6 text-gray-500">
                           <Info className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                          <p>Configure as sessões acima para visualizá-las aqui.</p>
+                          <p>
+                            Configure as sessões acima para visualizá-las aqui.
+                          </p>
                           <p className="text-sm mt-1">
-                            Selecione dias da semana, quantidade e horário para gerar sessões.
+                            Selecione dias da semana, quantidade e horário para
+                            gerar sessões.
                           </p>
                         </div>
                       )}
-                      
+
                       {formData.sessoes.length > 6 && (
                         <div className="mt-2 text-sm text-gray-500 text-center">
                           + {formData.sessoes.length - 6} outras sessões

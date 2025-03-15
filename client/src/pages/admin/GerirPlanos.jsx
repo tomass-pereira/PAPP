@@ -18,10 +18,11 @@ import {
   BarChart2,
 } from "lucide-react";
 import { getAllUtentes } from "../../api/utente";
+import {getAllPlanos} from '../../api/planos'
 
 export default function GerirPlanos() {
   const navigate = useNavigate();
-  const { planos, carregarPlanos } = usePlanos();
+const [allPlanos, setAllPlanos]=useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filteredPlanos, setFilteredPlanos] = useState([]);
@@ -40,7 +41,9 @@ export default function GerirPlanos() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        await carregarPlanos();
+       const planos= await getAllPlanos();
+        setAllPlanos(planos)
+        console.log(allPlanos);
         const utentesData = await getAllUtentes();
         setUtentes(utentesData);
         setError(null);
@@ -53,13 +56,13 @@ export default function GerirPlanos() {
     };
 
     fetchData();
-  }, [carregarPlanos]);
+  }, []);
 
   // Filtrar planos com base nos filtros aplicados
   useEffect(() => {
-    if (!planos) return;
+    if (!allPlanos) return;
 
-    let filtered = [...planos];
+    let filtered = [...allPlanos];
 
     // Aplicar filtro de status
     if (statusFilter !== "todos") {
@@ -72,7 +75,7 @@ export default function GerirPlanos() {
     }
 
     setFilteredPlanos(filtered);
-  }, [planos, statusFilter, utenteSelecionado]);
+  }, [ statusFilter, utenteSelecionado]);
 
   // Reset para página 1 quando mudar o filtro
   useEffect(() => {
@@ -121,10 +124,9 @@ export default function GerirPlanos() {
 
   // Navegação para criar novo plano
   const navegarParaCriarPlano = () => {
-    navigate("/planos/criar");
+    navigate("/Fisio/AdicionarPlano");
   };
 
-  // Navegação para ver detalhes do plano
   const verDetalhesPlano = (planoId) => {
     navigate(`/planos/${planoId}`);
   };
@@ -242,7 +244,7 @@ export default function GerirPlanos() {
                     Total de Planos
                   </h3>
                   <p className="text-3xl font-bold text-gray-900">
-                    {planos?.length || 0}
+                    {allPlanos?.length || 0}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -250,7 +252,7 @@ export default function GerirPlanos() {
                     Em Andamento
                   </h3>
                   <p className="text-3xl font-bold text-indigo-600">
-                    {planos?.filter(p => p.status === "Em Andamento").length || 0}
+                    {allPlanos?.filter(p => p.status === "Em Andamento").length || 0}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -258,7 +260,7 @@ export default function GerirPlanos() {
                     Pacientes em Tratamento
                   </h3>
                   <p className="text-3xl font-bold text-green-600">
-                    {new Set(planos?.filter(p => p.status === "Em Andamento").map(p => p.utenteId)).size || 0}
+                    {new Set(allPlanos?.filter(p => p.status === "Em Andamento").map(p => p.utenteId)).size || 0}
                   </p>
                 </div>
               </div>
