@@ -5,12 +5,22 @@ import SideBar from "../../components/SideBar";
 import {
   Calendar,
   Clock,
-  FileText,
-  Filter,
-  XCircle,
-  Users,
+  ChevronRight,
   BookOpen,
   CheckCircle,
+  BarChart,
+  ArrowRight,
+  Timer,
+  Info,
+  Award,
+  Activity,
+  Search,
+  Filter,
+  ChevronDown,
+  X,
+  FileText,
+  XCircle,
+  Users,
   Plus,
   Eye,
   Edit,
@@ -18,19 +28,21 @@ import {
   BarChart2,
 } from "lucide-react";
 import { getAllUtentes } from "../../api/utente";
-import {getAllPlanos} from '../../api/planos'
+import { getAllPlanos } from '../../api/planos';
 
 export default function GerirPlanos() {
   const navigate = useNavigate();
-const [allPlanos, setAllPlanos]=useState([]);
+  const [allPlanos, setAllPlanos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filteredPlanos, setFilteredPlanos] = useState([]);
   const [utentes, setUtentes] = useState([]);
+    const [planoSelecionado, setPlanoSelecionado] = useState(null);
   
   // Estados para filtros
   const [statusFilter, setStatusFilter] = useState("todos");
   const [utenteSelecionado, setUtenteSelecionado] = useState("");
+  const [pesquisa, setPesquisa] = useState("");
 
   // Estado para paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,9 +53,9 @@ const [allPlanos, setAllPlanos]=useState([]);
     const fetchData = async () => {
       try {
         setLoading(true);
-       const planos= await getAllPlanos();
-        setAllPlanos(planos)
-        console.log(allPlanos);
+        const planos = await getAllPlanos();
+        setAllPlanos(planos);
+        setFilteredPlanos(planos);
         const utentesData = await getAllUtentes();
         setUtentes(utentesData);
         setError(null);
@@ -74,13 +86,22 @@ const [allPlanos, setAllPlanos]=useState([]);
       filtered = filtered.filter(plano => plano.utenteId === utenteSelecionado);
     }
 
+    // Aplicar filtro de pesquisa
+    if (pesquisa) {
+      filtered = filtered.filter(plano => 
+        plano.titulo?.toLowerCase().includes(pesquisa.toLowerCase()) || 
+        encontrarNomeUtente(plano.utenteId).toLowerCase().includes(pesquisa.toLowerCase()) ||
+        (plano.tipotratamento || "").toLowerCase().includes(pesquisa.toLowerCase())
+      );
+    }
+
     setFilteredPlanos(filtered);
-  }, [ statusFilter, utenteSelecionado]);
+  }, [allPlanos, statusFilter, utenteSelecionado, pesquisa]);
 
   // Reset para página 1 quando mudar o filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, utenteSelecionado]);
+  }, [statusFilter, utenteSelecionado, pesquisa]);
 
   // Lógica de paginação
   const totalPages = Math.ceil(filteredPlanos.length / itemsPerPage);
@@ -189,32 +210,48 @@ const [allPlanos, setAllPlanos]=useState([]);
     return sessoes.filter(sessao => sessao.status === status).length;
   };
 
-  // Definir classe de badge com base no status
-  const getStatusClass = (status) => {
-    switch(status) {
-      case "Em Andamento":
-        return "bg-green-100 text-green-700";
-      case "Agendado":
-        return "bg-blue-100 text-blue-700";
-      case "Concluído":
-        return "bg-purple-100 text-purple-700";
-      case "Cancelado":
-        return "bg-red-100 text-red-700";
-      case "Pausado":
-        return "bg-yellow-100 text-yellow-700";
-      default:
-        return "bg-gray-100 text-gray-700";
+  // Calcular progresso detalhado para um plano (similar ao calcularProgressoPlano do primeiro arquivo)
+  const calcularProgressoPlano = (plano) => {
+    if (!plano || !plano.sessoes) {
+      return {
+        percentualConcluido: 0,
+        sessoesRealizadas: 0,
+        sessoesTotais: 0
+      };
     }
+    
+    const sessoesRealizadas = plano.sessoes.filter(s => s.status === "concluida" || s.status === "Realizada").length;
+    const sessoesTotais = plano.sessoes.length;
+    
+    // Se não tem sessões, considera 0% de progresso
+    if (sessoesTotais === 0) {
+      return {
+        percentualConcluido: 0,
+        sessoesRealizadas: 0,
+        sessoesTotais: 0
+      };
+    }
+    
+    // Calcula percentual com base nas sessões realizadas
+    const percentualConcluido = Math.round((sessoesRealizadas / sessoesTotais) * 100);
+    
+    return {
+      percentualConcluido,
+      sessoesRealizadas,
+      sessoesTotais
+    };
   };
 
   return (
     <div className="flex h-screen bg-[#f8fafc]">
       <SideBar />
-
       <div className="flex-1 overflow-auto">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <span className="loading loading-spinner loading-lg text-indigo-600"></span>
+          <div className="flex h-screen items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Carregando planos de tratamento...</p>
+            </div>
           </div>
         ) : (
           <div className="max-w-[1200px] mx-auto">
@@ -223,14 +260,12 @@ const [allPlanos, setAllPlanos]=useState([]);
               <div className="w-100% mx-auto">
                 <div className="flex items-center gap-3 text-indigo-600 mb-3">
                   <BookOpen size={20} />
-                  <span className="text-sm font-medium">
-                    Gestão de Tratamentos
-                  </span>
+                  <span className="text-sm font-medium">Gestão de Tratamentos</span>
                 </div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-3">
+                <h1 className="text-4xl font-bold text-indigo-600 mb-3">
                   Planos de Tratamento
                 </h1>
-                <p className="text-gray-500 max-w-xl">
+                <p className="text-gray-600 max-w-xl">
                   Visualize e gerencie todos os planos de tratamento em andamento, agendados e concluídos.
                 </p>
               </div>
@@ -240,115 +275,124 @@ const [allPlanos, setAllPlanos]=useState([]);
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                  <h3 className="text-gray-500 text-sm font-medium mb-2">
-                    Total de Planos
-                  </h3>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {allPlanos?.length || 0}
-                  </p>
+                  <h3 className="text-gray-500 text-sm font-medium mb-2">Total de Planos</h3>
+                  <p className="text-3xl font-bold text-gray-900">{allPlanos?.length || 0}</p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                  <h3 className="text-gray-500 text-sm font-medium mb-2">
-                    Em Andamento
-                  </h3>
+                  <h3 className="text-gray-500 text-sm font-medium mb-2">Em Andamento</h3>
                   <p className="text-3xl font-bold text-indigo-600">
                     {allPlanos?.filter(p => p.status === "Em Andamento").length || 0}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                  <h3 className="text-gray-500 text-sm font-medium mb-2">
-                    Pacientes em Tratamento
-                  </h3>
+                  <h3 className="text-gray-500 text-sm font-medium mb-2">Pacientes em Tratamento</h3>
                   <p className="text-3xl font-bold text-green-600">
                     {new Set(allPlanos?.filter(p => p.status === "Em Andamento").map(p => p.utenteId)).size || 0}
                   </p>
                 </div>
               </div>
 
-              {/* Filtros */}
+              {/* Filtros e Pesquisa */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
                 <div className="flex items-center gap-3 mb-6">
                   <Filter size={20} className="text-gray-400" />
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Filtros
-                  </h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Filtrar Planos</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="w-full">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status do Plano
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
-                      >
-                        <option value="todos">Todos os status</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Agendado">Agendado</option>
-                        <option value="Concluído">Concluído</option>
-                        <option value="Cancelado">Cancelado</option>
-                        <option value="Pausado">Pausado</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <BarChart2 size={16} />
-                      </div>
-                    </div>
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="relative md:w-64">
+                    <select 
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
+                    >
+                      <option value="todos">Todos os status</option>
+                      <option value="Em Andamento">Em andamento</option>
+                      <option value="Agendado">Agendados</option>
+                      <option value="Concluído">Concluídos</option>
+                      <option value="Cancelado">Cancelados</option>
+                      <option value="Pausado">Pausados</option>
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                   </div>
                   
-                  <div className="w-full">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Filtrar por Paciente
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={utenteSelecionado}
-                        onChange={(e) => setUtenteSelecionado(e.target.value)}
-                        className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
-                      >
-                        <option value="">Todos os pacientes</option>
-                        {utentes.map((utente) => (
-                          <option key={utente._id} value={utente._id}>
-                            {utente.nome} {utente.apelido || ''}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <Users size={16} />
-                      </div>
+                  <div className="relative md:w-64">
+                    <select 
+                      value={utenteSelecionado}
+                      onChange={(e) => setUtenteSelecionado(e.target.value)}
+                      className="w-full appearance-none px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none pr-10"
+                    >
+                      <option value="">Todos os pacientes</option>
+                      {utentes.map((utente) => (
+                        <option key={utente._id} value={utente._id}>
+                          {utente.nome} {utente.apelido || ''}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                  
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Search className="w-5 h-5 text-gray-400" />
                     </div>
+                    <input 
+                      type="search" 
+                      value={pesquisa}
+                      onChange={(e) => setPesquisa(e.target.value)}
+                      placeholder="Pesquisar por título, paciente ou tipo..." 
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    />
+                    {pesquisa && (
+                      <button
+                        onClick={() => setPesquisa("")}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
-
+                
                 {/* Mostrar filtros ativos */}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {statusFilter !== "todos" && (
-                    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                       Status: {statusFilter}
                       <button
                         onClick={() => setStatusFilter("todos")}
-                        className="ml-2 text-indigo-500 hover:text-indigo-700"
+                        className="ml-1 text-indigo-600 hover:text-indigo-800"
                       >
-                        <XCircle size={16} />
+                        <X size={14} />
                       </button>
                     </div>
                   )}
                   
                   {utenteSelecionado && (
-                    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                       Paciente: {encontrarNomeUtente(utenteSelecionado)}
                       <button
                         onClick={() => setUtenteSelecionado("")}
-                        className="ml-2 text-indigo-500 hover:text-indigo-700"
+                        className="ml-1 text-indigo-600 hover:text-indigo-800"
                       >
-                        <XCircle size={16} />
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {pesquisa && (
+                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      Pesquisa: {pesquisa}
+                      <button
+                        onClick={() => setPesquisa("")}
+                        className="ml-1 text-indigo-600 hover:text-indigo-800"
+                      >
+                        <X size={14} />
                       </button>
                     </div>
                   )}
                 </div>
               </div>
-
+              
               {/* Botão Novo Plano */}
               <div className="flex justify-end mb-4">
                 <button
@@ -360,220 +404,217 @@ const [allPlanos, setAllPlanos]=useState([]);
                 </button>
               </div>
 
-              {/* Resultados */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Planos de Tratamento
-                  </h2>
-                  <span className="text-sm text-gray-500">
-                    {filteredPlanos.length} planos encontrados
-                  </span>
-                </div>
-
-                {/* Mensagem de erro */}
-                {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-                    <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-red-800 font-medium">Erro</h4>
-                      <p className="text-red-600 text-sm">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Lista de Planos */}
-                <div className="space-y-6 mb-8">
-                  {getCurrentItems().length > 0 ? (
-                    getCurrentItems().map((plano) => {
-                      const progresso = calcularProgresso(plano);
-                      const diasRestantes = calcularDiasRestantes(plano.dataFim);
-                      
-                      return (
-                        <div
-                          key={plano._id}
-                          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                            <div className="flex items-start gap-4">
-                              <div className="flex-shrink-0">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-100">
-                                  <BookOpen size={24} className="text-indigo-600" />
+              {/* Lista de Planos */}
+              <div className="space-y-6 mb-8">
+                {getCurrentItems().length > 0 ? (
+                  getCurrentItems().map((plano) => {
+                    const progresso = calcularProgressoPlano(plano);
+                    
+                    return (
+                      <div 
+                        key={plano._id}
+                        className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow"
+                      >
+                        {/* Header do Plano */}
+                        <div className={`p-0.5 ${
+                          plano.status === "Em Andamento" 
+                            ? "bg-gradient-to-r from-indigo-600 to-blue-500" 
+                            : plano.status === "Agendado"
+                              ? "bg-gradient-to-r from-amber-500 to-orange-400"
+                              : "bg-gradient-to-r from-green-500 to-emerald-400"
+                        }`}></div>
+                        
+                        <div className="p-6">
+                          <div className="flex flex-col md:flex-row justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex justify-between">
+                                <div className="flex items-start gap-4">
+                                  <div className={`p-2 rounded-lg ${
+                                    plano.status === "Em Andamento"
+                                      ? "bg-indigo-100"
+                                      : plano.status === "Agendado"
+                                        ? "bg-amber-100"
+                                        : "bg-green-100"
+                                  }`}>
+                                    <BookOpen className={`w-6 h-6 ${
+                                      plano.status === "Em Andamento"
+                                        ? "text-indigo-600"
+                                        : plano.status === "Agendado"
+                                          ? "text-amber-600"
+                                          : "text-green-600"
+                                    }`} />
+                                  </div>
+                                  <div>
+                                    <h3 className="text-lg font-semibold text-gray-900">{plano.titulo}</h3>
+                                    <p className="text-gray-600 text-sm mt-1">
+                                      Paciente: {encontrarNomeUtente(plano.utenteId)}
+                                    </p>
+                                    <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-4 h-4" />
+                                        {formatarData(plano.dataInicio)} - {formatarData(plano.dataFim)}
+                                      </span>
+                                      <span className="h-1 w-1 rounded-full bg-gray-300"></span>
+                                      <span>{plano.tipotratamento || 'Não definido'}</span>
+                                    </div>
+                                  </div>
                                 </div>
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  plano.status === "Em Andamento"
+                                    ? "bg-indigo-100 text-indigo-800"
+                                    : plano.status === "Agendado"
+                                      ? "bg-amber-100 text-amber-800"
+                                      : "bg-green-100 text-green-800"
+                                }`}>
+                                  {plano.status}
+                                </span>
                               </div>
-                              <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                  {plano.titulo}
-                                </h3>
-                                <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                  <span className="flex items-center gap-1">
-                                    <Users size={16} />
-                                    {encontrarNomeUtente(plano.utenteId)}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Clock size={16} />
-                                    {formatarData(plano.dataInicio)} - {formatarData(plano.dataFim)}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-4 md:mt-0">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(plano.status)}`}>
-                                {plano.status}
-                              </span>
                             </div>
                           </div>
-                          
-                          {/* Detalhes adicionais */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-6 mt-4">
+
+                          {/* Progresso */}
+                          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <h4 className="text-sm font-medium text-gray-500 mb-2">
-                                Progresso do Tratamento
-                              </h4>
-                              <div className="mb-2">
-                                <div className="flex justify-between text-xs mb-1">
-                                  <span className="font-medium text-gray-700">Progresso</span>
-                                  <span className="text-indigo-600 font-medium">{progresso}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
+                              <p className="text-sm text-gray-500 mb-1 flex items-center">
+                                <BarChart className="w-4 h-4 mr-1" />
+                                Progresso Geral
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-gray-200 rounded-full h-2.5">
                                   <div 
-                                    className="bg-indigo-600 h-2 rounded-full" 
-                                    style={{ width: `${progresso}%` }}
+                                    className="bg-indigo-600 h-2.5 rounded-full" 
+                                    style={{width: `${progresso.percentualConcluido}%`}}
                                   ></div>
                                 </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {diasRestantes !== "Finalizado" ? `Restam ${diasRestantes}` : "Tratamento finalizado"}
-                                </div>
+                                <span className="text-sm font-medium">{progresso.percentualConcluido}%</span>
                               </div>
                             </div>
-                            
                             <div>
-                              <h4 className="text-sm font-medium text-gray-500 mb-2">
-                                Sessões
-                              </h4>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-green-50 p-2 rounded-lg">
-                                  <div className="text-xs text-gray-500">Concluídas</div>
-                                  <div className="text-lg font-semibold text-green-700">
-                                    {contarSessoesPorStatus(plano.sessoes, "concluida")}/{plano.sessoes?.length || 0}
-                                  </div>
+                              <p className="text-sm text-gray-500 mb-1 flex items-center">
+                                <CheckCircle className="w-4 h-4 mr-1" />
+                                Sessões Realizadas
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-gray-200 rounded-full h-2.5">
+                                  <div 
+                                    className="bg-green-500 h-2.5 rounded-full" 
+                                    style={{
+                                      width: `${progresso.sessoesTotais > 0 
+                                        ? (progresso.sessoesRealizadas / progresso.sessoesTotais) * 100 
+                                        : 0}%`
+                                    }}
+                                  ></div>
                                 </div>
-                                <div className="bg-indigo-50 p-2 rounded-lg">
-                                  <div className="text-xs text-gray-500">Próxima</div>
-                                  <div className="text-sm font-medium text-indigo-700">
-                                    {plano.sessoes?.find(s => s.status === "reservada" || s.status === "disponivel")
-                                      ? formatarData(plano.sessoes.find(s => s.status === "reservada" || s.status === "disponivel").dataHoraInicio)
-                                      : "N/A"}
-                                  </div>
-                                </div>
+                                <span className="text-sm font-medium">
+                                  {progresso.sessoesRealizadas}/{progresso.sessoesTotais}
+                                </span>
                               </div>
                             </div>
                           </div>
-                          
-                          {/* Objetivos */}
+
+                          {/* Exibição de objetivos (opcional) */}
                           {plano.objetivos && plano.objetivos.length > 0 && (
-                            <div className="border-t border-gray-100 pt-6 mt-6">
-                              <h4 className="text-sm font-medium text-gray-500 mb-2">
-                                Objetivos do Tratamento
-                              </h4>
-                              <ul className="space-y-2">
+                            <div className="mt-4 bg-gray-50 p-3 rounded-lg">
+                              <p className="text-sm text-gray-500 mb-2">Objetivos principais:</p>
+                              <ul className="space-y-1">
                                 {plano.objetivos.slice(0, 2).map((objetivo, index) => (
-                                  <li key={index} className="flex items-start gap-2">
-                                    <CheckCircle size={16} className="text-green-500 mt-0.5" />
+                                  <li key={index} className="flex items-start gap-2 text-sm">
+                                    <CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />
                                     <span className="text-gray-700">{objetivo}</span>
                                   </li>
                                 ))}
                                 {plano.objetivos.length > 2 && (
-                                  <li className="text-sm text-indigo-600">
+                                  <li className="text-xs text-indigo-600 ml-6">
                                     + {plano.objetivos.length - 2} outros objetivos
                                   </li>
                                 )}
                               </ul>
                             </div>
                           )}
-                          
-                          {/* Botões de Ação */}
-                          <div className="flex justify-end gap-2 mt-6">
+
+                          {/* Footer do Card */}
+                          <div className="mt-5 flex flex-col float-right mb-3 sm:flex-row justify-between items-start sm:items-center gap-3 pt-3 border-t border-gray-100">
                             <button
                               onClick={() => verDetalhesPlano(plano._id)}
-                              className="px-3 py-1.5 text-sm border border-indigo-300 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors flex items-center"
+                              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center transition-colors"
                             >
-                              <Eye className="w-4 h-4 mr-1" />
-                              Ver Detalhes
-                            </button>
-                            
-                            <button
-                              onClick={() => navigate(`/planos/${plano._id}/editar`)}
-                              className="px-3 py-1.5 text-sm border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Editar
+                              Ver detalhes
+                              <ArrowRight className="w-4 h-4 ml-1.5" />
                             </button>
                           </div>
                         </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-8">
-                      <Calendar
-                        size={48}
-                        className="mx-auto text-gray-300 mb-4"
-                      />
-                      <h3 className="text-lg font-medium text-gray-700 mb-2">
-                        Nenhum plano encontrado
-                      </h3>
-                      <p className="text-gray-500">
-                        Tente ajustar seus filtros para ver mais resultados
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Paginação */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center">
-                    <nav className="flex gap-1 bg-white px-1 py-1 rounded-xl shadow-sm border border-gray-100">
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="bg-white rounded-xl shadow-sm p-10 text-center">
+                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-medium text-gray-700 mb-2">
+                      Nenhum plano de tratamento encontrado
+                    </h3>
+                    <p className="text-gray-500">
+                      Tente ajustar seus filtros para ver mais resultados
+                    </p>
+                    {(statusFilter !== "todos" || utenteSelecionado !== "" || pesquisa !== "") && (
                       <button
-                        onClick={prevPage}
-                        disabled={currentPage === 1}
-                        className={`px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium ${
-                          currentPage === 1
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
+                        onClick={() => {
+                          setStatusFilter("todos");
+                          setUtenteSelecionado("");
+                          setPesquisa("");
+                        }}
+                        className="mt-4 px-4 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-lg hover:bg-indigo-200 transition-colors"
                       >
-                        Anterior
+                        Limpar filtros
                       </button>
-
-                      {pageNumbers.map((number) => (
-                        <button
-                          key={number}
-                          onClick={() => goToPage(number)}
-                          className={`px-4 py-2 rounded-lg font-medium text-sm ${
-                            currentPage === number
-                              ? "bg-indigo-600 text-white"
-                              : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
-                          }`}
-                        >
-                          {number}
-                        </button>
-                      ))}
-
-                      <button
-                        onClick={nextPage}
-                        disabled={currentPage === totalPages}
-                        className={`px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium ${
-                          currentPage === totalPages
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        Próximo
-                      </button>
-                    </nav>
+                    )}
                   </div>
                 )}
               </div>
+
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div className="flex justify-center">
+                  <nav className="flex gap-1 bg-white px-1 py-1 rounded-xl shadow-sm border border-gray-100">
+                    <button
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                      className={`px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium ${
+                        currentPage === 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      Anterior
+                    </button>
+
+                    {pageNumbers.map((number) => (
+                      <button
+                        key={number}
+                        onClick={() => goToPage(number)}
+                        className={`px-4 py-2 rounded-lg font-medium text-sm ${
+                          currentPage === number
+                            ? "bg-indigo-600 text-white"
+                            : "text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        }`}
+                      >
+                        {number}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                      className={`px-4 py-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors text-sm font-medium ${
+                        currentPage === totalPages
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                    >
+                      Próximo
+                    </button>
+                  </nav>
+                </div>
+              )}
             </div>
           </div>
         )}

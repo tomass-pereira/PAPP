@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SideBar from "../../components/SideBar";
 import CalendarApp from "../../components/Calendar/CalendarX";
+import { RefreshIcon } from "@heroicons/react/solid";
 export default function AgendarSessao() {
   const navigate = useNavigate();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -13,6 +15,17 @@ export default function AgendarSessao() {
     }
   }, [navigate]);
   
+
+  const refreshCalendar = () => {
+    window.location.reload();    
+    setTimeout(() => {
+      setIsRefreshing(false);
+      // Exibir toast de sucesso
+      showToast("Calendário atualizado");
+    }, 1000);
+  };
+
+
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
@@ -44,7 +57,21 @@ export default function AgendarSessao() {
               </span>
             </div>
           </div>
-
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center space-x-2 md:space-x-4 ml-auto">
+              {/* Botão de atualizar */}
+              <button 
+                onClick={refreshCalendar}
+                className={`flex items-center px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors ${isRefreshing ? "opacity-70" : ""}`}
+                disabled={isRefreshing}
+              >
+                <RefreshIcon className={`h-5 w-5 mr-2 text-gray-500 ${isRefreshing ? "animate-spin" : ""}`} />
+                Atualizar
+              </button>
+              
+              
+            </div>
+          </div>
           {/* Calendário */}
             <CalendarApp />
 

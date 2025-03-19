@@ -96,17 +96,18 @@ export default function CalendarioFisio() {
     }));
   };
 
-  const handleStatusChange = (status) => {
+  const handleStatusChange = (statuss) => {
     setFormData(prev => ({
       ...prev,
-      status: status
+      status: statuss,
+      utenteId:''
     }));
     
     // If status is "reservada" and there are utentes, automatically set the first utente
-    if (status === "reservada" && utentes.length > 0) {
+    if (statuss === "reservada" && utentes.length > 0) {
       setFormData(prev => ({
         ...prev,
-        status: status,
+        status: statuss,
         utenteId: utentes[0]._id
       }));
     }
