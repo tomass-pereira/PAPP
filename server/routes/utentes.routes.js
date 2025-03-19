@@ -7,6 +7,7 @@ const Utente = require('../models/utente');
 const { validateUserData } = require('../middlewares'); 
  const emailService = require('../services/nodemailer');
  const authMiddleware = require('../middlewares/auth.middleware');
+ const {getCoordenadas, getDuracao} = require('../services/gps');
 
 
  function gerarCodigo4Digitos() {
@@ -40,13 +41,22 @@ router.post('/register',validateUserData, async (req, res, next) => {
       telefone,
       email,
       dataNascimento,
-      senha,
-     
+      senha,     
       lesoesOuCirurgias,
       diagnosticoMedico,
       alergias,
       morada
     } = req.body;
+
+      const coordenadas = await getCoordenadas(`${morada.rua}, ${morada.concelho}`);
+      const viagemInfo = await getDuracao(coordenadas);
+
+      const moradaAtualizada = {
+        ...morada,
+        distancia: viagemInfo.distancia, // Convertendo para string conforme definido no schema
+        duracao: viagemInfo.duracao // Convertendo para string conforme definido no schema
+      };
+   console.log('Viagem:', viagemInfo);
 
     const utenteExists = await Promise.all([
       Utente.findOne({ email: email.toLowerCase() }),
@@ -67,12 +77,11 @@ router.post('/register',validateUserData, async (req, res, next) => {
       email: email.toLowerCase(),
       dataNascimento: new Date(dataNascimento),
       senha,
-      StatusConta: 'pendente',
-     
+      StatusConta: 'pendente',    
       lesoesOuCirurgias: lesoesOuCirurgias || '',
       diagnosticoMedico: diagnosticoMedico || '',
       alergias: alergias || '',
-      morada
+      morada:moradaAtualizada
     });
 
     try {

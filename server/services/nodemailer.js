@@ -39,9 +39,3 @@ class EmailService {
 
 
 module.exports = new EmailService();
-
-// .env
-
-
-// Como usar em outros arquivos:
-// exemplo.js

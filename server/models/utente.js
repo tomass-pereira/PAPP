@@ -80,7 +80,16 @@ const utenteSchema = new mongoose.Schema({
     apartamento: {
       type: String,
       default: ''
-    }
+    },
+    distancia: {
+      type: Object,
+      required: true
+    },
+    duracao: {
+      type: Object,
+      required: true
+    },
+    
   },
   dataCriacao: {
     type: Date,

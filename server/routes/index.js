@@ -8,6 +8,8 @@ const fisioRoutes=require('./fisioterapeutas.routes.js');
 const notificacoesRoutes=require('./notificacoes.routes.js');
 const feedbacksRoutes = require('./feedbacks.routes.js');
 const planosRoutes = require('./planos.routes.js');
+const viagensRoutes = require('./viagens.routes.js');
+router.use('/viagens', viagensRoutes);
 router.use('/planos', planosRoutes);
 router.use('/notificacoes', notificacoesRoutes);
 router.use('/feedbacks', feedbacksRoutes);

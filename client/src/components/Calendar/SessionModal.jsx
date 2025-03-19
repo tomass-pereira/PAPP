@@ -78,32 +78,58 @@ const SessionModal = ({
         {/* User Profile Section - Only for physio when session is reserved or completed */}
         {isFisio && (reservada || concluida) && (
           <div className={`p-4 ${styles.bg} rounded-lg mb-4`}>
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-white shadow">
-                {/* User profile photo placeholder - replace with actual image if available */}
-                {sessao?.utenteId?.profileImage ? (
-                  <img 
-                    src={sessao.utenteId.profileImage} 
-                    alt={`Foto de ${utenteNome}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-white shadow">
+              {/* User profile photo placeholder - replace with actual image if available */}
+              {sessao?.utenteId?.profileImage ? (
+                <img 
+                  src={sessao.utenteId.profileImage} 
+                  alt={`Foto de ${utenteNome}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              )}
+            </div>
+            <div className="flex-1">
+              <h4 className="text-md font-semibold text-gray-800">{utenteNome}</h4>
+              <p className="text-sm text-gray-600">
+                {sessao?.utenteId?.telefone || 'Sem telefone'}
+              </p>
+              <p className="text-sm text-gray-600">
+                {sessao?.utenteId?.email || 'Sem email'}
+              </p>
+              
+              {/* Informações de deslocamento */}
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="flex items-center text-sm text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                )}
-              </div>
-              <div>
-                <h4 className="text-md font-semibold text-gray-800">{utenteNome}</h4>
-                <p className="text-sm text-gray-600">
-                  {sessao?.utenteId?.telefone || 'Sem telefone'}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {sessao?.utenteId?.email || 'Sem email'}
-                </p>
+                  <span>
+                    {sessao?.utenteId?.morada?.distancia 
+                      ? `${sessao.utenteId.morada.distancia.quilometros} km`
+                      : 'Distância não disponível'}
+                  </span>
+                </div>
+                
+                <div className="flex items-center text-sm text-gray-700 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>
+                    {sessao?.utenteId?.morada?.duracao
+                      ? `${sessao.utenteId.morada.duracao.minutos} minutos de viagem`
+                      : 'Tempo de viagem não disponível'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
         )}
 
         {/* Informações da Sessão */}
