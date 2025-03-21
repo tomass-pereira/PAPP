@@ -10,19 +10,24 @@ import {
   Filter,
   Star,
   XCircle,
-  User
+  User,
 } from "lucide-react";
 
 export default function HistoricoConsultas() {
-  const { allSessoes, sessoesReservadas, sessoesConcluidas, sessoesCanceladas } = useSessoes();
-  const { isFisio } = useUser(); // Get user to check if they're a fisio
-  
+  const {
+    allSessoes,
+    sessoesReservadas,
+    sessoesConcluidas,
+    sessoesCanceladas,
+  } = useSessoes();
+  const { isFisio } = useUser(); 
+
   const [loading, setLoading] = useState(true);
-  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); // "reservadas", "concluidas" ou "canceladas"
+  const [tipoHistorico, setTipoHistorico] = useState("reservadas"); 
 
   // Estado para filtro de mês
   const [mesSelecionado, setMesSelecionado] = useState("");
-  
+
   // Estado para filtro de utente (apenas para fisioterapeutas)
   const [utenteSelecionado, setUtenteSelecionado] = useState("");
 
@@ -33,7 +38,10 @@ export default function HistoricoConsultas() {
   // Processando os dados das sessões
   useEffect(() => {
     // For fisio, check allSessoes; for patients check the individual arrays
-    if ((isFisio && allSessoes) || (!isFisio && sessoesReservadas !== undefined)) {
+    if (
+      (isFisio && allSessoes) ||
+      (!isFisio && sessoesReservadas !== undefined)
+    ) {
       setLoading(false);
     }
   }, [allSessoes, sessoesReservadas, isFisio]);
@@ -45,16 +53,17 @@ export default function HistoricoConsultas() {
 
   if (isFisio && allSessoes) {
     // Fisio view: filter from allSessoes
-    sessoesReservadasData = allSessoes.filter(sessao => 
-      sessao.status === "reservada" || sessao.status === "confirmada"
+    sessoesReservadasData = allSessoes.filter(
+      (sessao) =>
+        sessao.status === "reservada" || sessao.status === "confirmada"
     );
-    
-    sessoesConcludasData = allSessoes.filter(sessao => 
-      sessao.status === "realizada" || sessao.status === "concluida"
+
+    sessoesConcludasData = allSessoes.filter(
+      (sessao) => sessao.status === "realizada" || sessao.status === "concluida"
     );
-    
-    sessoesCanceladasData = allSessoes.filter(sessao => 
-      sessao.status === "cancelada"
+
+    sessoesCanceladasData = allSessoes.filter(
+      (sessao) => sessao.status === "cancelada"
     );
   } else {
     // Patient view: use the provided arrays
@@ -66,17 +75,20 @@ export default function HistoricoConsultas() {
   // Obter lista de utentes únicos para o filtro (apenas para fisioterapeutas)
   const utentesList = [];
   if (isFisio && allSessoes) {
-    const utentesUnicos = [...new Set(allSessoes
-      .filter(sessao => sessao.utenteId?._id)
-      .map(sessao => sessao.utenteId._id)
-    )];
+    const utentesUnicos = [
+      ...new Set(
+        allSessoes
+          .filter((sessao) => sessao.utenteId?._id)
+          .map((sessao) => sessao.utenteId._id)
+      ),
+    ];
 
-    utentesUnicos.forEach(utenteId => {
-      const sessao = allSessoes.find(s => s.utenteId?._id === utenteId);
+    utentesUnicos.forEach((utenteId) => {
+      const sessao = allSessoes.find((s) => s.utenteId?._id === utenteId);
       if (sessao?.utenteId?.nome) {
         utentesList.push({
           id: utenteId,
-          nome: sessao.utenteId.nome
+          nome: sessao.utenteId.nome,
         });
       }
     });
@@ -91,27 +103,32 @@ export default function HistoricoConsultas() {
       : sessoesCanceladasData;
 
   // Aplicar filtros
-  const sessoesFiltradas = sessoesPorTipo
-    .filter(sessao => {
-      // Filtro por mês
-      if (mesSelecionado) {
-        const dataSessao = new Date(
-          tipoHistorico === "canceladas"
-            ? sessao.dataCancelamento || sessao.dataConsultaOriginal || sessao.dataHoraInicio
-            : sessao.dataHoraInicio
-        );
-        if (dataSessao.getMonth() !== parseInt(mesSelecionado)) {
-          return false;
-        }
-      }
-      
-      // Filtro por utente (apenas para fisioterapeutas)
-      if (isFisio && utenteSelecionado && sessao.utenteId?._id !== utenteSelecionado) {
+  const sessoesFiltradas = sessoesPorTipo.filter((sessao) => {
+    // Filtro por mês
+    if (mesSelecionado) {
+      const dataSessao = new Date(
+        tipoHistorico === "canceladas"
+          ? sessao.dataCancelamento ||
+            sessao.dataConsultaOriginal ||
+            sessao.dataHoraInicio
+          : sessao.dataHoraInicio
+      );
+      if (dataSessao.getMonth() !== parseInt(mesSelecionado)) {
         return false;
       }
-      
-      return true;
-    });
+    }
+
+    // Filtro por utente (apenas para fisioterapeutas)
+    if (
+      isFisio &&
+      utenteSelecionado &&
+      sessao.utenteId?._id !== utenteSelecionado
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 
   // Lógica de paginação
   const totalPages = Math.ceil(sessoesFiltradas.length / itemsPerPage);
@@ -196,8 +213,8 @@ export default function HistoricoConsultas() {
                   Histórico de Sessões
                 </h1>
                 <p className="text-gray-500 max-w-xl">
-                  {isFisio 
-                    ? "Acompanhe todas as sessões com seus utentes" 
+                  {isFisio
+                    ? "Acompanhe todas as sessões com seus utentes"
                     : "Acompanhe todas as suas sessões"}
                 </p>
               </div>
@@ -242,7 +259,11 @@ export default function HistoricoConsultas() {
                     Filtros
                   </h2>
                 </div>
-                <div className={`grid grid-cols-1 ${isFisio ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
+                <div
+                  className={`grid grid-cols-1 ${
+                    isFisio ? "md:grid-cols-3" : "md:grid-cols-2"
+                  } gap-6`}
+                >
                   <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Tipo de Sessão
@@ -326,10 +347,14 @@ export default function HistoricoConsultas() {
                       </button>
                     </div>
                   )}
-                  
+
                   {isFisio && utenteSelecionado && (
                     <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
-                      Utente: {utentesList.find((u) => u.id === utenteSelecionado)?.nome}
+                      Utente:{" "}
+                      {
+                        utentesList.find((u) => u.id === utenteSelecionado)
+                          ?.nome
+                      }
                       <button
                         onClick={() => setUtenteSelecionado("")}
                         className="ml-2 text-indigo-500 hover:text-indigo-700"
@@ -388,18 +413,22 @@ export default function HistoricoConsultas() {
                                 <span className="flex items-center gap-1">
                                   <Clock size={16} />
                                   {new Date(
-                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                    tipoHistorico === "canceladas" &&
+                                    sessao.dataCancelamento
                                       ? sessao.dataCancelamento
-                                      : tipoHistorico === "canceladas" && sessao.dataConsultaOriginal
-                                      ? sessao.dataConsultaOriginal 
+                                      : tipoHistorico === "canceladas" &&
+                                        sessao.dataConsultaOriginal
+                                      ? sessao.dataConsultaOriginal
                                       : sessao.dataHoraInicio
                                   ).toLocaleDateString()}{" "}
                                   às{" "}
                                   {new Date(
-                                    tipoHistorico === "canceladas" && sessao.dataCancelamento
+                                    tipoHistorico === "canceladas" &&
+                                    sessao.dataCancelamento
                                       ? sessao.dataCancelamento
-                                      : tipoHistorico === "canceladas" && sessao.dataConsultaOriginal
-                                      ? sessao.dataConsultaOriginal 
+                                      : tipoHistorico === "canceladas" &&
+                                        sessao.dataConsultaOriginal
+                                      ? sessao.dataConsultaOriginal
                                       : sessao.dataHoraInicio
                                   ).toLocaleTimeString("pt-PT", {
                                     hour: "2-digit",
@@ -407,7 +436,6 @@ export default function HistoricoConsultas() {
                                   })}
                                 </span>
                                 {/* Só mostra o nome do utente para fisioterapeutas */}
-                                
                               </div>
                             </div>
                           </div>
@@ -439,15 +467,13 @@ export default function HistoricoConsultas() {
                             <div className="flex items-center mb-6">
                               {sessao.utenteId?.profileImage ? (
                                 <div className="relative">
-                                  <img 
-                                    src={sessao.utenteId.profileImage} 
-                                    alt={`Foto de ${sessao.utenteId.nome}`} 
+                                  <img
+                                    src={sessao.utenteId.profileImage}
+                                    alt={`Foto de ${sessao.utenteId.nome}`}
                                     className="w-11 h-11 rounded-full object-cover border-4 border-white"
                                   />
-                                  
                                 </div>
-                              ) : null
-                              }
+                              ) : null}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
@@ -455,7 +481,8 @@ export default function HistoricoConsultas() {
                                   Contacto
                                 </h5>
                                 <p className="text-gray-900">
-                                  {sessao.utenteId?.telefone || "Não disponível"}
+                                  {sessao.utenteId?.telefone ||
+                                    "Não disponível"}
                                 </p>
                               </div>
                               <div>
@@ -502,87 +529,99 @@ export default function HistoricoConsultas() {
                         )}
 
                         {/* Feedback */}
-                        {tipoHistorico !== "canceladas" && sessao.feedbackId && (
-                          <div className="border-t border-gray-100 pt-6 mt-6">
-                            <h4 className="text-sm font-medium text-gray-700 mb-4">
-                              {isFisio ? "Feedback do Utente" : "O seu Feedback"}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                  Nível de Dor
-                                </h5>
-                                <div className="flex items-center">
-                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div
-                                      className="bg-red-600 h-2.5 rounded-full"
-                                      style={{
-                                        width: `${sessao.feedbackId.dor * 10}%`,
-                                      }}
-                                    ></div>
+                        {tipoHistorico !== "canceladas" &&
+                          sessao.feedbackId && (
+                            <div className="border-t border-gray-100 pt-6 mt-6">
+                              <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                {isFisio
+                                  ? "Feedback do Utente"
+                                  : "O seu Feedback"}
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                    Nível de Dor
+                                  </h5>
+                                  <div className="flex items-center">
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                      <div
+                                        className="bg-red-600 h-2.5 rounded-full"
+                                        style={{
+                                          width: `${
+                                            sessao.feedbackId.dor * 10
+                                          }%`,
+                                        }}
+                                      ></div>
+                                    </div>
+                                    <span className="ml-2 text-gray-900 font-medium">
+                                      {sessao.feedbackId.dor}/10
+                                    </span>
                                   </div>
-                                  <span className="ml-2 text-gray-900 font-medium">
-                                    {sessao.feedbackId.dor}/10
-                                  </span>
                                 </div>
-                              </div>
 
-                              <div>
-                                <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                  Satisfação
-                                </h5>
-                                <div className="flex items-center">
-                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div
-                                      className="bg-green-600 h-2.5 rounded-full"
-                                      style={{
-                                        width: `${
-                                          sessao.feedbackId.satisfacao * 10
-                                        }%`,
-                                      }}
-                                    ></div>
+                                <div>
+                                  <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                    Satisfação
+                                  </h5>
+                                  <div className="flex items-center">
+                                    {/* Direct implementation without creating a component */}
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                      <div
+                                        className={`h-2.5 rounded-full ${
+                                          sessao.feedbackId.satisfacao == 'Má'
+                                            ? "bg-red-600" // Má (Bad)
+                                            : sessao.feedbackId.satisfacao == 'Boa'
+                                            ? "bg-green-600" // Boa (Good)
+                                            : "bg-yellow-500" // Media (Medium)
+                                        }`}
+                                        style={{
+                                          width: `${
+                                            sessao.feedbackId.satisfacao * 10
+                                          }%`,
+                                        }}
+                                      ></div>
+                                    </div>
+                                    <span className="ml-2 text-gray-900 font-medium">
+                                      {sessao.feedbackId.satisfacao}
+                                    </span>
                                   </div>
-                                  <span className="ml-2 text-gray-900 font-medium">
-                                    {sessao.feedbackId.satisfacao}
-                                  </span>
                                 </div>
-                              </div>
 
-                              <div className="md:col-span-2">
-                                <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                  Avaliação Geral
-                                </h5>
-                                <div className="flex items-center text-yellow-400">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      size={20}
-                                      className={
-                                        star <= sessao.feedbackId.avaliacao
-                                          ? "fill-current"
-                                          : ""
-                                      }
-                                    />
-                                  ))}
-                                  <span className="ml-2 text-gray-900">
-                                    {sessao.feedbackId.avaliacao}/5
-                                  </span>
-                                </div>
-                              </div>
-
-                              {sessao.feedbackId.comentario && (
                                 <div className="md:col-span-2">
                                   <h5 className="text-sm font-medium text-gray-500 mb-2">
-                                    Comentário
+                                    Avaliação Geral
                                   </h5>
-                                  <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
-                                    "{sessao.feedbackId.comentario}"
-                                  </p>
+                                  <div className="flex items-center text-yellow-400">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <Star
+                                        key={star}
+                                        size={20}
+                                        className={
+                                          star <= sessao.feedbackId.avaliacao
+                                            ? "fill-current"
+                                            : ""
+                                        }
+                                      />
+                                    ))}
+                                    <span className="ml-2 text-gray-900">
+                                      {sessao.feedbackId.avaliacao}/5
+                                    </span>
+                                  </div>
                                 </div>
-                              )}
+
+                                {sessao.feedbackId.comentario && (
+                                  <div className="md:col-span-2">
+                                    <h5 className="text-sm font-medium text-gray-500 mb-2">
+                                      Comentário
+                                    </h5>
+                                    <p className="text-gray-900 bg-gray-50 p-4 rounded-xl">
+                                      "{sessao.feedbackId.comentario}"
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     ))
                   ) : (

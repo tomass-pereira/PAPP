@@ -122,6 +122,11 @@ export default function CalendarioFisio() {
         setLoading(false);
         return;
       }
+      if(!formData.motivo){
+        setError("Preencha o motivo da sessão");
+        setLoading(false);
+        return;
+      }
     try {
       const dataInicio = new Date(formData.dataHoraInicio);
       const dataFim = new Date(dataInicio.getTime() + formData.duracao * 60000);
@@ -386,7 +391,6 @@ export default function CalendarioFisio() {
                     onChange={handleChange}
                     className="input input-bordered w-full"
                     placeholder="Ex: Consulta inicial, Terapia, etc."
-                    required
                   />
                 </div>
                 
