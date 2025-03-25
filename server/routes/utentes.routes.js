@@ -35,6 +35,7 @@ router.get('/', async (req, res) => {
   }
 });
 router.post('/register',validateUserData, async (req, res, next) => {
+
   try {
     const {
       profileImage,
@@ -51,7 +52,7 @@ router.post('/register',validateUserData, async (req, res, next) => {
 
       const coordenadas = await getCoordenadas(`${morada.rua}, ${morada.concelho}`);
       const viagemInfo = await getDuracao(coordenadas);
-    console.log(senha);
+    
       const moradaAtualizada = {
         ...morada,
         distancia: viagemInfo.distancia, // Convertendo para string conforme definido no schema
@@ -70,7 +71,8 @@ router.post('/register',validateUserData, async (req, res, next) => {
     if (utenteExists[1]) {
       return res.status(400).json({ message: 'Telefone já cadastrado' });
     }
-    const hashedPassword=hashPassword(senha);
+    const hashedPassword= await hashPassword(senha);
+    console.log(hashedPassword);
     const novoUtente = await Utente.create({
       profileImage,
       nome,

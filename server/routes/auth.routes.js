@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const Utente = require('../models/utente');
 const Fisioterapeuta=require('../models/fisioterapeuta');
 const authMiddleware = require('../middlewares/auth.middleware');
+const {verifyPassword} =require('../services/hash');
+
 const JWT_SECRET = process.env.JWT_SECRET
 
                                         
@@ -93,10 +95,9 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // 4. Verificar senha
-        if (user.senha !== senha) {
-            console.log(user.senha);
-            console.log(senha);
+        const success=await verifyPassword(senha,user.senha);
+        if (!success) {
+           
             return res.status(401).json({
                 success: false,
                 message: 'Senha inválida'
