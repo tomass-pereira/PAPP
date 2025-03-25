@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const Utente = require('../models/utente');
 const Fisioterapeuta=require('../models/fisioterapeuta');
 const authMiddleware = require('../middlewares/auth.middleware');
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET
+
+                                        
 
 router.get('/aprovar/:id', async (req, res) => {
     try {

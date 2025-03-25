@@ -1,5 +1,5 @@
 const validateUserData = (req, res, next) => {
-  const { email, nome, telefone, senha, dataNascimento, inicioSintomas } = req.body;
+  const { email, nome, telefone, senha, dataNascimento} = req.body;
 
   if (!email || !email.includes('@')) {
     return res.status(400).json({ message: 'Email inválido' });

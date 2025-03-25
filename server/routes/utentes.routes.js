@@ -8,6 +8,7 @@ const { validateUserData } = require('../middlewares');
  const emailService = require('../services/nodemailer');
  const authMiddleware = require('../middlewares/auth.middleware');
  const {getCoordenadas, getDuracao} = require('../services/gps');
+const {hashPassword} =require('../services/hash');
 
 
  function gerarCodigo4Digitos() {
@@ -50,7 +51,7 @@ router.post('/register',validateUserData, async (req, res, next) => {
 
       const coordenadas = await getCoordenadas(`${morada.rua}, ${morada.concelho}`);
       const viagemInfo = await getDuracao(coordenadas);
-
+    console.log(senha);
       const moradaAtualizada = {
         ...morada,
         distancia: viagemInfo.distancia, // Convertendo para string conforme definido no schema
@@ -69,14 +70,14 @@ router.post('/register',validateUserData, async (req, res, next) => {
     if (utenteExists[1]) {
       return res.status(400).json({ message: 'Telefone já cadastrado' });
     }
-
+    const hashedPassword=hashPassword(senha);
     const novoUtente = await Utente.create({
       profileImage,
       nome,
       telefone,
       email: email.toLowerCase(),
       dataNascimento: new Date(dataNascimento),
-      senha,
+      senha:hashedPassword,
       StatusConta: 'pendente',    
       lesoesOuCirurgias: lesoesOuCirurgias || '',
       diagnosticoMedico: diagnosticoMedico || '',
