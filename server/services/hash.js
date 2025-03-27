@@ -12,5 +12,4 @@ const verifyPassword = async (password, hashedPassword) => {
   const isMatch = await compare(password, hashedPassword);
   return isMatch;
 };
-
 module.exports = { hashPassword, verifyPassword };

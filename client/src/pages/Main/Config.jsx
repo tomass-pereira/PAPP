@@ -9,6 +9,7 @@ import Alert from "../../components/Alert";
 import { useUser } from "../../contexts/UserContext.jsX";
 import { buscaMorada } from "../../api/morada";
 import { useNavigate } from "react-router-dom";
+import { verificarSenha } from "../../api/utente";
 
 const Config = () => {
   const navigate = useNavigate();
@@ -62,7 +63,8 @@ const Config = () => {
   };
 
   const handlePasswordConfirm = () => {
-    if (confirmPassword === userData.senha) {
+    const success = verificarSenha(confirmPassword, userData.senha);
+    if (success) {
       setIsEditing(true);
       setConfirmPassword("");
       setPasswordError("");
@@ -70,6 +72,7 @@ const Config = () => {
       modalRef.current?.close();
     } else {
       setPasswordError("Senha incorreta");
+      console.log(userData.senha);
     }
   };
 
@@ -440,19 +443,7 @@ const Config = () => {
                           : "bg-slate-50 border-transparent"
                       } border focus:outline-none focus:ring-2`}
                     />
-                    <Inputs
-                      id="senha"
-                      label="Palavra-passe"
-                      type="password"
-                      value={formData.senha}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      style={`w-full px-4 py-3 rounded-xl transition-all ${
-                        isEditing
-                          ? "bg-white border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
-                          : "bg-slate-50 border-transparent"
-                      } border focus:outline-none focus:ring-2`}
-                    />
+                   
                   </div>
                 </Section>
 

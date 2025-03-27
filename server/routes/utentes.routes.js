@@ -8,14 +8,11 @@ const { validateUserData } = require('../middlewares');
  const emailService = require('../services/nodemailer');
  const authMiddleware = require('../middlewares/auth.middleware');
  const {getCoordenadas, getDuracao} = require('../services/gps');
-const {hashPassword} =require('../services/hash');
-
+const {hashPassword, verifyPassword} =require('../services/hash');
 
  function gerarCodigo4Digitos() {
   // Gera um número entre 0000 e 9999
   const codigo = Math.floor(1000 + Math.random() * 9000);
-  
- 
   return codigo.toString().padStart(4, '0');
 }
 
@@ -297,7 +294,6 @@ router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Verifica se o ID é válido
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID inválido' });
     }

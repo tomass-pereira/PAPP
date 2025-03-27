@@ -1,5 +1,13 @@
 import { BASE_URL } from './config';
 import api from "../api/api";
+import bcryptjs from 'bcryptjs';
+
+export const verificarSenha = async (senha, hashArmazenado) => {
+  const corresponde = await bcryptjs.compare(senha, hashArmazenado);
+  return corresponde; 
+};
+
+
 export const getAllUtentes = async () => {
 
   const response = await api.get(`${BASE_URL}/utentes/`);

@@ -96,6 +96,7 @@ router.post('/login', async (req, res) => {
         }
 
         const success=await verifyPassword(senha,user.senha);
+        
         if (!success) {
            
             return res.status(401).json({
