@@ -446,8 +446,6 @@ const Config = () => {
                    
                   </div>
                 </Section>
-
-                {/* Informação Médica */}
                 <Section
                   title="Informação Médica"
                   className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 transition-all hover:shadow-lg"

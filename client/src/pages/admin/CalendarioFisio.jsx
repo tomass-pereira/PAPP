@@ -47,7 +47,7 @@ export default function CalendarioFisio() {
 
     // Call the fetch function
     fetchUtentes();
-    
+    console.log(formData.status);
     // Set utenteId selection when status is "reservada"
     if (formData.status === "reservada") {
       setSelectUtente(true);
@@ -93,6 +93,7 @@ export default function CalendarioFisio() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+      
     }));
   };
 
@@ -102,6 +103,7 @@ export default function CalendarioFisio() {
       status: statuss,
       utenteId:''
     }));
+    console.log(formData.status);
     
     // If status is "reservada" and there are utentes, automatically set the first utente
     if (statuss === "reservada" && utentes.length > 0) {
@@ -122,14 +124,20 @@ export default function CalendarioFisio() {
         setLoading(false);
         return;
       }
-      if(!formData.motivo){
-        setError("Preencha o motivo da sessão");
-        setLoading(false);
-        return;
+      if(formData.status=='reservada'){
+
+        if(!formData.motivo){
+          setError("Preencha o motivo da sessão");
+          setLoading(false);
+          return;
+        }
       }
     try {
       const dataInicio = new Date(formData.dataHoraInicio);
-      const dataFim = new Date(dataInicio.getTime() + formData.duracao * 60000);
+      const dataFim = new Date(dataInicio);
+      dataFim.setMinutes(dataInicio.getMinutes() + formData.duracao )
+      console.log(dataInicio.getMinutes());
+      console.log(formData.duracao);
       const sessaoData = {
         dataHoraInicio: formData.dataHoraInicio,
         dataHoraFim: dataFim.toISOString().split('.')[0],
@@ -139,7 +147,6 @@ export default function CalendarioFisio() {
         motivo: formData.motivo,
       };
       
-      // Adicionar utenteId apenas se status for "reservada"
       if (formData.status === "reservada" && formData.utenteId) {
         sessaoData.utenteId = formData.utenteId;
       }
@@ -151,6 +158,9 @@ export default function CalendarioFisio() {
       }
       
       setSuccess(true);
+      console.log("Inicio", sessaoData.dataHoraInicio);
+      console.log("Fim", sessaoData.dataHoraFim);
+
       setFormData({
         utenteId: "",
         dataHoraInicio: "",
@@ -161,13 +171,7 @@ export default function CalendarioFisio() {
       });
       
       // Fechar o modal após 1.5 segundos
-      setTimeout(() => {
-        document.getElementById('modal_nova_sessao').close();
-        setSuccess(false);
-        showToast("Sessão criada com sucesso!");
-        // Recarregar calendário
-        refreshCalendar();
-      }, 1500);
+     
       
     } catch (error) {
       console.error("Erro ao criar sessão:", error);
